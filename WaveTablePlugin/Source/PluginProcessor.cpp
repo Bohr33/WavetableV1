@@ -183,6 +183,13 @@ void WaveTablePluginAudioProcessor::setStateInformation (const void* data, int s
     // whose contents will have been created by the getStateInformation() call.
 }
 
+
+//Added Functions
+juce::MidiKeyboardState& WaveTablePluginAudioProcessor::getMidiKeyboardState()
+{
+    return m_keystate;
+}
+
 //==============================================================================
 // This creates new instances of the plugin..
 juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter()
