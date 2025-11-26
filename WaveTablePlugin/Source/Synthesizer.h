@@ -1,0 +1,75 @@
+/*
+  ==============================================================================
+
+    Synthesizer.h
+    Created: 25 Nov 2025 4:54:55pm
+    Author:  Benjamin Ward (Old Computer)
+
+  ==============================================================================
+*/
+
+#pragma once
+#include <JuceHeader.h>
+
+class SynthSound : public juce::SynthesiserSound
+{
+public:
+    SynthSound(){}
+    bool appliesToNote(int midiNoteNumber) override;
+    bool appliesToChannel(int midiChannel) override;
+};
+
+class SynthVoice : public juce::SynthesiserVoice
+{
+public:
+    SynthVoice(){}
+    
+    bool canPlaySound(juce::SynthesiserSound*) override;
+    void startNote(int midiNoteNumber, float velocity, juce::SynthesiserSound *sound, int currentPitchWheelPosition) override;
+    void stopNote(float velocity, bool allowTailOff) override;
+    
+    void renderNextBlock(juce::AudioBuffer<double> &outputBuffer, int startSample, int numSamples) override;
+    
+    //Unused Pure Virtual Functions
+    void pitchWheelMoved(int newPitchWheelValue) override;
+    void controllerMoved(int controllerNumber, int newControllerValue) override;
+    
+    
+private:
+    
+
+};
+
+// JUCE AudioSource class provides basic structure for audio processing commands for the Plugin Processor
+class SynthAudioSource : public juce::AudioSource
+{
+public:
+    SynthAudioSource(juce::MidiKeyboardState& keyState) : keyboardState(keyState){
+        juce::Logger::outputDebugString("Hello!");
+        
+        for(auto i = 0; i < maxVoices; ++i)
+        {
+            //add voice to synth
+            synth.addVoice(new SynthVoice);
+            //add sound to synth
+            synth.addSound(new SynthSound);
+        }
+    };
+    ~SynthAudioSource(){};
+    
+    void prepareToPlay(int samplesPerBlockExpected, double sampleRate) override;
+    void releaseResources() override;
+    void getNextAudioBlock(const juce::AudioSourceChannelInfo &buffertoFill) override;
+    
+private:
+    juce::Synthesiser synth;
+    juce::MidiKeyboardState& keyboardState;
+    unsigned int maxVoices = 8;
+};
+
+
+
+
+
+
+

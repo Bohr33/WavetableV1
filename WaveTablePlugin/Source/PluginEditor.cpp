@@ -44,7 +44,7 @@ void WaveTablePluginAudioProcessorEditor::resized()
     int padding = 20;
     int keyHeight = getHeight()/4.0;
     
-    keyboardComponent.setBounds(0 + padding, 0 + padding + keyHeight, getHeight() - 2 * padding, keyHeight);
+    keyboardComponent.setBounds(0 + padding, getHeight() - (keyHeight + padding), getWidth() - 2 * padding, keyHeight);
 }
 
 //Midi Keyboard Note Callback Functions

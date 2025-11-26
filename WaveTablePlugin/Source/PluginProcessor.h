@@ -9,6 +9,7 @@
 #pragma once
 
 #include <JuceHeader.h>
+#include "Synthesizer.h"
 
 //==============================================================================
 /**
@@ -59,6 +60,7 @@ public:
 
 private:
     juce::MidiKeyboardState m_keystate;
+    SynthAudioSource synth;
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (WaveTablePluginAudioProcessor)
 };

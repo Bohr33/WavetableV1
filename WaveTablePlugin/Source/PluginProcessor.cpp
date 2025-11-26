@@ -154,7 +154,7 @@ void WaveTablePluginAudioProcessor::processBlock (juce::AudioBuffer<float>& buff
     {
         auto* channelData = buffer.getWritePointer (channel);
 
-        // ..do something to the data...
+        // ..do something to the data...        
     }
 }
 
