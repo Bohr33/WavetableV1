@@ -20,6 +20,7 @@ WaveTablePluginAudioProcessor::WaveTablePluginAudioProcessor()
                        .withOutput ("Output", juce::AudioChannelSet::stereo(), true)
                      #endif
                        )
+        , synth(m_keystate)
 #endif
 {
 }

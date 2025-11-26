@@ -14,7 +14,7 @@
 class SynthSound : public juce::SynthesiserSound
 {
 public:
-    SynthSound(){}
+    SynthSound();
     bool appliesToNote(int midiNoteNumber) override;
     bool appliesToChannel(int midiChannel) override;
 };
@@ -28,7 +28,7 @@ public:
     void startNote(int midiNoteNumber, float velocity, juce::SynthesiserSound *sound, int currentPitchWheelPosition) override;
     void stopNote(float velocity, bool allowTailOff) override;
     
-    void renderNextBlock(juce::AudioBuffer<double> &outputBuffer, int startSample, int numSamples) override;
+    void renderNextBlock(juce::AudioBuffer<float> &outputBuffer, int startSample, int numSamples) override;
     
     //Unused Pure Virtual Functions
     void pitchWheelMoved(int newPitchWheelValue) override;
@@ -44,18 +44,8 @@ private:
 class SynthAudioSource : public juce::AudioSource
 {
 public:
-    SynthAudioSource(juce::MidiKeyboardState& keyState) : keyboardState(keyState){
-        juce::Logger::outputDebugString("Hello!");
-        
-        for(auto i = 0; i < maxVoices; ++i)
-        {
-            //add voice to synth
-            synth.addVoice(new SynthVoice);
-            //add sound to synth
-            synth.addSound(new SynthSound);
-        }
-    };
-    ~SynthAudioSource(){};
+    SynthAudioSource(juce::MidiKeyboardState& keyState);
+    ~SynthAudioSource();
     
     void prepareToPlay(int samplesPerBlockExpected, double sampleRate) override;
     void releaseResources() override;
