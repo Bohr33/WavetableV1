@@ -96,12 +96,14 @@ void WaveTablePluginAudioProcessor::prepareToPlay (double sampleRate, int sample
 {
     // Use this method as the place to do any pre-playback
     // initialisation that you need..
+    synth.prepareToPlay(samplesPerBlock, sampleRate);
 }
 
 void WaveTablePluginAudioProcessor::releaseResources()
 {
     // When playback stops, you can use this as an opportunity to free up any
     // spare memory, etc.
+    synth.releaseResources();
 }
 
 #ifndef JucePlugin_PreferredChannelConfigurations
@@ -154,7 +156,8 @@ void WaveTablePluginAudioProcessor::processBlock (juce::AudioBuffer<float>& buff
     for (int channel = 0; channel < totalNumInputChannels; ++channel)
     {
         auto* channelData = buffer.getWritePointer (channel);
-
+        
+        
         // ..do something to the data...        
     }
 }

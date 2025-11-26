@@ -10,19 +10,24 @@
 
 #pragma once
 #include <JuceHeader.h>
+#include <stdio.h>
 
-class SynthSound : public juce::SynthesiserSound
+class WaveTableSound : public juce::SynthesiserSound
 {
 public:
-    SynthSound();
+    WaveTableSound(juce::AudioBuffer<double>& table);
     bool appliesToNote(int midiNoteNumber) override;
     bool appliesToChannel(int midiChannel) override;
+    void generateTable();
+    
+private:
+    juce::AudioBuffer<double>& m_table;
 };
 
 class SynthVoice : public juce::SynthesiserVoice
 {
 public:
-    SynthVoice(){}
+    SynthVoice();
     
     bool canPlaySound(juce::SynthesiserSound*) override;
     void startNote(int midiNoteNumber, float velocity, juce::SynthesiserSound *sound, int currentPitchWheelPosition) override;
@@ -50,11 +55,14 @@ public:
     void prepareToPlay(int samplesPerBlockExpected, double sampleRate) override;
     void releaseResources() override;
     void getNextAudioBlock(const juce::AudioSourceChannelInfo &buffertoFill) override;
+    void generateWavetable(juce::AudioBuffer<double> bufferToFill, unsigned int size);
     
 private:
     juce::Synthesiser synth;
-    juce::MidiKeyboardState& keyboardState;
+    juce::MidiKeyboardState& m_keyState;
     unsigned int maxVoices = 8;
+    unsigned int defaultTableSize = 1 << 11;
+    juce::AudioBuffer<double> m_waveTable;
 };
 
 
