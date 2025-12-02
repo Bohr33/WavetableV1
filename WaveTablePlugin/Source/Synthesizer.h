@@ -11,17 +11,18 @@
 #pragma once
 #include <JuceHeader.h>
 #include <stdio.h>
+#include <vector>
 
 class WaveTableSound : public juce::SynthesiserSound
 {
 public:
-    WaveTableSound(juce::AudioBuffer<double>& table);
+    WaveTableSound(std::vector<double>* table);
     bool appliesToNote(int midiNoteNumber) override;
     bool appliesToChannel(int midiChannel) override;
-    void generateTable();
+    std::vector<double>* getTable();
     
 private:
-    juce::AudioBuffer<double>& m_table;
+    std::vector<double>* m_table;
 };
 
 class SynthVoice : public juce::SynthesiserVoice
@@ -34,6 +35,10 @@ public:
     void stopNote(float velocity, bool allowTailOff) override;
     
     void renderNextBlock(juce::AudioBuffer<float> &outputBuffer, int startSample, int numSamples) override;
+    double interpNextSamp() noexcept;
+    void updateAngle();
+    
+    
     
     //Unused Pure Virtual Functions
     void pitchWheelMoved(int newPitchWheelValue) override;
@@ -41,8 +46,11 @@ public:
     
     
 private:
-    
-
+    double currentIndex;
+    double m_angle;
+    double m_level;
+    double m_freq;
+    std::vector<double>* m_table;
 };
 
 // JUCE AudioSource class provides basic structure for audio processing commands for the Plugin Processor
@@ -55,14 +63,16 @@ public:
     void prepareToPlay(int samplesPerBlockExpected, double sampleRate) override;
     void releaseResources() override;
     void getNextAudioBlock(const juce::AudioSourceChannelInfo &buffertoFill) override;
-    void generateWavetable(juce::AudioBuffer<double> bufferToFill, unsigned int size);
+    void generateWavetable(std::vector<double>* bufferToFill, unsigned int size);
+    
+    
     
 private:
     juce::Synthesiser synth;
     juce::MidiKeyboardState& m_keyState;
     unsigned int maxVoices = 8;
     unsigned int defaultTableSize = 1 << 11;
-    juce::AudioBuffer<double> m_waveTable;
+    std::vector<double>* m_table;
 };
 
 

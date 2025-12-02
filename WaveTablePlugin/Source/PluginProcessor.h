@@ -61,6 +61,7 @@ public:
 private:
     juce::MidiKeyboardState m_keystate;
     SynthAudioSource synth;
+    unsigned int bufferSize = 128;
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (WaveTablePluginAudioProcessor)
 };
