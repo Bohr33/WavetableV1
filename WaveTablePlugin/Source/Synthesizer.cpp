@@ -15,7 +15,7 @@
 /*=============================================================================*/
 /*----------------------------Synth Sound--------------------------------------*/
 /*=============================================================================*/
-WaveTableSound::WaveTableSound(std::vector<double>* table) : m_table(table)
+WaveTableSound::WaveTableSound(std::vector<double>& table) : m_table(table)
 {};
 
 bool WaveTableSound::appliesToNote(int midiNoteNumber)
@@ -23,7 +23,7 @@ bool WaveTableSound::appliesToNote(int midiNoteNumber)
 bool WaveTableSound::appliesToChannel(int midiChannel)
 {return true;};
 
-std::vector<double>* WaveTableSound::getTable()
+std::vector<double>& WaveTableSound::getTable()
 {
     return m_table;
 }
@@ -32,17 +32,22 @@ std::vector<double>* WaveTableSound::getTable()
 /*=============================================================================*/
 /*----------------------------Synth Voice--------------------------------------*/
 /*=============================================================================*/
-SynthVoice::SynthVoice(){};
+SynthVoice::SynthVoice(std::vector<double>& table, int tSize) : m_table(table), m_tableSize(tSize){};
 bool SynthVoice::canPlaySound(juce::SynthesiserSound*)
 {return true;};
 void SynthVoice::startNote(int midiNoteNumber, float velocity, juce::SynthesiserSound *sound, int currentPitchWheelPosition)
 {
     //Zero previous values
     m_angle = 0.0;
+    m_angleDelta = 0.0;
     m_level = velocity * 0.20;
     
     //Set Frequewncy and Angle
     m_freq = juce::MidiMessage::getMidiNoteInHertz(midiNoteNumber);
+    
+    auto cyclesPerSample = m_freq / getSampleRate();
+    
+    m_angleDelta = cyclesPerSample * (double) m_tableSize;
     
     
     //Cast sound to new Type, and store wavetable Address
@@ -52,34 +57,61 @@ void SynthVoice::startNote(int midiNoteNumber, float velocity, juce::Synthesiser
     }
     
     
+    juce::Logger::outputDebugString("MIDI Note = " + juce::String(midiNoteNumber));
+    juce::Logger::outputDebugString("angle_delta = " + juce::String(m_angleDelta));
     
 };
 void SynthVoice::stopNote(float velocity, bool allowTailOff)
-{};
+{
+    m_level = 0.0;
+    clearCurrentNote();
+};
 
 double SynthVoice::interpNextSamp() noexcept
 {
     double currentVal;
-    int index = (unsigned int)currentIndex;
-    auto& table = *m_table;
+    
+    jassert(m_table.size() > 2);
+
+    
+    int index = (unsigned int)m_angle;
+    auto table = m_table.data();
     
     double val_L = table[index];
     double val_H = table[index + 1];
-    double frac = currentIndex - (float) index;
+    double frac = m_angle - (float) index;
     
     currentVal = val_L + (val_H - val_L)*frac;
     updateAngle();
+
     return currentVal;
 }
 
 void SynthVoice::updateAngle()
 {
+    m_angle += m_angleDelta;
+    if(m_angle >= m_tableSize)
+        m_angle -= m_tableSize;
 };
 
+
+//We never have to explicitely call this function, it is automatically called for every voice and summed in
+//the synthesizerSource class
 void SynthVoice::renderNextBlock(juce::AudioBuffer<float> &outputBuffer, int startSample, int numSamples)
 {
-    
-    
+    if(m_angleDelta != 0)
+    {
+        int channel = 0;
+        auto buffer = outputBuffer.getWritePointer(channel);
+        double val = 0.0;
+        for(auto i = 0; i < numSamples; ++i)
+        {
+            val = interpNextSamp() * m_level;
+            outputBuffer.addSample(channel, i, val);
+            outputBuffer.addSample(1, i, val);
+        }
+    }
+
 };
 
 //Unused Pure Virtual Functions
@@ -98,13 +130,20 @@ SynthAudioSource::SynthAudioSource(juce::MidiKeyboardState& keyState) : m_keySta
     
     generateWavetable(m_table, defaultTableSize);
     
+    jassert(m_table.size() > 2);
+    
+    juce::Logger::outputDebugString("Table Size = " + juce::String(m_table.size()));
+    auto val = m_table[100];
+    juce::Logger::outputDebugString("val at 50 = " + juce::String(m_table[50]));
+
+
     //add sound to synth
     synth.addSound(new WaveTableSound(m_table));
-    
+
     for(auto i = 0; i < maxVoices; ++i)
     {
         //add voice to synth
-        synth.addVoice(new SynthVoice);
+        synth.addVoice(new SynthVoice(m_table, defaultTableSize));
     }
 };
 
@@ -122,7 +161,7 @@ void SynthAudioSource::releaseResources(){};
 
 void SynthAudioSource::getNextAudioBlock(const juce::AudioSourceChannelInfo &buffertoFill)
 {
-    buffertoFill.clearActiveBufferRegion();
+//    buffertoFill.clearActiveBufferRegion();
     juce::MidiBuffer incomingMidi;
     m_keyState.processNextMidiBuffer(incomingMidi, buffertoFill.startSample, buffertoFill.numSamples, true);
     synth.renderNextBlock(*buffertoFill.buffer, incomingMidi, buffertoFill.startSample, buffertoFill.numSamples);
@@ -131,24 +170,25 @@ void SynthAudioSource::getNextAudioBlock(const juce::AudioSourceChannelInfo &buf
 
 
 
-void SynthAudioSource::generateWavetable(std::vector<double>* bufferToFill, unsigned int size)
+void SynthAudioSource::generateWavetable(std::vector<double>& bufferToFill, unsigned int size)
 {
     //Resize Vector as Size + Guard Point
-    bufferToFill->reserve(size + 1);
+    bufferToFill.resize(size + 1);
     
     //Prepare Sine Variables for Loop
-    double period = 1 / size;
-    double frequency = 1 / period;
+    double delta = 1.0 / (double)size;
     double angle = 0.0;
 
     //Loop and add value to vector
     for(auto i = 0; i < size; ++i)
     {
-        bufferToFill->push_back(std::sin(angle * juce::MathConstants<double>::twoPi));
-        angle += frequency;
+        auto val = std::sin(angle * juce::MathConstants<double>::twoPi);
+        bufferToFill[i] = val;
+        angle += delta;
+        juce::Logger::outputDebugString("val = " + juce::String(val));
     }
     //Guard Point
-    bufferToFill->push_back(bufferToFill->at(0));
+    bufferToFill[size] = bufferToFill[0];
     
 };
 
