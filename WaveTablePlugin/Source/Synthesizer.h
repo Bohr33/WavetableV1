@@ -46,11 +46,15 @@ public:
     
     
 private:
+    const double tailDecayTime = 1.0
+    
     double currentIndex;
     double m_angle;
     double m_angleDelta;
     double m_level;
     double m_freq;
+    double m_tail;
+    double m_tailDec;
     
     std::vector<double>& m_table;
     unsigned int m_tableSize;
@@ -68,13 +72,13 @@ public:
     void getNextAudioBlock(const juce::AudioSourceChannelInfo &buffertoFill) override;
     void generateWavetable(std::vector<double>& bufferToFill, unsigned int size);
     
-    
-    
 private:
+    const int maxVoices = 8;
+    const int defaultTableSize = 1 << 9;
+    
     juce::Synthesiser synth;
     juce::MidiKeyboardState& m_keyState;
-    unsigned int maxVoices = 8;
-    unsigned int defaultTableSize = 1 << 11;
+
     std::vector<double> m_table;
 };
 
