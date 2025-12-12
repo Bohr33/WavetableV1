@@ -46,7 +46,7 @@ public:
     
     
 private:
-    const double tailDecayTime = 1.0
+    const double tailDecayTime = 1.0;
     
     double currentIndex;
     double m_angle;
@@ -54,7 +54,7 @@ private:
     double m_level;
     double m_freq;
     double m_tail;
-    double m_tailDec;
+    double m_tailDec = 0.99;
     
     std::vector<double>& m_table;
     unsigned int m_tableSize;

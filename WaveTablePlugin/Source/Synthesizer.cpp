@@ -41,7 +41,7 @@ void SynthVoice::startNote(int midiNoteNumber, float velocity, juce::Synthesiser
     m_angle = 0.0;
     m_angleDelta = 0.0;
     m_level = velocity * 0.20;
-    m_tail = 1.0;
+    m_tail = 0.0;
     
     //Set Frequewncy and Angle
     m_freq = juce::MidiMessage::getMidiNoteInHertz(midiNoteNumber);
@@ -66,9 +66,16 @@ void SynthVoice::startNote(int midiNoteNumber, float velocity, juce::Synthesiser
 };
 void SynthVoice::stopNote(float velocity, bool allowTailOff)
 {
-    m_level = 0.0;
-    m_tail = 0.99;
-    clearCurrentNote();
+    if(allowTailOff)
+    {
+        if(m_tail == 0.0)
+            m_tail = 1.0;
+    }
+    else
+    {
+        clearCurrentNote();
+        m_angle = 0.0;
+    }
 };
 
 double SynthVoice::interpNextSamp() noexcept
@@ -106,21 +113,36 @@ void SynthVoice::renderNextBlock(juce::AudioBuffer<float> &outputBuffer, int sta
     if(m_angleDelta != 0)
     {
         double val = 0.0;
-        
-        while (--numSamples >= 0) {
-            val = interpNextSamp() * m_level * m_tail;
-            for(auto channel = 0; channel < outputBuffer.getNumChannels(); ++channel)
-            {
-                outputBuffer.addSample(channel, startSample, val);
+        if(m_tail > 0.0)
+        {
+            while (--numSamples >= 0) {
+                val = interpNextSamp() * m_level * m_tail;
                 
-            }
-            if(m_tail < 1.0)
-                m_tail -= m_tailDec;
-            startSample++;
+                for(auto channel = 0; channel < outputBuffer.getNumChannels(); ++channel)
+                    outputBuffer.addSample(channel, startSample, val);
+                    
+                startSample++;
+                m_tail *= m_tailDec;
+                
+                if (m_tail <= 0.005) {
+                    clearCurrentNote();
+                    m_angleDelta = 0.0;
+                    break;
+                    }
+                }
+            juce::Logger::writeToLog("Polo!");
+        }else
+        {
+            while (--numSamples >= 0) {
+                val = interpNextSamp() * m_level;
+                for(auto channel = 0; channel < outputBuffer.getNumChannels(); ++channel)
+                    outputBuffer.addSample(channel, startSample, val);
+                
+                startSample++;
+                }
+            juce::Logger::writeToLog("Marco!");
         }
-
     }
-
 };
 
 //Unused Pure Virtual Functions
@@ -135,8 +157,9 @@ void SynthVoice::controllerMoved(int controllerNumber, int newControllerValue)
 /*=============================================================================*/
 SynthAudioSource::SynthAudioSource(juce::MidiKeyboardState& keyState) : m_keyState(keyState){
     
-    jassert(m_table.size() > 2);
+    
     generateWavetable(m_table, defaultTableSize);
+    jassert(m_table.size() > 2);
     
     //add sound to synth
     synth.addSound(new WaveTableSound(m_table));
