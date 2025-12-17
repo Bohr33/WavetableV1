@@ -3,3 +3,6 @@ Builds/
 
 # Ignore JUCE Library Code
 JuceLibraryCode/
+
+# Ignore My Notes
+MyNotes.md

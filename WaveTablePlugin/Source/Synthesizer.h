@@ -72,13 +72,20 @@ public:
     void getNextAudioBlock(const juce::AudioSourceChannelInfo &buffertoFill) override;
     void generateWavetable(std::vector<double>& bufferToFill, unsigned int size);
     
+    juce::MidiMessageCollector* getMidiMessageCollector()
+    {
+        return &midiCollector;
+    }
+    
 private:
     const int maxVoices = 8;
     const int defaultTableSize = 1 << 9;
     
     juce::Synthesiser synth;
     juce::MidiKeyboardState& m_keyState;
-
+    
+    juce::MidiMessageCollector midiCollector;
+    
     std::vector<double> m_table;
 };
 

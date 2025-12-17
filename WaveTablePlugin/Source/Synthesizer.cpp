@@ -130,7 +130,6 @@ void SynthVoice::renderNextBlock(juce::AudioBuffer<float> &outputBuffer, int sta
                     break;
                     }
                 }
-            juce::Logger::writeToLog("Polo!");
         }else
         {
             while (--numSamples >= 0) {
@@ -140,7 +139,6 @@ void SynthVoice::renderNextBlock(juce::AudioBuffer<float> &outputBuffer, int sta
                 
                 startSample++;
                 }
-            juce::Logger::writeToLog("Marco!");
         }
     }
 };
@@ -177,6 +175,7 @@ SynthAudioSource::~SynthAudioSource()
 void SynthAudioSource::prepareToPlay(int samplesPerBlockExpected, double sampleRate)
 {
     synth.setCurrentPlaybackSampleRate(sampleRate);
+    midiCollector.reset(sampleRate);
 };
 
 void SynthAudioSource::releaseResources(){};
@@ -189,6 +188,8 @@ void SynthAudioSource::getNextAudioBlock(const juce::AudioSourceChannelInfo &buf
     juce::MidiBuffer incomingMidi;
     m_keyState.processNextMidiBuffer(incomingMidi, buffertoFill.startSample, buffertoFill.numSamples, true);
     synth.renderNextBlock(*buffertoFill.buffer, incomingMidi, buffertoFill.startSample, buffertoFill.numSamples);
+    
+    midiCollector.removeNextBlockOfMessages(incomingMidi, buffertoFill.numSamples);
 };
 
 

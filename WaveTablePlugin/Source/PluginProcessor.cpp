@@ -144,6 +144,8 @@ void WaveTablePluginAudioProcessor::processBlock (juce::AudioBuffer<float>& buff
     channelData.startSample = 0;
     channelData.numSamples = buffer.getNumSamples();
     
+    juce::AudioSourceChannelInfo test;
+    
     synth.getNextAudioBlock(channelData);
 }
 
