@@ -43,7 +43,7 @@ void SynthVoice::startNote(int midiNoteNumber, float velocity, juce::Synthesiser
     m_level = velocity * 0.20;
     m_tail = 0.0;
     
-    //Set Frequewncy and Angle
+    //Set Frequency and Angle
     m_freq = juce::MidiMessage::getMidiNoteInHertz(midiNoteNumber);
     
     double cyclesPerSample = m_freq / getSampleRate();
@@ -148,69 +148,4 @@ void SynthVoice::pitchWheelMoved(int newPitchWheelValue)
 {};
 void SynthVoice::controllerMoved(int controllerNumber, int newControllerValue)
 {};
-
-
-/*=============================================================================*/
-/*--------------------------------Audio Source---------------------------------*/
-/*=============================================================================*/
-SynthAudioSource::SynthAudioSource(juce::MidiKeyboardState& keyState) : m_keyState(keyState){
-    
-    
-    generateWavetable(m_table, defaultTableSize);
-    jassert(m_table.size() > 2);
-    
-    //add sound to synth
-    synth.addSound(new WaveTableSound(m_table));
-
-    for(auto i = 0; i < maxVoices; ++i)
-    {
-        //add voice to synth
-        synth.addVoice(new SynthVoice(m_table, defaultTableSize));
-    }
-};
-
-SynthAudioSource::~SynthAudioSource()
-{};
-
-void SynthAudioSource::prepareToPlay(int samplesPerBlockExpected, double sampleRate)
-{
-    synth.setCurrentPlaybackSampleRate(sampleRate);
-    midiCollector.reset(sampleRate);
-};
-
-void SynthAudioSource::releaseResources(){};
-
-void SynthAudioSource::getNextAudioBlock(const juce::AudioSourceChannelInfo &buffertoFill)
-{
-    //Here we create a MidiBuffer object, fill it with MIDI data from the keyState object,
-    //and pass it to the synth object for processing
-    buffertoFill.clearActiveBufferRegion();
-    juce::MidiBuffer incomingMidi;
-    m_keyState.processNextMidiBuffer(incomingMidi, buffertoFill.startSample, buffertoFill.numSamples, true);
-    synth.renderNextBlock(*buffertoFill.buffer, incomingMidi, buffertoFill.startSample, buffertoFill.numSamples);
-    
-    midiCollector.removeNextBlockOfMessages(incomingMidi, buffertoFill.numSamples);
-};
-
-
-
-void SynthAudioSource::generateWavetable(std::vector<double>& bufferToFill, unsigned int size)
-{
-    //Resize Vector as Size + Guard Point
-    bufferToFill.resize(size + 1);
-    
-    //Prepare Sine Variables for Loop
-    double incr = 1.0 / (double)size;
-    double angle = 0.0;
-
-    //Loop and add value to vector
-    for(auto i = 0; i < size; ++i)
-    {
-        auto val = std::sin(angle * juce::MathConstants<double>::twoPi);
-        bufferToFill[i] = val;
-        angle += incr;
-    }
-    //Guard Point
-    bufferToFill[size] = bufferToFill[0];
-};
 

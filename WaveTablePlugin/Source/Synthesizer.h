@@ -38,8 +38,6 @@ public:
     double interpNextSamp() noexcept;
     void updateAngle();
     
-    
-    
     //Unused Pure Virtual Functions
     void pitchWheelMoved(int newPitchWheelValue) override;
     void controllerMoved(int controllerNumber, int newControllerValue) override;
@@ -58,35 +56,6 @@ private:
     
     std::vector<double>& m_table;
     unsigned int m_tableSize;
-};
-
-// JUCE AudioSource class provides basic structure for audio processing commands for the Plugin Processor
-class SynthAudioSource : public juce::AudioSource
-{
-public:
-    SynthAudioSource(juce::MidiKeyboardState& keyState);
-    ~SynthAudioSource();
-    
-    void prepareToPlay(int samplesPerBlockExpected, double sampleRate) override;
-    void releaseResources() override;
-    void getNextAudioBlock(const juce::AudioSourceChannelInfo &buffertoFill) override;
-    void generateWavetable(std::vector<double>& bufferToFill, unsigned int size);
-    
-    juce::MidiMessageCollector* getMidiMessageCollector()
-    {
-        return &midiCollector;
-    }
-    
-private:
-    const int maxVoices = 8;
-    const int defaultTableSize = 1 << 9;
-    
-    juce::Synthesiser synth;
-    juce::MidiKeyboardState& m_keyState;
-    
-    juce::MidiMessageCollector midiCollector;
-    
-    std::vector<double> m_table;
 };
 
 

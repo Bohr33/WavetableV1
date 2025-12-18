@@ -24,11 +24,6 @@ public:
     //MidiKeyboard Listener Virtual Callbacks
     void handleNoteOn(juce::MidiKeyboardState* state, int midiChannel, int midiNoteNumber, float velocity)override;
     void handleNoteOff(juce::MidiKeyboardState* state, int midiChannel, int midiNoteNumber, float velocity)override;
-    
-    //Settup External MIDI, Called in Constructor
-    void setupExternalMIDI();
-    //Receives an Index to set current MIDI device from available input list
-    void setMidiInput(int index);
 
     //==============================================================================
     void paint (juce::Graphics&) override;
@@ -40,9 +35,6 @@ private:
     WaveTablePluginAudioProcessor& audioProcessor;
     juce::MidiKeyboardComponent    keyboardComponent;
     juce::MidiKeyboardState        keyboardState;
-    
-    juce::ComboBox midiInputList;
-    int lastInputIndex = 0;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (WaveTablePluginAudioProcessorEditor)
 };

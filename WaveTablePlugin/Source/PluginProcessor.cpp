@@ -170,8 +170,8 @@ void WaveTablePluginAudioProcessor::processBlock (juce::AudioBuffer<float>& buff
     juce::MidiBuffer screenKeyBuffer;
     m_keystate.processNextMidiBuffer(screenKeyBuffer, 0, numSamples, true);
     
+    //Combine both buffers by making a new buffer and add both events
     juce::MidiBuffer    combinedMidi;
-    
     combinedMidi.addEvents(midiMessages, 0, numSamples, 0);
     combinedMidi.addEvents(screenKeyBuffer, 0, numSamples, 0);
     

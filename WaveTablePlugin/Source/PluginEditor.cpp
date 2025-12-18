@@ -18,10 +18,6 @@ WaveTablePluginAudioProcessorEditor::WaveTablePluginAudioProcessorEditor (WaveTa
     setSize (400, 300);
     addAndMakeVisible(keyboardComponent);
     keyboardState.addListener(this);
-    
-    addAndMakeVisible(midiInputList);
-    midiInputList.setText("MIDI Input: ");
-    setupExternalMIDI();
 }
 
 WaveTablePluginAudioProcessorEditor::~WaveTablePluginAudioProcessorEditor()
@@ -48,11 +44,7 @@ void WaveTablePluginAudioProcessorEditor::resized()
     int padding = 20;
     int keyHeight = getHeight()/4.0;
     
-    int comboHeight = 40;
-    int comboWidth = 120;
-    
     keyboardComponent.setBounds(0 + padding, getHeight() - (keyHeight + padding), getWidth() - 2 * padding, keyHeight);
-    midiInputList.setBounds(0 + padding, 0 + padding, comboWidth, comboHeight);
 }
 
 //Midi Keyboard Note Callback Functions
@@ -63,37 +55,5 @@ void WaveTablePluginAudioProcessorEditor::handleNoteOn(juce::MidiKeyboardState* 
 
 void WaveTablePluginAudioProcessorEditor::handleNoteOff(juce::MidiKeyboardState* state, int midiChannel, int midiNoteNumber, float velocity)
 {
-    
-}
-
-void WaveTablePluginAudioProcessorEditor::setupExternalMIDI()
-{
-    auto midiInputs = juce::MidiInput::getAvailableDevices();
-    
-    midiInputList.setTextWhenNoChoicesAvailable("No MIDI Inputs Enabled");
-    
-    //Create String Array, fill with MIDI input names, and add to input list
-    juce::StringArray midiInputNames;
-    for (auto device : midiInputs) {
-        midiInputNames.add(device.name);
-    }
-    midiInputList.addItemList(midiInputNames, 1);
-    
-    //Function to apply changes when new MIDI device is selected
-    midiInputList.onChange = [this] {setMidiInput(midiInputList.getSelectedItemIndex());};
-    
-    
-    
-    
-    
-    
-    
-    
-}
-
-void WaveTablePluginAudioProcessorEditor::setMidiInput(int index)
-{
-    auto availableDevices = juce::MidiInput::getAvailableDevices();
-    
     
 }
