@@ -55,13 +55,25 @@ public:
     void setStateInformation (const void* data, int sizeInBytes) override;
     
     
+    void generateWavetable(std::vector<double>& bufferToFill, unsigned int size);
+    
+    
     //Added Functions
     juce::MidiKeyboardState& getMidiKeyboardState();
 
 private:
     juce::MidiKeyboardState m_keystate;
-    SynthAudioSource synth;
+//    SynthAudioSource synth;
     unsigned int bufferSize = 128;
+    
+    
+    //Synth Parameters
+    const int maxVoices = 8;
+    const int defaultTableSize = 1 << 9;
+    
+    juce::Synthesiser synth;
+    std::vector<double> m_table;
+    juce::MidiMessageCollector midiCollector;
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (WaveTablePluginAudioProcessor)
 };

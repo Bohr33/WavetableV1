@@ -20,9 +20,17 @@ WaveTablePluginAudioProcessor::WaveTablePluginAudioProcessor()
                        .withOutput ("Output", juce::AudioChannelSet::stereo(), true)
                      #endif
                        )
-        , synth(m_keystate)
 #endif
 {
+    
+    //add sound to synth
+    synth.addSound(new WaveTableSound(m_table));
+
+    for(auto i = 0; i < maxVoices; ++i)
+    {
+        //add voice to synth
+        synth.addVoice(new SynthVoice(m_table, defaultTableSize));
+    }
 }
 
 WaveTablePluginAudioProcessor::~WaveTablePluginAudioProcessor()
@@ -96,14 +104,31 @@ void WaveTablePluginAudioProcessor::prepareToPlay (double sampleRate, int sample
 {
     // Use this method as the place to do any pre-playback
     // initialisation that you need..
-    synth.prepareToPlay(samplesPerBlock, sampleRate);
+    generateWavetable(m_table, defaultTableSize);
+    
+    synth.setCurrentPlaybackSampleRate(sampleRate);
+    
+    synth.clearSounds();
+    synth.clearVoices();
+    
+    //add sound to synth
+    synth.addSound(new WaveTableSound(m_table));
+
+    for(auto i = 0; i < maxVoices; ++i)
+    {
+        //add voice to synth
+        synth.addVoice(new SynthVoice(m_table, defaultTableSize));
+    }
+    
+    midiCollector.reset(sampleRate);
+    
 }
 
 void WaveTablePluginAudioProcessor::releaseResources()
 {
     // When playback stops, you can use this as an opportunity to free up any
     // spare memory, etc.
-    synth.releaseResources();
+//    synth.releaseResources();
 }
 
 #ifndef JucePlugin_PreferredChannelConfigurations
@@ -138,15 +163,24 @@ void WaveTablePluginAudioProcessor::processBlock (juce::AudioBuffer<float>& buff
     auto totalNumInputChannels  = getTotalNumInputChannels();
     auto totalNumOutputChannels = getTotalNumOutputChannels();
     
-    //Wrap AudioBuffer in SourceChannelInfo for SynthAudioSource
-    juce::AudioSourceChannelInfo channelData;
-    channelData.buffer = &buffer;
-    channelData.startSample = 0;
-    channelData.numSamples = buffer.getNumSamples();
     
-    juce::AudioSourceChannelInfo test;
+    auto numSamples = buffer.getNumSamples();
     
-    synth.getNextAudioBlock(channelData);
+    
+    juce::MidiBuffer screenKeyBuffer;
+    m_keystate.processNextMidiBuffer(screenKeyBuffer, 0, numSamples, true);
+    
+    juce::MidiBuffer    combinedMidi;
+    
+    combinedMidi.addEvents(midiMessages, 0, numSamples, 0);
+    combinedMidi.addEvents(screenKeyBuffer, 0, numSamples, 0);
+    
+    //Don't forget to clear the buffer!
+    buffer.clear();
+    
+    synth.renderNextBlock(buffer, combinedMidi, 0, numSamples);
+    
+    midiCollector.removeNextBlockOfMessages(screenKeyBuffer, numSamples);
 }
 
 //==============================================================================
@@ -180,6 +214,26 @@ juce::MidiKeyboardState& WaveTablePluginAudioProcessor::getMidiKeyboardState()
 {
     return m_keystate;
 }
+
+void WaveTablePluginAudioProcessor::generateWavetable(std::vector<double>& bufferToFill, unsigned int size)
+{
+    //Resize Vector as Size + Guard Point
+    bufferToFill.resize(size + 1);
+    
+    //Prepare Sine Variables for Loop
+    double incr = 1.0 / (double)size;
+    double angle = 0.0;
+
+    //Loop and add value to vector
+    for(auto i = 0; i < size; ++i)
+    {
+        auto val = std::sin(angle * juce::MathConstants<double>::twoPi);
+        bufferToFill[i] = val;
+        angle += incr;
+    }
+    //Guard Point
+    bufferToFill[size] = bufferToFill[0];
+};
 
 //==============================================================================
 // This creates new instances of the plugin..
