@@ -32,7 +32,7 @@ std::vector<double>& WaveTableSound::getTable()
 /*=============================================================================*/
 /*----------------------------Synth Voice--------------------------------------*/
 /*=============================================================================*/
-SynthVoice::SynthVoice(std::vector<double>& table, int tSize) : m_table(table), m_tableSize(tSize){};
+SynthVoice::SynthVoice(std::vector<double>& table, std::vector<double>& table2, int tSize, juce::AudioProcessorValueTreeState& valueTreeState) : apvts(valueTreeState), m_table(table), m_table2(table2), m_tableSize(tSize){};
 bool SynthVoice::canPlaySound(juce::SynthesiserSound*)
 {return true;};
 void SynthVoice::startNote(int midiNoteNumber, float velocity, juce::SynthesiserSound *sound, int currentPitchWheelPosition)
@@ -98,6 +98,25 @@ double SynthVoice::interpNextSamp() noexcept
     return currentVal;
 }
 
+double SynthVoice::interpNextSamp(std::vector<double>& table) noexcept
+{
+    
+    double currentVal;
+    jassert(table.size() > 2);
+    int index = (int) m_angle;
+    
+    double val_L = table[index];
+    double val_H = table[index + 1];
+    double frac = m_angle - (float) index;
+    
+    currentVal = val_L + (val_H - val_L)*frac;
+    updateAngle();
+
+    return currentVal;
+    
+    
+}
+
 void SynthVoice::updateAngle()
 {
     m_angle += m_angleDelta;
@@ -110,13 +129,16 @@ void SynthVoice::updateAngle()
 //the synthesizerSource class
 void SynthVoice::renderNextBlock(juce::AudioBuffer<float> &outputBuffer, int startSample, int numSamples)
 {
+    
+    auto interpVal = interpParam->load();
+    
     if(m_angleDelta != 0)
     {
         double val = 0.0;
         if(m_tail > 0.0)
         {
             while (--numSamples >= 0) {
-                val = interpNextSamp() * m_level * m_tail;
+                val = interpolateValue(interpVal) * m_level * m_tail;
                 
                 for(auto channel = 0; channel < outputBuffer.getNumChannels(); ++channel)
                     outputBuffer.addSample(channel, startSample, val);
@@ -133,7 +155,7 @@ void SynthVoice::renderNextBlock(juce::AudioBuffer<float> &outputBuffer, int sta
         }else
         {
             while (--numSamples >= 0) {
-                val = interpNextSamp() * m_level;
+                val = interpolateValue(interpVal) * m_level;
                 for(auto channel = 0; channel < outputBuffer.getNumChannels(); ++channel)
                     outputBuffer.addSample(channel, startSample, val);
                 
@@ -142,6 +164,27 @@ void SynthVoice::renderNextBlock(juce::AudioBuffer<float> &outputBuffer, int sta
         }
     }
 };
+
+double SynthVoice::interpolateValue(float interpolation)
+{
+    
+    auto interpVal = juce::jlimit(0.0f, 1.0f, interpolation);
+    
+    auto val1 = interpNextSamp(m_table);
+    auto val2 = interpNextSamp(m_table2);
+    
+    auto diff = val1 - val2;
+    
+    double result = val1 + interpVal * diff;
+    return result;
+};
+
+
+void SynthVoice::setParameters(std::atomic<float> *param)
+{
+    interpParam = param;
+    
+}
 
 //Unused Pure Virtual Functions
 void SynthVoice::pitchWheelMoved(int newPitchWheelValue)

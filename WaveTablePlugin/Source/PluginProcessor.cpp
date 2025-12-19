@@ -19,18 +19,18 @@ WaveTablePluginAudioProcessor::WaveTablePluginAudioProcessor()
                       #endif
                        .withOutput ("Output", juce::AudioChannelSet::stereo(), true)
                      #endif
-                       )
+                       ), apvts(*this, nullptr, "PARAMETERS", createParameterLayout())
 #endif
 {
     
-    //add sound to synth
-    synth.addSound(new WaveTableSound(m_table));
-
-    for(auto i = 0; i < maxVoices; ++i)
-    {
-        //add voice to synth
-        synth.addVoice(new SynthVoice(m_table, defaultTableSize));
-    }
+//    //add sound to synth
+//    synth.addSound(new WaveTableSound(m_table));
+//
+//    for(auto i = 0; i < maxVoices; ++i)
+//    {
+//        //add voice to synth
+//        synth.addVoice(new SynthVoice(m_table, m_table2, defaultTableSize));
+//    }
 }
 
 WaveTablePluginAudioProcessor::~WaveTablePluginAudioProcessor()
@@ -115,10 +115,14 @@ void WaveTablePluginAudioProcessor::prepareToPlay (double sampleRate, int sample
     //add sound to synth
     synth.addSound(new WaveTableSound(m_table));
 
+    auto* interpolateParam = apvts.getRawParameterValue("interpolation");
+    
     for(auto i = 0; i < maxVoices; ++i)
     {
         //add voice to synth
-        synth.addVoice(new SynthVoice(m_table, defaultTableSize));
+        auto* voice = new SynthVoice(m_table, m_table2, defaultTableSize, apvts);
+        voice->setParameters(interpolateParam);
+        synth.addVoice(voice);
     }
     
     midiCollector.reset(sampleRate);
@@ -278,6 +282,19 @@ void WaveTablePluginAudioProcessor::generateSawtooth(std::vector<double>& buffer
     bufferToFill[size] = bufferToFill[0];
     
     
+}
+
+//Helper function to create parameter layout for AudioValueTreeState
+juce::AudioProcessorValueTreeState::ParameterLayout WaveTablePluginAudioProcessor::createParameterLayout()
+{
+    int versionHint = 1;
+    
+    using namespace juce;
+    
+    return
+    {
+        std::make_unique<AudioParameterFloat>(ParameterID {"interpolation", versionHint}, "Interpolation", 0.0f, 1.0f, 0.5f)
+    };
 }
 
 //==============================================================================

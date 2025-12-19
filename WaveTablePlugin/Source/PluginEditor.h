@@ -35,6 +35,10 @@ private:
     WaveTablePluginAudioProcessor& audioProcessor;
     juce::MidiKeyboardComponent    keyboardComponent;
     juce::MidiKeyboardState        keyboardState;
+    
+    juce::Slider    s_interpolation;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> interpolationAttachment;
+    
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (WaveTablePluginAudioProcessorEditor)
 };

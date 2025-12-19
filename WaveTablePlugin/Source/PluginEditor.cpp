@@ -18,6 +18,15 @@ WaveTablePluginAudioProcessorEditor::WaveTablePluginAudioProcessorEditor (WaveTa
     setSize (400, 300);
     addAndMakeVisible(keyboardComponent);
     keyboardState.addListener(this);
+    
+    
+    s_interpolation.setSliderStyle(juce::Slider::RotaryVerticalDrag);
+    s_interpolation.setRange(0.0, 1.0);
+    
+    interpolationAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(p.apvts, "interpolation", s_interpolation);
+    
+    addAndMakeVisible(s_interpolation);
+    
 }
 
 WaveTablePluginAudioProcessorEditor::~WaveTablePluginAudioProcessorEditor()
@@ -33,7 +42,7 @@ void WaveTablePluginAudioProcessorEditor::paint (juce::Graphics& g)
 
     g.setColour (juce::Colours::white);
     g.setFont (juce::FontOptions (15.0f));
-    g.drawFittedText ("The Current Of Now", getLocalBounds(), juce::Justification::centred, 1);
+//    g.drawFittedText ("The Current Of Now", getLocalBounds(), juce::Justification::centred, 1);
 }
 
 void WaveTablePluginAudioProcessorEditor::resized()
@@ -43,6 +52,11 @@ void WaveTablePluginAudioProcessorEditor::resized()
     
     int padding = 20;
     int keyHeight = getHeight()/4.0;
+    
+    int sliderHeight = 200;
+    int sliderWidth = 200;
+    
+    s_interpolation.setBounds(0 + padding, 0 + padding, sliderWidth, sliderHeight);
     
     keyboardComponent.setBounds(0 + padding, getHeight() - (keyHeight + padding), getWidth() - 2 * padding, keyHeight);
 }

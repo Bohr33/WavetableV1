@@ -28,7 +28,7 @@ private:
 class SynthVoice : public juce::SynthesiserVoice
 {
 public:
-    SynthVoice(std::vector<double>& table, int tSize);
+    SynthVoice(std::vector<double>& table, std::vector<double>& table2, int tSize, juce::AudioProcessorValueTreeState& valueTreeState);
     
     bool canPlaySound(juce::SynthesiserSound*) override;
     void startNote(int midiNoteNumber, float velocity, juce::SynthesiserSound *sound, int currentPitchWheelPosition) override;
@@ -36,14 +36,20 @@ public:
     
     void renderNextBlock(juce::AudioBuffer<float> &outputBuffer, int startSample, int numSamples) override;
     double interpNextSamp() noexcept;
+    double interpNextSamp(std::vector<double>& table) noexcept;
     void updateAngle();
     
     //Unused Pure Virtual Functions
     void pitchWheelMoved(int newPitchWheelValue) override;
     void controllerMoved(int controllerNumber, int newControllerValue) override;
     
+    double interpolateValue(float val);
+    
+    void setParameters(std::atomic<float>* param);
+    
     
 private:
+    juce::AudioProcessorValueTreeState& apvts;
     const double tailDecayTime = 1.0;
     
     double currentIndex;
@@ -54,7 +60,10 @@ private:
     double m_tail;
     double m_tailDec = 0.99;
     
+    std::atomic<float>* interpParam = nullptr;
+    
     std::vector<double>& m_table;
+    std::vector<double>& m_table2;
     unsigned int m_tableSize;
 };
 

@@ -55,12 +55,20 @@ public:
     void setStateInformation (const void* data, int sizeInBytes) override;
     
     
+    
+    
     void generateWavetable(std::vector<double>& bufferToFill, unsigned int size);
     void generateSawtooth(std::vector<double>& bufferToFill, unsigned int size);
     
     
     //Added Functions
     juce::MidiKeyboardState& getMidiKeyboardState();
+    
+    //==============================================================================
+    //Value Tree State
+    juce::AudioProcessorValueTreeState apvts;
+    juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout();
+    
 
 private:
     juce::MidiKeyboardState m_keystate;
