@@ -28,7 +28,7 @@ private:
 class SynthVoice : public juce::SynthesiserVoice
 {
 public:
-    SynthVoice(std::vector<double>& table, std::vector<double>& table2, int tSize, juce::AudioProcessorValueTreeState& valueTreeState);
+    SynthVoice(std::vector<double>& table, std::vector<double>& table2, int tSize);
     
     bool canPlaySound(juce::SynthesiserSound*) override;
     void startNote(int midiNoteNumber, float velocity, juce::SynthesiserSound *sound, int currentPitchWheelPosition) override;
@@ -49,7 +49,6 @@ public:
     
     
 private:
-    juce::AudioProcessorValueTreeState& apvts;
     const double tailDecayTime = 1.0;
     
     double currentIndex;

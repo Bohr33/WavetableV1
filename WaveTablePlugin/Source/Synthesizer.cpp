@@ -32,7 +32,7 @@ std::vector<double>& WaveTableSound::getTable()
 /*=============================================================================*/
 /*----------------------------Synth Voice--------------------------------------*/
 /*=============================================================================*/
-SynthVoice::SynthVoice(std::vector<double>& table, std::vector<double>& table2, int tSize, juce::AudioProcessorValueTreeState& valueTreeState) : apvts(valueTreeState), m_table(table), m_table2(table2), m_tableSize(tSize){};
+SynthVoice::SynthVoice(std::vector<double>& table, std::vector<double>& table2, int tSize) : m_table(table), m_table2(table2), m_tableSize(tSize){};
 bool SynthVoice::canPlaySound(juce::SynthesiserSound*)
 {return true;};
 void SynthVoice::startNote(int midiNoteNumber, float velocity, juce::SynthesiserSound *sound, int currentPitchWheelPosition)

@@ -120,7 +120,7 @@ void WaveTablePluginAudioProcessor::prepareToPlay (double sampleRate, int sample
     for(auto i = 0; i < maxVoices; ++i)
     {
         //add voice to synth
-        auto* voice = new SynthVoice(m_table, m_table2, defaultTableSize, apvts);
+        auto* voice = new SynthVoice(m_table, m_table2, defaultTableSize);
         voice->setParameters(interpolateParam);
         synth.addVoice(voice);
     }
