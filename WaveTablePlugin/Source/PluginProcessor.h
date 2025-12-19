@@ -56,6 +56,7 @@ public:
     
     
     void generateWavetable(std::vector<double>& bufferToFill, unsigned int size);
+    void generateSawtooth(std::vector<double>& bufferToFill, unsigned int size);
     
     
     //Added Functions
@@ -63,7 +64,6 @@ public:
 
 private:
     juce::MidiKeyboardState m_keystate;
-//    SynthAudioSource synth;
     unsigned int bufferSize = 128;
     
     
@@ -73,6 +73,7 @@ private:
     
     juce::Synthesiser synth;
     std::vector<double> m_table;
+    std::vector<double> m_table2;
     juce::MidiMessageCollector midiCollector;
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (WaveTablePluginAudioProcessor)
