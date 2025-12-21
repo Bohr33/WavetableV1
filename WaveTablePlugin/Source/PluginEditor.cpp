@@ -26,9 +26,18 @@ WaveTablePluginAudioProcessorEditor::WaveTablePluginAudioProcessorEditor (WaveTa
     interpolationAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(p.apvts, "interpolation", s_interpolation);
     
     addAndMakeVisible(s_interpolation);
-    
+    addAndMakeVisible(waveBank);
     
     addAndMakeVisible(m_display);
+    
+    waveBank.addItem("Sine", 1);
+    waveBank.addItem("Sawtooth", 2);
+    
+    waveBank.onChange = [this] {
+        int selectedId = waveBank.getSelectedId();
+        selectNewTable(selectedId);
+    };
+    
     
 }
 
@@ -59,19 +68,33 @@ void WaveTablePluginAudioProcessorEditor::resized()
     int sliderHeight = 200;
     int sliderWidth = 200;
     
-    
+    int combo_width = 150;
+    int combo_height = 80;
     
     int d_width = getWidth()/2;
     int d_height = getHeight()/3;
     
     int dx = d_width - d_width/2;
-    int dy = d_height;
+    int dy = d_height/3;
     
     m_display.setBounds(dx, dy, d_width, d_height);
     
     s_interpolation.setBounds(0 + padding, 0 + padding, sliderWidth, sliderHeight);
     
+    waveBank.setBounds(getWidth() - (combo_width + padding), padding, combo_width, combo_height);
+
     keyboardComponent.setBounds(0 + padding, getHeight() - (keyHeight + padding), getWidth() - 2 * padding, keyHeight);
+}
+
+void WaveTablePluginAudioProcessorEditor::selectNewTable(int itemId)
+{
+    juce::Logger::writeToLog("New Wavetable Selcted! YAY! OMG YES! NICE! YOU SELECTED >>> " + juce::String(itemId) + "!");
+    
+    //Table Selct Logic
+    
+    
+    m_display.setTable(audioProcessor.getTable(itemId - 1));
+
 }
 
 //Midi Keyboard Note Callback Functions

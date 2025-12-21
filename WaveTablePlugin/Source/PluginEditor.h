@@ -29,6 +29,8 @@ public:
     //==============================================================================
     void paint (juce::Graphics&) override;
     void resized() override;
+    
+    void selectNewTable(int itemId);
 
 private:
     // This reference is provided as a quick way for your editor to
@@ -41,6 +43,8 @@ private:
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> interpolationAttachment;
     
     WavetableDisplay m_display;
+    
+    juce::ComboBox  waveBank;
     
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (WaveTablePluginAudioProcessorEditor)

@@ -63,6 +63,8 @@ public:
     
     //Added Functions
     juce::MidiKeyboardState& getMidiKeyboardState();
+    void setTable(int tableID);
+    std::vector<double>* getTable(int tableID);
     
     //==============================================================================
     //Value Tree State

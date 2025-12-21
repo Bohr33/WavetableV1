@@ -220,6 +220,33 @@ juce::MidiKeyboardState& WaveTablePluginAudioProcessor::getMidiKeyboardState()
     return m_keystate;
 }
 
+void WaveTablePluginAudioProcessor::setTable(int tableID)
+{
+    
+    
+}
+
+std::vector<double>* WaveTablePluginAudioProcessor::getTable(int tableID)
+{
+    //Logic to select table from ID
+    
+    std::vector<double>* currentTable;
+    
+    switch (tableID) {
+        case 0:
+            currentTable = &m_table;
+            break;
+        case 1:
+            currentTable = &m_table2;
+            break;
+        default:
+            currentTable = &m_table;
+            break;
+    }
+    
+    return currentTable;
+}
+
 void WaveTablePluginAudioProcessor::generateWavetable(std::vector<double>& bufferToFill, unsigned int size)
 {
     //Resize Vector as Size + Guard Point
