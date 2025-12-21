@@ -28,9 +28,14 @@ void WavetableDisplay::paint(juce::Graphics& g)
 {
     g.setColour(juce::Colours::red);
     g.drawRect(getLocalBounds());
+    g.fillAll();
     
-    if(m_wavetable != nullptr)
+    
+    
+    if (m_wavetable != nullptr)
+    {
         drawTable(g);
+    }
     
 }
 
@@ -39,12 +44,12 @@ void WavetableDisplay::drawTable(juce::Graphics& g)
 {
     
     g.setColour(juce::Colours::whitesmoke);
-    int tablesize = (int) m_wavetable->size() - 1;
+    int tablesize = static_cast<int>(m_wavetable->size()) - 1;
     juce::Logger::writeToLog("Table Size = " + juce::String(tablesize));
     jassert(tablesize == 2048);
     
     
-    auto pointRadius = 5;
+    auto pointRadius = 2;
     
     
     auto bounds = getLocalBounds();
@@ -58,14 +63,10 @@ void WavetableDisplay::drawTable(juce::Graphics& g)
     double current_x = 0.0;
     double current_y = 0.0;
     
-    g.drawLine(0.0, 0.0, bounds.getWidth(), bounds.getHeight());
-    
-    
-    
     for (auto i = 0; i < tablesize; i++) {
         
         auto table = m_wavetable->data();
-        current_y = (table[i] + 1.0)/2 * bounds.getHeight();
+        current_y = (1-(table[i] + 1.0)/2) * bounds.getHeight();
         g.drawEllipse(current_x, current_y, pointRadius, pointRadius, 1.0);
         
         current_x += incr;

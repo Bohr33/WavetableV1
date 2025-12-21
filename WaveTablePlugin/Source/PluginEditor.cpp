@@ -15,7 +15,7 @@ WaveTablePluginAudioProcessorEditor::WaveTablePluginAudioProcessorEditor (WaveTa
 {
     // Make sure that before the constructor has finished, you've set the
     // editor's size to whatever you need it to be.
-    setSize (400, 300);
+    setSize (600, 500);
     addAndMakeVisible(keyboardComponent);
     keyboardState.addListener(this);
     
@@ -37,6 +37,9 @@ WaveTablePluginAudioProcessorEditor::WaveTablePluginAudioProcessorEditor (WaveTa
         int selectedId = waveBank.getSelectedId();
         selectNewTable(selectedId);
     };
+    
+    //Set Default Table Display
+    m_display.setTable(audioProcessor.getTable(0));
     
     
 }
@@ -65,8 +68,8 @@ void WaveTablePluginAudioProcessorEditor::resized()
     int padding = 20;
     int keyHeight = getHeight()/4.0;
     
-    int sliderHeight = 200;
-    int sliderWidth = 200;
+    int sliderHeight = 150;
+    int sliderWidth = 150;
     
     int combo_width = 150;
     int combo_height = 80;
@@ -79,7 +82,7 @@ void WaveTablePluginAudioProcessorEditor::resized()
     
     m_display.setBounds(dx, dy, d_width, d_height);
     
-    s_interpolation.setBounds(0 + padding, 0 + padding, sliderWidth, sliderHeight);
+    s_interpolation.setBounds(0 + padding, getHeight() - (padding + keyHeight + padding * 2), sliderWidth, sliderHeight);
     
     waveBank.setBounds(getWidth() - (combo_width + padding), padding, combo_width, combo_height);
 
