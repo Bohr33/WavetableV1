@@ -14,6 +14,8 @@
             file="Source/PluginEditor.cpp"/>
       <FILE id="iYi47f" name="PluginEditor.h" compile="0" resource="0" file="Source/PluginEditor.h"/>
     </GROUP>
+    <FILE id="DmsahU" name="Graphics.cpp" compile="1" resource="0" file="Source/Graphics.cpp"/>
+    <FILE id="VllWH8" name="Graphics.h" compile="0" resource="0" file="Source/Graphics.h"/>
   </MAINGROUP>
   <MODULES>
     <MODULE id="juce_audio_basics" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>

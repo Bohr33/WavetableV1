@@ -77,7 +77,7 @@ private:
     
     //Synth Parameters
     const int maxVoices = 8;
-    const int defaultTableSize = 1 << 9;
+    const int defaultTableSize = 1 << 11;
     
     juce::Synthesiser synth;
     std::vector<double> m_table;

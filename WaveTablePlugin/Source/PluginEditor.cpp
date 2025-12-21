@@ -27,6 +27,9 @@ WaveTablePluginAudioProcessorEditor::WaveTablePluginAudioProcessorEditor (WaveTa
     
     addAndMakeVisible(s_interpolation);
     
+    
+    addAndMakeVisible(m_display);
+    
 }
 
 WaveTablePluginAudioProcessorEditor::~WaveTablePluginAudioProcessorEditor()
@@ -55,6 +58,16 @@ void WaveTablePluginAudioProcessorEditor::resized()
     
     int sliderHeight = 200;
     int sliderWidth = 200;
+    
+    
+    
+    int d_width = getWidth()/2;
+    int d_height = getHeight()/3;
+    
+    int dx = d_width - d_width/2;
+    int dy = d_height;
+    
+    m_display.setBounds(dx, dy, d_width, d_height);
     
     s_interpolation.setBounds(0 + padding, 0 + padding, sliderWidth, sliderHeight);
     

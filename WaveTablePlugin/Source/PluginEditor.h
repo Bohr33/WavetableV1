@@ -10,6 +10,7 @@
 
 #include <JuceHeader.h>
 #include "PluginProcessor.h"
+#include "Graphics.h"
 
 //==============================================================================
 /**
@@ -38,6 +39,8 @@ private:
     
     juce::Slider    s_interpolation;
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> interpolationAttachment;
+    
+    WavetableDisplay m_display;
     
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (WaveTablePluginAudioProcessorEditor)
