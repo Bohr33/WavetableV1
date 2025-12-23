@@ -175,7 +175,7 @@ double SynthVoice::interpolateValue(float interpolation)
     
     auto diff = val1 - val2;
     
-    double result = val1 + interpVal * diff;
+    double result = val1 - interpVal * diff;
     return result;
 };
 

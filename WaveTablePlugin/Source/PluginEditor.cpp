@@ -22,6 +22,10 @@ WaveTablePluginAudioProcessorEditor::WaveTablePluginAudioProcessorEditor (WaveTa
     
     s_interpolation.setSliderStyle(juce::Slider::RotaryVerticalDrag);
     s_interpolation.setRange(0.0, 1.0);
+    s_interpolation.onValueChange = [this] {
+        m_display.setInterpolation(s_interpolation.getValue());
+        m_display.repaint();
+    };
     
     interpolationAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(p.apvts, "interpolation", s_interpolation);
     
@@ -33,13 +37,14 @@ WaveTablePluginAudioProcessorEditor::WaveTablePluginAudioProcessorEditor (WaveTa
     waveBank.addItem("Sine", 1);
     waveBank.addItem("Sawtooth", 2);
     
-    waveBank.onChange = [this] {
-        int selectedId = waveBank.getSelectedId();
-        selectNewTable(selectedId);
-    };
+//    waveBank.onChange = [this] {
+//        int selectedId = waveBank.getSelectedId();
+//        selectNewTable(selectedId);
+//    };
     
     //Set Default Table Display
     m_display.setTable(audioProcessor.getTable(0));
+    m_display.setTableTwo(audioProcessor.getTable(1));
     
     
 }
@@ -66,23 +71,25 @@ void WaveTablePluginAudioProcessorEditor::resized()
     // subcomponents in your editor..
     
     int padding = 20;
+    
+    int display_width = getWidth()/2;
+    int display_height = getHeight()/3;
+    
+    int dx = display_width - display_width/2;
+    int dy = display_height/3;
+    
     int keyHeight = getHeight()/4.0;
     
     int sliderHeight = 150;
     int sliderWidth = 150;
+    int slider_y = getHeight() - (keyHeight + padding * 2 + sliderHeight);
     
-    int combo_width = 150;
-    int combo_height = 80;
+    int combo_width = getWidth() - (display_width + dx + padding * 2);
+    int combo_height = 50;
     
-    int d_width = getWidth()/2;
-    int d_height = getHeight()/3;
+    m_display.setBounds(dx, dy, display_width, display_height);
     
-    int dx = d_width - d_width/2;
-    int dy = d_height/3;
-    
-    m_display.setBounds(dx, dy, d_width, d_height);
-    
-    s_interpolation.setBounds(0 + padding, getHeight() - (padding + keyHeight + padding * 2), sliderWidth, sliderHeight);
+    s_interpolation.setBounds(0 + padding, slider_y, sliderWidth, sliderHeight);
     
     waveBank.setBounds(getWidth() - (combo_width + padding), padding, combo_width, combo_height);
 
@@ -97,6 +104,7 @@ void WaveTablePluginAudioProcessorEditor::selectNewTable(int itemId)
     
     
     m_display.setTable(audioProcessor.getTable(itemId - 1));
+    
 
 }
 
