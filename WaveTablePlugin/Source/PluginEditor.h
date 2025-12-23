@@ -43,11 +43,13 @@ private:
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> interpolationAttachment;
     
 
-    InterpolatedDisplay m_display;
+    InterpolatedDisplay m_interpDisplay;
     
-    //    WavetableDisplay m_display;
-    juce::ComboBox  waveBank;
-    
+    WavetableDisplay m_displayOne;
+    juce::ComboBox  waveBankOne;
+
+    WavetableDisplay m_displayTwo;
+    juce::ComboBox  waveBankTwo;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (WaveTablePluginAudioProcessorEditor)
 };

@@ -24,9 +24,14 @@ void WavetableDisplay::setTable(std::vector<double>* table)
     repaint();
 }
 
+void WavetableDisplay::setColours(juce::Colour colour)
+{
+    backgroundColour = colour;
+}
+
 void WavetableDisplay::paint(juce::Graphics& g)
 {
-    g.setColour(juce::Colours::red);
+    g.setColour(backgroundColour);
     g.drawRect(getLocalBounds());
     g.fillAll();
     
@@ -68,7 +73,7 @@ void WavetableDisplay::drawTable(juce::Graphics& g)
 /*=============================================================================*/
 void InterpolatedDisplay::paint(juce::Graphics& g)
 {
-    g.setColour(juce::Colours::red);
+    g.setColour(backgroundColour);
     g.drawRect(getLocalBounds());
     g.fillAll();
     

@@ -19,6 +19,7 @@ public:
     ~WavetableDisplay();
     
     void setTable(std::vector<double>* table);
+    void setColours(juce::Colour colour);
     
     double interpolateValue(float interpolation, double val1, double val2);
     void setInterpolation(float value);
@@ -28,6 +29,7 @@ public:
     
 protected:
     std::vector<double>* m_wavetable;
+    juce::Colour backgroundColour;
 };
 
 
