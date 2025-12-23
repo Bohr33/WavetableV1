@@ -42,8 +42,10 @@ private:
     juce::Slider    s_interpolation;
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> interpolationAttachment;
     
-    WavetableDisplay m_display;
+
+    InterpolatedDisplay m_display;
     
+    //    WavetableDisplay m_display;
     juce::ComboBox  waveBank;
     
 
