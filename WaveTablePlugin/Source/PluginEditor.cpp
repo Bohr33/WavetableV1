@@ -172,10 +172,8 @@ void WaveTablePluginAudioProcessorEditor::resized()
 
 void WaveTablePluginAudioProcessorEditor::selectNewTable(int itemId)
 {
-    juce::Logger::writeToLog("New Wavetable Selcted! YAY! OMG YES! NICE! YOU SELECTED >>> " + juce::String(itemId) + "!");
     
     //Update Preview Display and Interpoalated Display
-    
     auto newTable = audioProcessor.getTable(itemId - 1);
     m_interpDisplay.setTable(newTable);
     m_displayOne.setTable(newTable);

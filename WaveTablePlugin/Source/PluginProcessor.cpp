@@ -102,8 +102,14 @@ void WaveTablePluginAudioProcessor::changeProgramName (int index, const juce::St
 //==============================================================================
 void WaveTablePluginAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
-    // Use this method as the place to do any pre-playback
-    // initialisation that you need..
+ 
+    //Resize and Generate Default Tables
+    m_table.resize(defaultTableSize + 1);
+    m_table2.resize(defaultTableSize + 1);
+    
+    tableGenerator.generateSine(m_table);
+    tableGenerator.generateSaw(m_table2);
+    
     generateWavetable(m_table, defaultTableSize);
     generateSawtooth(m_table2, defaultTableSize);
     
@@ -249,8 +255,6 @@ std::vector<double>* WaveTablePluginAudioProcessor::getTable(int tableID)
 
 void WaveTablePluginAudioProcessor::generateWavetable(std::vector<double>& bufferToFill, unsigned int size)
 {
-    //Resize Vector as Size + Guard Point
-    bufferToFill.resize(size + 1);
     
     //Prepare Sine Variables for Loop
     double incr = 1.0 / (double)size;
@@ -270,9 +274,6 @@ void WaveTablePluginAudioProcessor::generateWavetable(std::vector<double>& buffe
 //Sawtooth Generation Function
 void WaveTablePluginAudioProcessor::generateSawtooth(std::vector<double>& bufferToFill, unsigned int size)
 {
-    //Resize Vector as Size + Guard Point
-    bufferToFill.resize(size + 1);
-    
     //Arbitrary Value of Harmonics
     int numHarmonics = 10;
     

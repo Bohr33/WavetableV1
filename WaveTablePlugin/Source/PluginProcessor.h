@@ -10,6 +10,7 @@
 
 #include <JuceHeader.h>
 #include "Synthesizer.h"
+#include "WavetableGenerator.h"
 
 //==============================================================================
 /**
@@ -85,6 +86,8 @@ private:
     std::vector<double> m_table;
     std::vector<double> m_table2;
     juce::MidiMessageCollector midiCollector;
+    
+    WavetableGenerator tableGenerator;
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (WaveTablePluginAudioProcessor)
 };

@@ -7,6 +7,12 @@
     <GROUP id="{D6DEF27D-14FF-EC78-6776-264C8D4EB737}" name="Source">
       <FILE id="yQoYLV" name="Synthesizer.cpp" compile="1" resource="0" file="Source/Synthesizer.cpp"/>
       <FILE id="QxcUF2" name="Synthesizer.h" compile="0" resource="0" file="Source/Synthesizer.h"/>
+      <FILE id="kD3tNK" name="WavetableGenerator.cpp" compile="1" resource="0"
+            file="Source/WavetableGenerator.cpp"/>
+      <FILE id="lMz10A" name="WavetableGenerator.h" compile="0" resource="0"
+            file="Source/WavetableGenerator.h"/>
+      <FILE id="DmsahU" name="Graphics.cpp" compile="1" resource="0" file="Source/Graphics.cpp"/>
+      <FILE id="VllWH8" name="Graphics.h" compile="0" resource="0" file="Source/Graphics.h"/>
       <FILE id="aW8FGA" name="PluginProcessor.cpp" compile="1" resource="0"
             file="Source/PluginProcessor.cpp"/>
       <FILE id="GB7ZvQ" name="PluginProcessor.h" compile="0" resource="0"
@@ -15,8 +21,6 @@
             file="Source/PluginEditor.cpp"/>
       <FILE id="iYi47f" name="PluginEditor.h" compile="0" resource="0" file="Source/PluginEditor.h"/>
     </GROUP>
-    <FILE id="DmsahU" name="Graphics.cpp" compile="1" resource="0" file="Source/Graphics.cpp"/>
-    <FILE id="VllWH8" name="Graphics.h" compile="0" resource="0" file="Source/Graphics.h"/>
   </MAINGROUP>
   <MODULES>
     <MODULE id="juce_audio_basics" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
