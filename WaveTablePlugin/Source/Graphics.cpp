@@ -18,7 +18,7 @@
 WavetableDisplay::WavetableDisplay(){};
 WavetableDisplay::~WavetableDisplay() = default;
 
-void WavetableDisplay::setTable(std::vector<double>* table)
+void WavetableDisplay::setTable(std::vector<float>* table)
 {
     m_wavetable = table;
     repaint();
@@ -50,11 +50,11 @@ void WavetableDisplay::drawTable(juce::Graphics& g)
     auto pointRadius = 2;
     auto bounds = getLocalBounds();
 
-    double width = bounds.getWidth();
-    double incr = width / (double) tablesize;
+    float width = bounds.getWidth();
+    float incr = width / (float) tablesize;
     
-    double current_x = 0.0;
-    double current_y = 0.0;
+    float current_x = 0.0;
+    float current_y = 0.0;
     
     auto table = m_wavetable->data();
     
@@ -81,7 +81,7 @@ void InterpolatedDisplay::paint(juce::Graphics& g)
         drawInterpolatedTable(g);
 }
 
-void InterpolatedDisplay::setTableTwo(std::vector<double>* table)
+void InterpolatedDisplay::setTableTwo(std::vector<float>* table)
 {
     m_wavetable2 = table;
     repaint();
@@ -93,14 +93,14 @@ void InterpolatedDisplay::setInterpolation(float value)
 }
 
 
-double InterpolatedDisplay::interpolateValue(float interpolation, double val1, double val2)
+float InterpolatedDisplay::interpolateValue(float interpolation, float val1, float val2)
 {
     
     auto interpVal = juce::jlimit(0.0f, 1.0f, interpolation);
     
     auto diff = val1 - val2;
     
-    double result = val1 - interpVal * diff;
+    float result = val1 - interpVal * diff;
     return result;
 };
 
@@ -118,11 +118,11 @@ void InterpolatedDisplay::drawInterpolatedTable(juce::Graphics& g)
     auto pointRadius = 2;
     auto bounds = getLocalBounds();
 
-    double width = bounds.getWidth();
-    double incr = width / (double) tablesize;
+    float width = bounds.getWidth();
+    float incr = width / (float) tablesize;
     
-    double current_x = 0.0;
-    double current_y = 0.0;
+    float current_x = 0.0;
+    float current_y = 0.0;
     
     auto tableOne = m_wavetable->data();
     auto tableTwo = m_wavetable2->data();

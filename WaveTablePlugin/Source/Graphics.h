@@ -18,17 +18,17 @@ public:
     WavetableDisplay();
     ~WavetableDisplay();
     
-    void setTable(std::vector<double>* table);
+    void setTable(std::vector<float>* table);
     void setColours(juce::Colour colour);
     
-    double interpolateValue(float interpolation, double val1, double val2);
+    float interpolateValue(float interpolation, float val1, float val2);
     void setInterpolation(float value);
     
     void paint(juce::Graphics& g) override;
     void drawTable(juce::Graphics& g);
     
 protected:
-    std::vector<double>* m_wavetable;
+    std::vector<float>* m_wavetable;
     juce::Colour backgroundColour;
 };
 
@@ -36,16 +36,16 @@ protected:
 class InterpolatedDisplay : public WavetableDisplay
 {
 public:
-    void setTableTwo(std::vector<double>* table);
+    void setTableTwo(std::vector<float>* table);
     void setInterpolation(float value);
     
-    double interpolateValue(float interpolation, double val1, double val2);
+    float interpolateValue(float interpolation, float val1, float val2);
     void drawInterpolatedTable(juce::Graphics& g);
     
     void paint(juce::Graphics& g) override;
     
     
 private:
-    std::vector<double>* m_wavetable2;
+    std::vector<float>* m_wavetable2;
     float interpVal;
 };

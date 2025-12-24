@@ -56,16 +56,10 @@ public:
     void setStateInformation (const void* data, int sizeInBytes) override;
     
     
-    
-    
-    void generateWavetable(std::vector<double>& bufferToFill, unsigned int size);
-    void generateSawtooth(std::vector<double>& bufferToFill, unsigned int size);
-    
-    
     //Added Functions
     juce::MidiKeyboardState& getMidiKeyboardState();
     void setTable(int tableID);
-    std::vector<double>* getTable(int tableID);
+    std::vector<float>* getTable(int tableID);
     
     //==============================================================================
     //Value Tree State
@@ -83,8 +77,8 @@ private:
     const int defaultTableSize = 1 << 11;
     
     juce::Synthesiser synth;
-    std::vector<double> m_table;
-    std::vector<double> m_table2;
+    std::vector<float> m_table;
+    std::vector<float> m_table2;
     juce::MidiMessageCollector midiCollector;
     
     WavetableGenerator tableGenerator;

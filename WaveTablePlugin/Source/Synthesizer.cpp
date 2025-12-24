@@ -15,7 +15,7 @@
 /*=============================================================================*/
 /*----------------------------Synth Sound--------------------------------------*/
 /*=============================================================================*/
-WaveTableSound::WaveTableSound(std::vector<double>& table) : m_table(table)
+WaveTableSound::WaveTableSound(std::vector<float>& table) : m_table(table)
 {};
 
 bool WaveTableSound::appliesToNote(int midiNoteNumber)
@@ -23,7 +23,7 @@ bool WaveTableSound::appliesToNote(int midiNoteNumber)
 bool WaveTableSound::appliesToChannel(int midiChannel)
 {return true;};
 
-std::vector<double>& WaveTableSound::getTable()
+std::vector<float>& WaveTableSound::getTable()
 {
     return m_table;
 }
@@ -32,7 +32,7 @@ std::vector<double>& WaveTableSound::getTable()
 /*=============================================================================*/
 /*----------------------------Synth Voice--------------------------------------*/
 /*=============================================================================*/
-SynthVoice::SynthVoice(std::vector<double>& table, std::vector<double>& table2, int tSize) : m_table(table), m_table2(table2), m_tableSize(tSize){};
+SynthVoice::SynthVoice(std::vector<float>& table, std::vector<float>& table2, int tSize) : m_table(table), m_table2(table2), m_tableSize(tSize){};
 bool SynthVoice::canPlaySound(juce::SynthesiserSound*)
 {return true;};
 void SynthVoice::startNote(int midiNoteNumber, float velocity, juce::SynthesiserSound *sound, int currentPitchWheelPosition)
@@ -46,9 +46,9 @@ void SynthVoice::startNote(int midiNoteNumber, float velocity, juce::Synthesiser
     //Set Frequency and Angle
     m_freq = juce::MidiMessage::getMidiNoteInHertz(midiNoteNumber);
     
-    double cyclesPerSample = m_freq / getSampleRate();
+    float cyclesPerSample = m_freq / getSampleRate();
     
-    m_angleDelta = cyclesPerSample * (double) m_tableSize;
+    m_angleDelta = cyclesPerSample * (float) m_tableSize;
     
     
     //Cast sound to new Type, and store wavetable Address
@@ -78,9 +78,9 @@ void SynthVoice::stopNote(float velocity, bool allowTailOff)
     }
 };
 
-double SynthVoice::interpNextSamp() noexcept
+float SynthVoice::interpNextSamp() noexcept
 {
-    double currentVal;
+    float currentVal;
     
     jassert(m_table.size() > 2);
 
@@ -88,9 +88,9 @@ double SynthVoice::interpNextSamp() noexcept
     int index = (int) m_angle;
     auto table = m_table.data();
     
-    double val_L = table[index];
-    double val_H = table[index + 1];
-    double frac = m_angle - (float) index;
+    float val_L = table[index];
+    float val_H = table[index + 1];
+    float frac = m_angle - (float) index;
     
     currentVal = val_L + (val_H - val_L)*frac;
     updateAngle();
@@ -98,16 +98,16 @@ double SynthVoice::interpNextSamp() noexcept
     return currentVal;
 }
 
-double SynthVoice::interpNextSamp(std::vector<double>& table) noexcept
+float SynthVoice::interpNextSamp(std::vector<float>& table) noexcept
 {
     
-    double currentVal;
+    float currentVal;
     jassert(table.size() > 2);
     int index = (int) m_angle;
     
-    double val_L = table[index];
-    double val_H = table[index + 1];
-    double frac = m_angle - (float) index;
+    float val_L = table[index];
+    float val_H = table[index + 1];
+    float frac = m_angle - (float) index;
     
     currentVal = val_L + (val_H - val_L)*frac;
     updateAngle();
@@ -134,7 +134,7 @@ void SynthVoice::renderNextBlock(juce::AudioBuffer<float> &outputBuffer, int sta
     
     if(m_angleDelta != 0)
     {
-        double val = 0.0;
+        float val = 0.0;
         if(m_tail > 0.0)
         {
             while (--numSamples >= 0) {
@@ -165,7 +165,7 @@ void SynthVoice::renderNextBlock(juce::AudioBuffer<float> &outputBuffer, int sta
     }
 };
 
-double SynthVoice::interpolateValue(float interpolation)
+float SynthVoice::interpolateValue(float interpolation)
 {
     
     auto interpVal = juce::jlimit(0.0f, 1.0f, interpolation);
@@ -175,7 +175,7 @@ double SynthVoice::interpolateValue(float interpolation)
     
     auto diff = val1 - val2;
     
-    double result = val1 - interpVal * diff;
+    float result = val1 - interpVal * diff;
     return result;
 };
 

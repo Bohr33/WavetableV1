@@ -136,36 +136,6 @@ void WaveTablePluginAudioProcessorEditor::resized()
     
     auto sliderBounds = juce::Rectangle<int>(sliderWidth, sliderHeight).withCentre(centerPoint);
     s_interpolation.setBounds(sliderBounds);
-    
-
-//    juce::FlexBox mainWindow;
-//
-//    mainWindow.flexDirection = juce::FlexBox::Direction::row;
-//
-//
-//    juce::FlexBox leftComponent;
-//    leftComponent.flexDirection = juce::FlexBox::Direction::column;
-//    leftComponent.items.add(juce::FlexItem(m_displayOne).withFlex(1.0));
-//    leftComponent.items.add(juce::FlexItem(waveBankOne).withFlex(1.0));
-//
-//    juce::FlexBox rightComponent;
-//    rightComponent.flexDirection = juce::FlexBox::Direction::column;
-//    rightComponent.items.add(juce::FlexItem(m_displayTwo).withFlex(1.0));
-//    rightComponent.items.add(juce::FlexItem(waveBankTwo).withFlex(1.0));
-//
-//    mainWindow.items.add(juce::FlexItem(leftComponent).withFlex(1.0));
-//    mainWindow.items.add(juce::FlexItem(m_interpDisplay).withFlex(2.0));
-//    mainWindow.items.add(juce::FlexItem(rightComponent).withFlex(1.0));
-    
-//    m_interpDisplay.setBounds(dx, dy, display_width, display_height);
-//
-//    s_interpolation.setBounds(0 + padding, slider_y, sliderWidth, sliderHeight);
-//
-//    waveBankOne.setBounds(getWidth() - (combo_width + padding), padding, combo_width, combo_height);
-    
-//    mainWindow.performLayout(mainWindowBounds);
-//    leftComponent.performLayout(mainWindowBounds);
-//    rightComponent.performLayout(mainWindowBounds);
 
     keyboardComponent.setBounds(0 + padding, getHeight() - (keyHeight + padding), getWidth() - 2 * padding, keyHeight);
 }

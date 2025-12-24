@@ -2,7 +2,8 @@
 
 <JUCERPROJECT id="PrJth3" name="WaveTablePlugin" projectType="audioplug" useAppConfig="0"
               addUsingNamespaceToJuceHeader="0" jucerFormatVersion="1" pluginCharacteristicsValue="pluginIsSynth,pluginWantsMidiIn"
-              pluginFormats="buildAAX,buildAU,buildAUv3,buildStandalone,buildVST3">
+              pluginFormats="buildAAX,buildAU,buildAUv3,buildStandalone,buildVST3"
+              cppLanguageStandard="20">
   <MAINGROUP id="n1Pey3" name="WaveTablePlugin">
     <GROUP id="{D6DEF27D-14FF-EC78-6776-264C8D4EB737}" name="Source">
       <FILE id="yQoYLV" name="Synthesizer.cpp" compile="1" resource="0" file="Source/Synthesizer.cpp"/>

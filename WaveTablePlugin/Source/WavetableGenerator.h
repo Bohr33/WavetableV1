@@ -11,7 +11,15 @@
 
 #include <JuceHeader.h>
 #include <vector>
+#include <span>
 #pragma once
+
+struct Partial
+{
+    float harmonic;
+    float amplitude;
+    float phase;
+};
 
 class WavetableGenerator
 {
@@ -19,9 +27,15 @@ public:
     WavetableGenerator();
     ~WavetableGenerator();
     
-    void generateSine(std::vector<double>& bufferToFill);
-    void generateSaw(std::vector<double>& bufferToFill);
+    void additiveGenerator(std::span<float> bufferToFill, std::span<Partial> partials, size_t guardPoints);
     
+    void normalizeTable(std::span<float> buffer, float normValue);
+    
+    
+    void genSine(std::span<float> bufferToFill);
+    void genSaw(std::span<float> bufferToFill, int numHarmonics);
+    void genTri(std::span<float> bufferToFill, int numHarmonics);
+    void genSquare(std::span<float> bufferToFill, int numHarmonics);
     
 private:
     

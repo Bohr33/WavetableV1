@@ -9,6 +9,7 @@
 */
 
 #include "WavetableGenerator.h"
+#include <algorithm>
 
 
 WavetableGenerator::WavetableGenerator()
@@ -16,66 +17,125 @@ WavetableGenerator::WavetableGenerator()
 
 WavetableGenerator::~WavetableGenerator() = default;
 
-void WavetableGenerator::generateSine(std::vector<double>& bufferToFill)
+void WavetableGenerator::normalizeTable(std::span<float> buffer, float normValue = 1.0)
 {
-    jassert(!bufferToFill.empty());
-    auto size = bufferToFill.size();
+    size_t N = buffer.size();
+    jassert(N > 0);
     
-    //Prepare Sine Variables for Loop
-    double incr = 1.0 / (double)size;
-    double angle = 0.0;
-
-    //Loop and add value to vector
-    for(auto i = 0; i < size; ++i)
+    //Find Max Value
+    float peak = 0.0;
+    for (auto i = 0; i < N; i++)
+        peak = std::max(peak, std::abs(buffer[i]));
+    
+    //Scale all values based on ratio to target value
+    if(peak > 0.0)
     {
-        auto val = std::sin(angle * juce::MathConstants<double>::twoPi);
-        bufferToFill[i] = val;
-        angle += incr;
+        float ratio =  peak/normValue;
+        for (auto k = 0; k < N; k++)
+            buffer[k] /= ratio;
     }
-    //Guard Point
-    bufferToFill[size] = bufferToFill[0];
-};
+}
 
-//Sawtooth Generation Function
-void WavetableGenerator::generateSaw(std::vector<double>& bufferToFill)
+
+void WavetableGenerator::additiveGenerator(std::span<float> bufferToFill, std::span<Partial> partials, size_t guardPoints = 1)
 {
-    jassert(!bufferToFill.empty());
-    auto size = bufferToFill.size();
     
-    //Arbitrary Value of Harmonics
-    int numHarmonics = 10;
+    //Get Size, factor in guard point
+    size_t N = bufferToFill.size() - guardPoints;
+    jassert(N > 0);
+    
+    size_t numPartials = partials.size();
     
     //Prepare Sine Variables for Loop
-    double incr = 0.0;
-    double angle = 0.0;
-
+    float incr = 0.0;
+    float angle = 0.0;
+    
+    juce::Logger::writeToLog("Num Partials = " + juce::String(numPartials));
+    
     //Loop and add value to vector
-    for (auto harmonic = 1; harmonic <= numHarmonics; harmonic++) {
+    for(auto i = 0; i < numPartials; i++)
+    {
+        Partial p = partials[i];
+        auto harmonic = p.harmonic;
         
-        incr = (double)harmonic / (double)size;
-        angle = 0.0;
+        incr = harmonic / (float)N;
+        angle = p.phase;
         
-        for(auto i = 0; i < size; ++i)
+        for(auto i = 0; i < N; ++i)
         {
-            auto val = std::sin(angle * juce::MathConstants<double>::twoPi) / (double)harmonic;
+            auto val = std::sin(juce::MathConstants<float>::twoPi * angle) * p.amplitude;
             bufferToFill[i] += val;
             angle += incr;
         }
-        
     }
     
+    //fill guard point(s)
+    for (auto i = 0; i < guardPoints; i++)
+        bufferToFill[N + i] = bufferToFill[i];
     
-    //Normalize Wave
-    auto peak = 0.0;
-    for (auto j = 0; j < size; j++)
-        peak = std::max(peak, std::abs(bufferToFill[j]));
-    
-    if(peak > 0.0)
-        for (auto k = 0; k < size; k++)
-            bufferToFill[k] /= peak;
+}
 
-    //Guard Point
-    bufferToFill[size] = bufferToFill[0];
+
+void WavetableGenerator::genSine(std::span<float> bufferToFill)
+{
     
+    Partial sine{1.0f, 1.0f, 0.0f};
     
+    //Cast as span so we can pass to Generator
+    std::span<Partial> span(&sine, 1);
+    
+    additiveGenerator(bufferToFill, span);
+}
+
+
+void WavetableGenerator::genSaw(std::span<float> bufferToFill, int numHarmonics)
+{
+    
+    std::vector<Partial> sawPartials;
+    sawPartials.resize(numHarmonics);
+    
+    for (auto i = 0; i < numHarmonics; i++) {
+        sawPartials[i].harmonic = i + 1.0f;
+        sawPartials[i].amplitude = 1.0f/(i+ 1.0f);
+        sawPartials[i].phase = 0.0f;
+    }
+    
+    additiveGenerator(bufferToFill, sawPartials);
+    normalizeTable(bufferToFill);
+}
+
+void WavetableGenerator::genTri(std::span<float> bufferToFill, int numHarmonics)
+{
+    
+    std::vector<Partial> partials;
+    partials.resize(numHarmonics);
+    
+    for (auto i = 0; i < numHarmonics; i++) {
+        float n = 1.0f + 2.0f * i;
+        float sign = (i % 2 == 0) ? 1.0f : -1.0f;
+        partials[i].harmonic = n;
+        partials[i].amplitude = 1.0f/std::pow(n, 2.0f) * sign;
+        partials[i].phase = 0.0f;
+    }
+    
+    additiveGenerator(bufferToFill, partials);
+    normalizeTable(bufferToFill);
+}
+
+
+void WavetableGenerator::genSquare(std::span<float> bufferToFill, int numHarmonics)
+{
+    
+    std::vector<Partial> partials;
+    partials.resize(numHarmonics);
+    
+    for (auto i = 0; i < numHarmonics; i++) {
+        float n = 1.0f + i * 2.0f;
+        partials[i].harmonic = n;
+        partials[i].amplitude = 1.0f/n;
+        partials[i].phase = 0.0f;
+    }
+    
+    additiveGenerator(bufferToFill, partials);
+    normalizeTable(bufferToFill);
 }
