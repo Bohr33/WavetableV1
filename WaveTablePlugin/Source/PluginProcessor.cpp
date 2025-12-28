@@ -22,15 +22,7 @@ WaveTablePluginAudioProcessor::WaveTablePluginAudioProcessor()
                        ), apvts(*this, nullptr, "PARAMETERS", createParameterLayout())
 #endif
 {
-    
-//    //add sound to synth
-//    synth.addSound(new WaveTableSound(m_table));
-//
-//    for(auto i = 0; i < maxVoices; ++i)
-//    {
-//        //add voice to synth
-//        synth.addVoice(new SynthVoice(m_table, m_table2, defaultTableSize));
-//    }
+    generateWavetableBank();
 }
 
 WaveTablePluginAudioProcessor::~WaveTablePluginAudioProcessor()
@@ -104,12 +96,17 @@ void WaveTablePluginAudioProcessor::prepareToPlay (double sampleRate, int sample
 {
  
     //Resize and Generate Default Tables
-    m_table.resize(defaultTableSize + 1);
-    m_table2.resize(defaultTableSize + 1);
+//    m_table.resize(defaultTableSize + 1);
+//    m_table2.resize(defaultTableSize + 1);
+    
+    //Generate Default Tables
+//    tableGenerator.genTri(m_table, defaultNumHarmonics);
+//    tableGenerator.genSaw(m_table2, defaultNumHarmonics);
+    
+//    generateWavetableBank();
     
     
-    tableGenerator.genTri(m_table, 16);
-    tableGenerator.genSquare(m_table2, 16);
+    
 
     
     synth.setCurrentPlaybackSampleRate(sampleRate);
@@ -117,18 +114,26 @@ void WaveTablePluginAudioProcessor::prepareToPlay (double sampleRate, int sample
     synth.clearSounds();
     synth.clearVoices();
     
+    
     //add sound to synth
-    synth.addSound(new WaveTableSound(m_table));
-
+    synth.addSound(new WaveTableSound());
+    
     auto* interpolateParam = apvts.getRawParameterValue("interpolation");
+    
+    
+    auto defaultTable = wavetableBank[0];
     
     for(auto i = 0; i < maxVoices; ++i)
     {
-        //add voice to synth
-        auto* voice = new SynthVoice(m_table, m_table2, defaultTableSize);
+        //add voice to synth; also provides default Table and Table Size to Synth Voice
+        auto* voice = new SynthVoice(defaultTable, defaultTableSize);
         voice->setParameters(interpolateParam);
         synth.addVoice(voice);
     }
+    
+    
+    juce::Logger::writeToLog("Num Voices = " + juce::String(synth.getNumVoices()));
+
     
     midiCollector.reset(sampleRate);
     
@@ -225,31 +230,65 @@ juce::MidiKeyboardState& WaveTablePluginAudioProcessor::getMidiKeyboardState()
     return m_keystate;
 }
 
-void WaveTablePluginAudioProcessor::setTable(int tableID)
+void WaveTablePluginAudioProcessor::setWaveform(int tableID, int waveformID)
 {
-    
+    juce::Logger::writeToLog("Setting new table in voices; ID = " + juce::String(waveformID));
+    for (int i = 0; i < synth.getNumVoices(); ++i)
+    {
+        if (auto* voice = dynamic_cast<SynthVoice*>(synth.getVoice(i)))
+            voice->setWavetable(tableID, wavetableBank[waveformID]);
+    }
+
+//    auto table = (tableID == 1) ? m_table2 : m_table;
+//
+//    switch (waveformID) {
+//        case 1:
+//            tableGenerator.genSaw(table, defaultNumHarmonics);
+//            break;
+//        case 2:
+//            tableGenerator.genTri(table, defaultNumHarmonics);
+//            break;
+//        case 3:
+//            tableGenerator.genSquare(table, defaultNumHarmonics);
+//        default:
+//            tableGenerator.genSine(table, 1);
+//            break;
+//    }
     
 }
 
-std::vector<float>* WaveTablePluginAudioProcessor::getTable(int tableID)
+std::shared_ptr<const TableData> WaveTablePluginAudioProcessor::getTable(int tableID)
 {
     //Logic to select table from ID
+    juce::Logger::writeToLog("Gettting new Table!");
     
-    std::vector<float>* currentTable;
+    if(tableID > 0 && tableID < 4)
+        return wavetableBank[tableID];
+    else
+        return wavetableBank[0];
     
-    switch (tableID) {
-        case 0:
-            currentTable = &m_table;
-            break;
-        case 1:
-            currentTable = &m_table2;
-            break;
-        default:
-            currentTable = &m_table;
-            break;
+}
+
+
+void WaveTablePluginAudioProcessor::generateWavetableBank()
+{
+    //Create vector of generator functions, then loop through each, generate table
+    //and save in table bank
+    using GenFunc = void (WavetableGenerator::*)(std::span<float>, int);
+    
+    static const std::vector<GenFunc> generatorFuncs = {
+        &WavetableGenerator::genSine,
+        &WavetableGenerator::genTri,
+        &WavetableGenerator::genSaw,
+        &WavetableGenerator::genSquare
+    };
+    
+    for (auto func : generatorFuncs) {
+        auto table = std::make_shared<TableData>();
+        table->samples.resize(defaultTableSize + 1);
+        (tableGenerator.*func)(table->samples, defaultNumHarmonics);
+        wavetableBank.push_back(table);
     }
-    
-    return currentTable;
 }
 
 //Helper function to create parameter layout for AudioValueTreeState

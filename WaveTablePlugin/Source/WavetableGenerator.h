@@ -32,7 +32,7 @@ public:
     void normalizeTable(std::span<float> buffer, float normValue);
     
     
-    void genSine(std::span<float> bufferToFill);
+    void genSine(std::span<float> bufferToFill, int numHarmonics);
     void genSaw(std::span<float> bufferToFill, int numHarmonics);
     void genTri(std::span<float> bufferToFill, int numHarmonics);
     void genSquare(std::span<float> bufferToFill, int numHarmonics);

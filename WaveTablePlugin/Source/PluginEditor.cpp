@@ -36,19 +36,25 @@ WaveTablePluginAudioProcessorEditor::WaveTablePluginAudioProcessorEditor (WaveTa
     addAndMakeVisible(waveBankTwo);
     
     waveBankOne.addItem("Sine", 1);
-    waveBankOne.addItem("Sawtooth", 2);
+    waveBankOne.addItem("Triangle", 2);
+    waveBankOne.addItem("Sawtooth", 3);
+    waveBankOne.addItem("Square", 4);
     
     waveBankTwo.addItem("Sine", 1);
-    waveBankTwo.addItem("Sawtooth", 2);
+    waveBankTwo.addItem("Triangle", 2);
+    waveBankTwo.addItem("Sawtooth", 3);
+    waveBankTwo.addItem("Square", 4);
     
     waveBankOne.onChange = [this] {
         int selectedId = waveBankOne.getSelectedId();
-        selectNewTable(selectedId);
+        selectNewWaveform(0, selectedId-1);
+        juce::Logger::writeToLog("Change on wave bank one");
     };
     
     waveBankTwo.onChange = [this] {
         int selectedId = waveBankTwo.getSelectedId();
-        selectNewTable(selectedId);
+        selectNewWaveform(1, selectedId-1);
+        juce::Logger::writeToLog("Change on wave bank two");
     };
     
     //========Displays=============//
@@ -58,6 +64,8 @@ WaveTablePluginAudioProcessorEditor::WaveTablePluginAudioProcessorEditor (WaveTa
     addAndMakeVisible(m_displayTwo);
     
     //Set Default Table Display
+    
+    
     m_interpDisplay.setTable(audioProcessor.getTable(0));
     m_interpDisplay.setTableTwo(audioProcessor.getTable(1));
     
@@ -140,13 +148,41 @@ void WaveTablePluginAudioProcessorEditor::resized()
     keyboardComponent.setBounds(0 + padding, getHeight() - (keyHeight + padding), getWidth() - 2 * padding, keyHeight);
 }
 
-void WaveTablePluginAudioProcessorEditor::selectNewTable(int itemId)
+void WaveTablePluginAudioProcessorEditor::selectNewWaveform(int tableId, int waveformId)
 {
-    
     //Update Preview Display and Interpoalated Display
-    auto newTable = audioProcessor.getTable(itemId - 1);
-    m_interpDisplay.setTable(newTable);
-    m_displayOne.setTable(newTable);
+    
+//    audioProcessor.setWaveform(tableId, waveformId);
+    
+    WavetableDisplay* display;
+    
+    auto table = audioProcessor.getTable(waveformId);
+    
+    
+    if(tableId)
+    {
+        //Second Table
+        display = &m_displayTwo;
+        m_interpDisplay.setTableTwo(table);
+    }
+    else
+    {
+        display = &m_displayOne;
+        m_interpDisplay.setTable(table);
+    }
+        
+    display->setTable(table);
+    display->repaint();
+    
+    audioProcessor.setWaveform(tableId, waveformId);
+    
+    
+    
+    //Alert Displays to update
+//    m_displayOne.repaint();
+//    m_displayOne.setTable(audioProcessor.getTable(<#int tableID#>))
+//    m_displayTwo.repaint();
+    m_interpDisplay.repaint();
 }
 
 //Midi Keyboard Note Callback Functions

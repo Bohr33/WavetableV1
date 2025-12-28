@@ -14,6 +14,8 @@
             file="Source/WavetableGenerator.h"/>
       <FILE id="DmsahU" name="Graphics.cpp" compile="1" resource="0" file="Source/Graphics.cpp"/>
       <FILE id="VllWH8" name="Graphics.h" compile="0" resource="0" file="Source/Graphics.h"/>
+      <FILE id="FG1aSV" name="WaveTable.cpp" compile="1" resource="0" file="Source/WaveTable.cpp"/>
+      <FILE id="EtVHWB" name="WaveTable.h" compile="0" resource="0" file="Source/WaveTable.h"/>
       <FILE id="aW8FGA" name="PluginProcessor.cpp" compile="1" resource="0"
             file="Source/PluginProcessor.cpp"/>
       <FILE id="GB7ZvQ" name="PluginProcessor.h" compile="0" resource="0"

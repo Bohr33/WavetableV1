@@ -30,7 +30,7 @@ public:
     void paint (juce::Graphics&) override;
     void resized() override;
     
-    void selectNewTable(int itemId);
+    void selectNewWaveform(int tableId, int waveformId);
 
 private:
     // This reference is provided as a quick way for your editor to

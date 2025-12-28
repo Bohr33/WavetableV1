@@ -9,6 +9,7 @@
 */
 #include <JuceHeader.h>
 #include <vector>
+#include "WaveTable.h"
 #pragma once
 
 
@@ -18,7 +19,7 @@ public:
     WavetableDisplay();
     ~WavetableDisplay();
     
-    void setTable(std::vector<float>* table);
+    void setTable(std::shared_ptr<const TableData> table);
     void setColours(juce::Colour colour);
     
     float interpolateValue(float interpolation, float val1, float val2);
@@ -28,7 +29,7 @@ public:
     void drawTable(juce::Graphics& g);
     
 protected:
-    std::vector<float>* m_wavetable;
+    std::shared_ptr<const TableData> m_wavetable;
     juce::Colour backgroundColour;
 };
 
@@ -36,7 +37,7 @@ protected:
 class InterpolatedDisplay : public WavetableDisplay
 {
 public:
-    void setTableTwo(std::vector<float>* table);
+    void setTableTwo(std::shared_ptr<const TableData> table);
     void setInterpolation(float value);
     
     float interpolateValue(float interpolation, float val1, float val2);
@@ -46,6 +47,6 @@ public:
     
     
 private:
-    std::vector<float>* m_wavetable2;
+    std::shared_ptr<const TableData> m_wavetable2;
     float interpVal;
 };

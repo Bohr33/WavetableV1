@@ -11,6 +11,8 @@
 #include <JuceHeader.h>
 #include "Synthesizer.h"
 #include "WavetableGenerator.h"
+#include "WaveTable.h"
+#include <span>
 
 //==============================================================================
 /**
@@ -58,8 +60,10 @@ public:
     
     //Added Functions
     juce::MidiKeyboardState& getMidiKeyboardState();
-    void setTable(int tableID);
-    std::vector<float>* getTable(int tableID);
+    void setWaveform(int tableID, int waveformID);
+//    std::vector<float>* getTable(int tableID);
+    std::shared_ptr<const TableData> getTable(int tableID);
+    void generateWavetableBank();
     
     //==============================================================================
     //Value Tree State
@@ -69,19 +73,25 @@ public:
 
 private:
     juce::MidiKeyboardState m_keystate;
-    unsigned int bufferSize = 128;
+    juce::MidiMessageCollector midiCollector;
     
+    unsigned int bufferSize = 128;
     
     //Synth Parameters
     const int maxVoices = 8;
     const int defaultTableSize = 1 << 11;
+    const int numTables = 4;
     
     juce::Synthesiser synth;
+    
+    const int defaultNumHarmonics = 16;
+    WavetableGenerator tableGenerator;
     std::vector<float> m_table;
     std::vector<float> m_table2;
-    juce::MidiMessageCollector midiCollector;
     
-    WavetableGenerator tableGenerator;
+    //Wavetable Bank
+    std::vector<std::shared_ptr<const TableData>> wavetableBank;
+    
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (WaveTablePluginAudioProcessor)
 };

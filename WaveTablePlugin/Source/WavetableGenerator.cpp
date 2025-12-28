@@ -76,7 +76,7 @@ void WavetableGenerator::additiveGenerator(std::span<float> bufferToFill, std::s
 }
 
 
-void WavetableGenerator::genSine(std::span<float> bufferToFill)
+void WavetableGenerator::genSine(std::span<float> bufferToFill, int numHarmonics)
 {
     
     Partial sine{1.0f, 1.0f, 0.0f};

@@ -18,7 +18,7 @@
 WavetableDisplay::WavetableDisplay(){};
 WavetableDisplay::~WavetableDisplay() = default;
 
-void WavetableDisplay::setTable(std::vector<float>* table)
+void WavetableDisplay::setTable(std::shared_ptr<const TableData> table)
 {
     m_wavetable = table;
     repaint();
@@ -44,7 +44,8 @@ void WavetableDisplay::paint(juce::Graphics& g)
 void WavetableDisplay::drawTable(juce::Graphics& g)
 {
     g.setColour(juce::Colours::whitesmoke);
-    int tablesize = static_cast<int>(m_wavetable->size()) - 1;
+    int tablesize = static_cast<int>(m_wavetable->samples.size()) - 1;
+    juce::Logger::writeToLog("TableSize = " + juce::String(tablesize));
     jassert(tablesize == 2048);
     
     auto pointRadius = 2;
@@ -56,7 +57,7 @@ void WavetableDisplay::drawTable(juce::Graphics& g)
     float current_x = 0.0;
     float current_y = 0.0;
     
-    auto table = m_wavetable->data();
+    auto table = m_wavetable->samples.data();
     
     for (auto i = 0; i < tablesize; i++) {
         current_y = (1-(table[i] + 1.0)/2) * bounds.getHeight();
@@ -81,7 +82,7 @@ void InterpolatedDisplay::paint(juce::Graphics& g)
         drawInterpolatedTable(g);
 }
 
-void InterpolatedDisplay::setTableTwo(std::vector<float>* table)
+void InterpolatedDisplay::setTableTwo(std::shared_ptr<const TableData> table)
 {
     m_wavetable2 = table;
     repaint();
@@ -110,10 +111,10 @@ void InterpolatedDisplay::drawInterpolatedTable(juce::Graphics& g)
 {
     
     g.setColour(juce::Colours::whitesmoke);
-    int tablesize = static_cast<int>(m_wavetable->size()) - 1;
-    int tablesize2 = static_cast<int>(m_wavetable2->size()) - 1;
-    jassert(tablesize == 2048);
-    jassert(tablesize2 == 2048);
+    int tablesize = static_cast<int>(m_wavetable->samples.size()) - 1;
+    int tablesize2 = static_cast<int>(m_wavetable2->samples.size()) - 1;
+//    jassert(tablesize == 2048);
+//    jassert(tablesize2 == 2048);
     
     auto pointRadius = 2;
     auto bounds = getLocalBounds();
@@ -124,8 +125,8 @@ void InterpolatedDisplay::drawInterpolatedTable(juce::Graphics& g)
     float current_x = 0.0;
     float current_y = 0.0;
     
-    auto tableOne = m_wavetable->data();
-    auto tableTwo = m_wavetable2->data();
+    auto tableOne = m_wavetable->samples.data();
+    auto tableTwo = m_wavetable2->samples.data();
     
     for (auto i = 0; i < tablesize; i++) {
         
