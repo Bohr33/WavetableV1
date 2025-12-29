@@ -61,7 +61,6 @@ public:
     //Added Functions
     juce::MidiKeyboardState& getMidiKeyboardState();
     void setWaveform(int tableID, int waveformID);
-//    std::vector<float>* getTable(int tableID);
     std::shared_ptr<const TableData> getTable(int tableID);
     void generateWavetableBank();
     

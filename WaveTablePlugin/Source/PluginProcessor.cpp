@@ -94,21 +94,8 @@ void WaveTablePluginAudioProcessor::changeProgramName (int index, const juce::St
 //==============================================================================
 void WaveTablePluginAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
- 
-    //Resize and Generate Default Tables
-//    m_table.resize(defaultTableSize + 1);
-//    m_table2.resize(defaultTableSize + 1);
     
-    //Generate Default Tables
-//    tableGenerator.genTri(m_table, defaultNumHarmonics);
-//    tableGenerator.genSaw(m_table2, defaultNumHarmonics);
-    
-//    generateWavetableBank();
-    
-    
-    
-
-    
+    //initialize members for the actual synth, including the sound and all voices
     synth.setCurrentPlaybackSampleRate(sampleRate);
     
     synth.clearSounds();
@@ -117,7 +104,6 @@ void WaveTablePluginAudioProcessor::prepareToPlay (double sampleRate, int sample
     
     //add sound to synth
     synth.addSound(new WaveTableSound());
-    
     auto* interpolateParam = apvts.getRawParameterValue("interpolation");
     
     
@@ -132,13 +118,7 @@ void WaveTablePluginAudioProcessor::prepareToPlay (double sampleRate, int sample
         synth.addVoice(voice);
     }
     
-    //Set second table in voices to triangle
-//    setWaveform(1, 1);
-    
-    
     juce::Logger::writeToLog("Num Voices = " + juce::String(synth.getNumVoices()));
-
-    
     midiCollector.reset(sampleRate);
     
 }
@@ -181,7 +161,6 @@ void WaveTablePluginAudioProcessor::processBlock (juce::AudioBuffer<float>& buff
     juce::ScopedNoDenormals noDenormals;
     auto totalNumInputChannels  = getTotalNumInputChannels();
     auto totalNumOutputChannels = getTotalNumOutputChannels();
-    
     
     auto numSamples = buffer.getNumSamples();
     
@@ -235,7 +214,7 @@ juce::MidiKeyboardState& WaveTablePluginAudioProcessor::getMidiKeyboardState()
 }
 
 
-//Set waveform within Synth Voice
+//Updates the pointers to new tables within Synth Voice
 void WaveTablePluginAudioProcessor::setWaveform(int tableID, int waveformID)
 {
     juce::Logger::writeToLog("Setting new table in voices; ID = " + juce::String(waveformID));
@@ -247,25 +226,9 @@ void WaveTablePluginAudioProcessor::setWaveform(int tableID, int waveformID)
         }
             
     }
-
-//    auto table = (tableID == 1) ? m_table2 : m_table;
-//
-//    switch (waveformID) {
-//        case 1:
-//            tableGenerator.genSaw(table, defaultNumHarmonics);
-//            break;
-//        case 2:
-//            tableGenerator.genTri(table, defaultNumHarmonics);
-//            break;
-//        case 3:
-//            tableGenerator.genSquare(table, defaultNumHarmonics);
-//        default:
-//            tableGenerator.genSine(table, 1);
-//            break;
-//    }
-    
 }
 
+//Returns a table from the wavetable bank
 std::shared_ptr<const TableData> WaveTablePluginAudioProcessor::getTable(int tableID)
 {
     //Logic to select table from ID
@@ -278,11 +241,9 @@ std::shared_ptr<const TableData> WaveTablePluginAudioProcessor::getTable(int tab
     
 }
 
-
+//Is called on Construction, generates the basic wavetable shapes
 void WaveTablePluginAudioProcessor::generateWavetableBank()
 {
-    //Create vector of generator functions, then loop through each, generate table
-    //and save in table bank
     using GenFunc = void (WavetableGenerator::*)(std::span<float>, int);
     
     static const std::vector<GenFunc> generatorFuncs = {

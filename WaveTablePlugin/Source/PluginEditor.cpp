@@ -151,9 +151,6 @@ void WaveTablePluginAudioProcessorEditor::resized()
 void WaveTablePluginAudioProcessorEditor::selectNewWaveform(int tableId, int waveformId)
 {
     //Update Preview Display and Interpoalated Display
-    
-//    audioProcessor.setWaveform(tableId, waveformId);
-    
     WavetableDisplay* display;
     
     auto table = audioProcessor.getTable(waveformId);
@@ -174,15 +171,8 @@ void WaveTablePluginAudioProcessorEditor::selectNewWaveform(int tableId, int wav
     display->setTable(table);
     display->repaint();
     
-    //Set Waveform in Audio Processor/Synth Voice
+    //Set Waveform in Audio Processor/Synth Voice and alert interpolation display
     audioProcessor.setWaveform(tableId, waveformId);
-    
-    
-    
-    //Alert Displays to update
-//    m_displayOne.repaint();
-//    m_displayOne.setTable(audioProcessor.getTable(<#int tableID#>))
-//    m_displayTwo.repaint();
     m_interpDisplay.repaint();
 }
 

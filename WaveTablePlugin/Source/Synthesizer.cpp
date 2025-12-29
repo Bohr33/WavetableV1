@@ -27,23 +27,8 @@ bool WaveTableSound::appliesToChannel(int midiChannel)
 /*=============================================================================*/
 /*----------------------------Synth Voice--------------------------------------*/
 /*=============================================================================*/
-//SynthVoice::SynthVoice(std::vector<float>& table, std::vector<float>& table2, int tSize) : m_table(table), m_table2(table2), m_tableSize(tSize)
-//{
-//    //Create default table for pointer
-//    auto defaultTable = std::make_shared<TableData>();
-//    m_tableOne = defaultTable;
-//    m_tableTwo = defaultTable;
-//};
-
 SynthVoice::SynthVoice(std::shared_ptr<const TableData> tableOne, std::shared_ptr<const TableData> tableTwo, int tableSize) : m_tableSize(tableSize), m_tableOne(tableOne), m_tableTwo(tableTwo)
-{
-    //Store default tables, below shouldn't be necessary
-    
-//    //Create default table for pointer
-//    auto defaultTable = std::make_shared<TableData>();
-//    m_tableOne = defaultTable;
-//    m_tableTwo = defaultTable;
-};
+{};
 bool SynthVoice::canPlaySound(juce::SynthesiserSound*)
 {return true;};
 
@@ -57,9 +42,7 @@ void SynthVoice::startNote(int midiNoteNumber, float velocity, juce::Synthesiser
     
     //Set Frequency and Angle
     m_freq = juce::MidiMessage::getMidiNoteInHertz(midiNoteNumber);
-    
     float cyclesPerSample = m_freq / getSampleRate();
-    
     m_angleDelta = cyclesPerSample * (float) m_tableSize;
     
     
@@ -84,48 +67,67 @@ void SynthVoice::stopNote(float velocity, bool allowTailOff)
     }
 };
 
-//float SynthVoice::interpNextSamp() noexcept
-//{
-//    float currentVal;
-//
-//    jassert(m_table.size() > 2);
-//
-//
-//    int index = (int) m_angle;
-//    auto table = m_table.data();
-//
-//    float val_L = table[index];
-//    float val_H = table[index + 1];
-//    float frac = m_angle - (float) index;
-//
-//    currentVal = val_L + (val_H - val_L)*frac;
-//    updateAngle();
-//
-//    return currentVal;
-//}
-
-//float SynthVoice::interpNextSamp(std::vector<float>& table) noexcept
-//{
-//
-//    float currentVal;
-//    jassert(table.size() > 2);
-//    int index = (int) m_angle;
-//
-//    float val_L = table[index];
-//    float val_H = table[index + 1];
-//    float frac = m_angle - (float) index;
-//
-//    currentVal = val_L + (val_H - val_L)*frac;
-//    updateAngle();
-//
-//    return currentVal;
-//}
-
-
-float SynthVoice::interpNextSamp2(std::shared_ptr<const TableData> table) noexcept
+//We never have to explicitely call this function, it is automatically called for every voice and summed in
+//the synthesizerSource class
+void SynthVoice::renderNextBlock(juce::AudioBuffer<float> &outputBuffer, int startSample, int numSamples)
 {
     
-    jassert(table->samples.size() >= 2048);
+    auto interpVal = interpParam->load();
+    
+    //atomically load tables from shared pointers
+    auto tableOne = std::atomic_load(&m_tableOne);
+    auto tableTwo = std::atomic_load(&m_tableTwo);
+
+    if(m_angleDelta != 0)
+    {
+        float val1 = 0.0;
+        float val2 = 0.0;
+        float output = 0.0;
+        
+        if(m_tail > 0.0)
+        {
+            while (--numSamples >= 0) {
+                //Processing loop for tail
+                val1 = interpNextSamp(tableOne);
+                val2 = interpNextSamp(tableTwo);
+                output = interpolate(interpVal, val1, val2);
+        
+                for(auto channel = 0; channel < outputBuffer.getNumChannels(); ++channel)
+                    outputBuffer.addSample(channel, startSample, output);
+                
+                //Update Angles after both interpolation values are retrieved
+                updateAngle();
+                startSample++;
+                m_tail *= m_tailDec;
+                
+                if (m_tail <= 0.005) {
+                    clearCurrentNote();
+                    m_angleDelta = 0.0;
+                    break;
+                    }
+                }
+        }else
+        {
+            //Main processing loop when note on
+            while (--numSamples >= 0) {
+                val1 = interpNextSamp(tableOne);
+                val2 = interpNextSamp(tableTwo);
+                output = interpolate(interpVal, val1,  val2);
+                
+                for(auto channel = 0; channel < outputBuffer.getNumChannels(); ++channel)
+                    outputBuffer.addSample(channel, startSample, output);
+                
+                updateAngle();
+                startSample++;
+                }
+        }
+    }
+};
+
+//Main table reading function, performs basic linearly interpolation expacting a guard point
+float SynthVoice::interpNextSamp(std::shared_ptr<const TableData> table) noexcept
+{
+    jassert(table->samples.size() == 2049);
     
     float currentVal;
     auto data = table->samples.data();
@@ -141,46 +143,6 @@ float SynthVoice::interpNextSamp2(std::shared_ptr<const TableData> table) noexce
     return currentVal;
 }
 
-void SynthVoice::printTable()
-{
-    for (auto i = 0; i < m_tableSize; i++) {
-        auto val = m_tableOne->samples[i];
-        juce::Logger::writeToLog("Val = " + juce::String(val));
-    }
-    juce::Logger::writeToLog("Done");
-}
-
-void SynthVoice::reportTables()
-{
-    
-    auto tableSize1 = m_tableOne->samples.size();
-    auto tableSize2 = m_tableTwo->samples.size();
-    
-    
-    juce::Logger::writeToLog("Table 1; Size = " + juce::String(tableSize1));
-    
-    
-    juce::Logger::writeToLog("Values 100 - 150: " + juce::String(tableSize1));
-    
-    for (auto i = 0; i < 50; i++) {
-        auto val = m_tableOne->samples[i + 100];
-        juce::Logger::writeToLog(juce::String(i + 100) + " = " + juce::String(val));
-    }
-    
-
-    juce::Logger::writeToLog("Table 2; Size = " + juce::String(tableSize2));
-    
-    for (auto i = 0; i < 50; i++) {
-        auto val = m_tableTwo->samples[i + 100];
-        juce::Logger::writeToLog(juce::String(i + 100) + " = " + juce::String(val));
-    }
-    
-    
-}
-
-
-
-
 void SynthVoice::updateAngle()
 {
     m_angle += m_angleDelta;
@@ -188,103 +150,14 @@ void SynthVoice::updateAngle()
         m_angle -= m_tableSize;
 };
 
-
-//We never have to explicitely call this function, it is automatically called for every voice and summed in
-//the synthesizerSource class
-void SynthVoice::renderNextBlock(juce::AudioBuffer<float> &outputBuffer, int startSample, int numSamples)
-{
-    
-    auto interpVal = interpParam->load();
-    
-    //atomically load tables from shared pointers
-    auto tableOne = std::atomic_load(&m_tableOne);
-    auto tableTwo = std::atomic_load(&m_tableTwo);
-//    auto tableOne = m_tableOne;
-//    auto tableTwo = m_tableTwo;
-    
-
-    if(m_angleDelta != 0)
-    {
-        float val = 0.0;
-        float val2 = 0.0;
-        if(m_tail > 0.0)
-        {
-            while (--numSamples >= 0) {
-                //Processing loop for tail
-//                val = interpNextSamp2(tableOne);
-                
-//                auto output = interpolate(interpVal, val, val2) * m_level * m_tail;
-                
-                val = interpolate(interpVal, tableOne, tableTwo) * m_level * m_tail;
-//                val = interpNextSamp2(tableTwo) * m_level * m_tail;
-//                val2 = interpNextSamp2(tableTwo);
-                
-                
-                
-                for(auto channel = 0; channel < outputBuffer.getNumChannels(); ++channel)
-                    outputBuffer.addSample(channel, startSample, val);
-                
-                updateAngle();
-                startSample++;
-                m_tail *= m_tailDec;
-                
-                if (m_tail <= 0.005) {
-                    juce::Logger::writeToLog("Note Cleared; Yay! Table One");
-                    clearCurrentNote();
-                    m_angleDelta = 0.0;
-                    break;
-                    }
-                }
-        }else
-        {
-            //Main processing loop when note on
-            while (--numSamples >= 0) {
-//                val = interpolateValue(interpVal) * m_level;
-                val = interpolate(interpVal, tableOne, tableTwo) * m_level;
-//                val = interpNextSamp2(tableTwo) * m_level;
-//                juce::Logger::writeToLog("Val = " + juce::String(val));
-                
-//                val = interpNextSamp2(tableTwo) * m_level;
-//                val2 = interpNextSamp2(tableTwo);
-//                auto output = interpolate(interpVal, val, val2) * m_level;
-                
-                for(auto channel = 0; channel < outputBuffer.getNumChannels(); ++channel)
-                    outputBuffer.addSample(channel, startSample, val);
-                
-                updateAngle();
-                startSample++;
-                }
-        }
-    }
-};
-
-//float SynthVoice::interpolateValue(float interpolation)
-//{
-//
-//    auto interpVal = juce::jlimit(0.0f, 1.0f, interpolation);
-//
-//    auto val1 = interpNextSamp(m_table);
-//    auto val2 = interpNextSamp(m_table2);
-//
-//    auto diff = val1 - val2;
-//
-//    float result = val1 - interpVal * diff;
-//    return result;
-//};
-
+//Returns interpolated value based on interpolation value and tables given
+//This version isn't used, instead the below version is used rendering loop
 float SynthVoice::interpolate(float interp_val, std::shared_ptr<const TableData> tableOne, std::shared_ptr<const TableData> tableTwo)
 {
-    
-//    auto val = tableOne->samples[test];
-//    test++;
-//    test %= m_tableSize;
-//    juce::Logger::writeToLog("val = " + juce::String(val));
-    
-    
     auto interpVal = juce::jlimit(0.0f, 1.0f, interp_val);
-    
-    auto val1 = interpNextSamp2(tableOne);
-    auto val2 = interpNextSamp2(tableTwo);
+
+    auto val1 = interpNextSamp(tableOne);
+    auto val2 = interpNextSamp(tableTwo);
     
     auto diff = val1 - val2;
     
@@ -317,6 +190,43 @@ void SynthVoice::setWavetable(int tableID, std::shared_ptr<const TableData> newT
         std::atomic_store(&m_tableTwo, newTable);
     else
         std::atomic_store(&m_tableOne, newTable);
+}
+
+
+
+void SynthVoice::printTable()
+{
+    for (auto i = 0; i < m_tableSize; i++) {
+        auto val = m_tableOne->samples[i];
+        juce::Logger::writeToLog("Val = " + juce::String(val));
+    }
+    juce::Logger::writeToLog("Done");
+}
+
+void SynthVoice::reportTables()
+{
+    
+    auto tableSize1 = m_tableOne->samples.size();
+    auto tableSize2 = m_tableTwo->samples.size();
+    
+    
+    juce::Logger::writeToLog("Table 1; Size = " + juce::String(tableSize1));
+    
+    
+    juce::Logger::writeToLog("Values 100 - 150: " + juce::String(tableSize1));
+    
+    for (auto i = 0; i < 50; i++) {
+        auto val = m_tableOne->samples[i + 100];
+        juce::Logger::writeToLog(juce::String(i + 100) + " = " + juce::String(val));
+    }
+    
+    juce::Logger::writeToLog("Table 2; Size = " + juce::String(tableSize2));
+    
+    for (auto i = 0; i < 50; i++) {
+        auto val = m_tableTwo->samples[i + 100];
+        juce::Logger::writeToLog(juce::String(i + 100) + " = " + juce::String(val));
+    }
+
 }
 
 //Unused Pure Virtual Functions
