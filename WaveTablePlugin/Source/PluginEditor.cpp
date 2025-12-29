@@ -158,7 +158,7 @@ void WaveTablePluginAudioProcessorEditor::selectNewWaveform(int tableId, int wav
     
     auto table = audioProcessor.getTable(waveformId);
     
-    
+    //Set Display Tables
     if(tableId)
     {
         //Second Table
@@ -174,6 +174,7 @@ void WaveTablePluginAudioProcessorEditor::selectNewWaveform(int tableId, int wav
     display->setTable(table);
     display->repaint();
     
+    //Set Waveform in Audio Processor/Synth Voice
     audioProcessor.setWaveform(tableId, waveformId);
     
     

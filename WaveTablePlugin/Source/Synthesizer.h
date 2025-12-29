@@ -29,7 +29,7 @@ class SynthVoice : public juce::SynthesiserVoice
 {
 public:
 //    SynthVoice(std::vector<float>& table, std::vector<float>& table2, int tSize);
-    SynthVoice(std::shared_ptr<const TableData> initialTable, int tableSize);
+    SynthVoice(std::shared_ptr<const TableData> tableOne, std::shared_ptr<const TableData> tableTwo, int tableSize);
     
     bool canPlaySound(juce::SynthesiserSound*) override;
     void startNote(int midiNoteNumber, float velocity, juce::SynthesiserSound *sound, int currentPitchWheelPosition) override;
@@ -49,6 +49,7 @@ public:
     float interpolateValue(float val);
     
     float interpolate(float interp_val, std::shared_ptr<const TableData> tableOne, std::shared_ptr<const TableData> tableTwo);
+    float interpolate(float interp_val, float val1, float val2);
     float interpNextSamp2(std::shared_ptr<const TableData> table) noexcept;
     
     void setParameters(std::atomic<float>* param);
@@ -58,6 +59,8 @@ public:
     
     
     void printTable();
+    
+    void reportTables();
     
     
 private:

@@ -121,15 +121,19 @@ void WaveTablePluginAudioProcessor::prepareToPlay (double sampleRate, int sample
     auto* interpolateParam = apvts.getRawParameterValue("interpolation");
     
     
-    auto defaultTable = wavetableBank[0];
+    auto defaultTableOne = wavetableBank[0];
+    auto defaultTableTwo = wavetableBank[1];
     
     for(auto i = 0; i < maxVoices; ++i)
     {
         //add voice to synth; also provides default Table and Table Size to Synth Voice
-        auto* voice = new SynthVoice(defaultTable, defaultTableSize);
+        auto* voice = new SynthVoice(defaultTableOne, defaultTableTwo, defaultTableSize);
         voice->setParameters(interpolateParam);
         synth.addVoice(voice);
     }
+    
+    //Set second table in voices to triangle
+//    setWaveform(1, 1);
     
     
     juce::Logger::writeToLog("Num Voices = " + juce::String(synth.getNumVoices()));
@@ -230,13 +234,18 @@ juce::MidiKeyboardState& WaveTablePluginAudioProcessor::getMidiKeyboardState()
     return m_keystate;
 }
 
+
+//Set waveform within Synth Voice
 void WaveTablePluginAudioProcessor::setWaveform(int tableID, int waveformID)
 {
     juce::Logger::writeToLog("Setting new table in voices; ID = " + juce::String(waveformID));
     for (int i = 0; i < synth.getNumVoices(); ++i)
     {
         if (auto* voice = dynamic_cast<SynthVoice*>(synth.getVoice(i)))
+        {
             voice->setWavetable(tableID, wavetableBank[waveformID]);
+        }
+            
     }
 
 //    auto table = (tableID == 1) ? m_table2 : m_table;
