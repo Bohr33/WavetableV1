@@ -37,6 +37,7 @@ public:
     void renderNextBlock(juce::AudioBuffer<float> &outputBuffer, int startSample, int numSamples) override;
     
     
+    
     //Sets ADSR Sample Rate, but can do other stuff...
     void prepare(double sampleRate);
     
@@ -54,7 +55,7 @@ public:
     float interpolate(float interp_val, float val1, float val2);
     
     //Setter Functions
-    void setParameters(std::atomic<float>* param);
+    void setAPVTS(juce::AudioProcessorValueTreeState* apvts);
     void setWavetable(int tableID, std::shared_ptr<const TableData> newTable);
     
     
@@ -64,6 +65,8 @@ public:
     
     
 private:
+    
+    juce::AudioProcessorValueTreeState* apvtsRef = nullptr;
 
     float currentIndex;
     float m_angle;
@@ -73,6 +76,12 @@ private:
     
     
     std::atomic<float>* interpParam = nullptr;
+    
+    std::atomic<float>* attackParam = nullptr;
+    std::atomic<float>* decayParam = nullptr;
+    std::atomic<float>* sustainParam = nullptr;
+    std::atomic<float>* releaseParam = nullptr;
+    
 
     unsigned int m_tableSize;
     

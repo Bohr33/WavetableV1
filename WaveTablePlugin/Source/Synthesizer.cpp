@@ -69,11 +69,24 @@ void SynthVoice::renderNextBlock(juce::AudioBuffer<float> &outputBuffer, int sta
     
     auto interpVal = interpParam->load();
     
+    ADSR::Parameters params =
+    {
+        attackParam->load(),
+        decayParam->load(),
+        sustainParam->load(),
+        releaseParam->load(),
+        0.0,
+        0.0,
+        0.0
+    };
+    
+    envelope.setParameters(params);
+    
     //atomically load tables from shared pointers
     auto tableOne = std::atomic_load(&m_tableOne);
     auto tableTwo = std::atomic_load(&m_tableTwo);
 
-    if(m_angleDelta != 0)
+    if(m_angleDelta != 0.0)
     {
         float val1 = 0.0;
         float val2 = 0.0;
@@ -104,6 +117,9 @@ void SynthVoice::renderNextBlock(juce::AudioBuffer<float> &outputBuffer, int sta
         
    
 };
+
+
+
 
 
 
@@ -162,10 +178,17 @@ float SynthVoice::interpolate(float interp_val, float val1, float val2)
     
 }
 
-void SynthVoice::setParameters(std::atomic<float> *param)
+//Setter Function for Audio Processor Value True State
+void SynthVoice::setAPVTS(juce::AudioProcessorValueTreeState* apvts)
 {
-    interpParam = param;
+    apvtsRef = apvts;
     
+    interpParam = apvts->getRawParameterValue("interpolation");
+    
+    attackParam = apvts->getRawParameterValue("env_attack");
+    decayParam = apvts->getRawParameterValue("env_decay");
+    sustainParam = apvts->getRawParameterValue("env_sustain");
+    releaseParam = apvts->getRawParameterValue("env_release");
 }
 
 void SynthVoice::setWavetable(int tableID, std::shared_ptr<const TableData> newTable)

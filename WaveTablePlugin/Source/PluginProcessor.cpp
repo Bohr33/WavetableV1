@@ -105,7 +105,10 @@ void WaveTablePluginAudioProcessor::prepareToPlay (double sampleRate, int sample
     //add sound to synth
     synth.addSound(new WaveTableSound());
     auto* interpolateParam = apvts.getRawParameterValue("interpolation");
-    
+    auto* envAttackParam = apvts.getRawParameterValue("env_attack");
+    auto* envDecayParam = apvts.getRawParameterValue("env_decay");
+    auto* envSustainParam = apvts.getRawParameterValue("env_sustain");
+    auto* envReleaseParam = apvts.getRawParameterValue("env_release");
     
     auto defaultTableOne = wavetableBank[0];
     auto defaultTableTwo = wavetableBank[1];
@@ -114,7 +117,8 @@ void WaveTablePluginAudioProcessor::prepareToPlay (double sampleRate, int sample
     {
         //add voice to synth; also provides default Table and Table Size to Synth Voice
         auto* voice = new SynthVoice(defaultTableOne, defaultTableTwo, defaultTableSize);
-        voice->setParameters(interpolateParam);
+//        voice->setParameters(interpolateParam);
+        voice->setAPVTS(&apvts);
         voice->prepare(sampleRate);
         synth.addVoice(voice);
     }
@@ -271,7 +275,11 @@ juce::AudioProcessorValueTreeState::ParameterLayout WaveTablePluginAudioProcesso
     
     return
     {
-        std::make_unique<AudioParameterFloat>(ParameterID {"interpolation", versionHint}, "Interpolation", 0.0f, 1.0f, 0.5f)
+        std::make_unique<AudioParameterFloat>(ParameterID {"interpolation", versionHint}, "Interpolation", 0.0f, 1.0f, 0.5f),
+        std::make_unique<AudioParameterFloat>(ParameterID {"env_attack", versionHint}, "Envelope Attack", 0.0f, 1.0f, 0.01f),
+        std::make_unique<AudioParameterFloat>(ParameterID {"env_decay", versionHint}, "Envelope Decay", 0.0f, 1.0f, 0.1f),
+        std::make_unique<AudioParameterFloat>(ParameterID {"env_sustain", versionHint}, "Envelope Sustain", 0.0f, 1.0f, 0.7f),
+        std::make_unique<AudioParameterFloat>(ParameterID {"env_release", versionHint}, "Envelope Release", 0.0f, 1.0f, 0.7f)
     };
 }
 

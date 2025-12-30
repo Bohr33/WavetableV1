@@ -50,6 +50,21 @@ private:
 
     WavetableDisplay m_displayTwo;
     juce::ComboBox  waveBankTwo;
+    
+    
+    
+    //ADSR Components
+    juce::Slider    s_envAttack;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> envAttackAttachment;
+    
+    juce::Slider    s_envDecay;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> envDecayAttachment;
+    
+    juce::Slider    s_envSustain;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> envSustainAttachment;
+    
+    juce::Slider    s_envRelease;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> envReleaseAttachment;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (WaveTablePluginAudioProcessorEditor)
 };

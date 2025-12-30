@@ -21,7 +21,7 @@ WaveTablePluginAudioProcessorEditor::WaveTablePluginAudioProcessorEditor (WaveTa
     
     //============Sliders==========//
     s_interpolation.setSliderStyle(juce::Slider::RotaryVerticalDrag);
-    s_interpolation.setRange(0.0, 1.0);
+    s_interpolation.setRange(0.0f, 1.0f);
     s_interpolation.onValueChange = [this] {
         m_interpDisplay.setInterpolation(s_interpolation.getValue());
         m_interpDisplay.repaint();
@@ -30,6 +30,33 @@ WaveTablePluginAudioProcessorEditor::WaveTablePluginAudioProcessorEditor (WaveTa
     interpolationAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(p.apvts, "interpolation", s_interpolation);
     
     addAndMakeVisible(s_interpolation);
+    
+    
+    //ADSR
+    s_envAttack.setSliderStyle(juce::Slider::LinearVertical);
+    s_envAttack.setRange(0.0f, 1.0f);
+    envAttackAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(p.apvts, "env_attack", s_envAttack);
+    addAndMakeVisible(s_envAttack);
+    s_envAttack.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 80, 20);
+    
+    s_envDecay.setSliderStyle(juce::Slider::LinearVertical);
+    s_envDecay.setRange(0.0f, 1.0f);
+    envDecayAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(p.apvts, "env_decay", s_envDecay);
+    addAndMakeVisible(s_envDecay);
+    s_envDecay.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 80, 20);
+    
+    s_envSustain.setSliderStyle(juce::Slider::LinearVertical);
+    s_envSustain.setRange(0.0f, 1.0f);
+    envSustainAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(p.apvts, "env_sustain", s_envSustain);
+    addAndMakeVisible(s_envSustain);
+    s_envSustain.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 80, 20);
+    
+    s_envRelease.setSliderStyle(juce::Slider::LinearVertical);
+    s_envRelease.setRange(0.0f, 1.0f);
+    envReleaseAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(p.apvts, "env_release", s_envRelease);
+    addAndMakeVisible(s_envRelease);
+    s_envRelease.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 80, 20);
+    
     
     //========Other GUI==============//
     addAndMakeVisible(waveBankOne);
@@ -113,6 +140,10 @@ void WaveTablePluginAudioProcessorEditor::resized()
     int sliderWidth = 150;
     int slider_y = getHeight() - (keyHeight + padding * 2 + sliderHeight);
     
+    int verticalSliderHeight = 150;
+    int verticalSliderWidth = 80;
+    int vertSliderTextHeight = 20;
+    
     int combo_width = getWidth() - (display_width + dx + padding * 2);
     int combo_height = 50;
     
@@ -120,6 +151,11 @@ void WaveTablePluginAudioProcessorEditor::resized()
     auto keyBedBounds = mainWindowBounds.removeFromBottom(keyHeight);
     
     auto middleBounds = mainWindowBounds.removeFromBottom(sliderHeight + padding * 2);
+    
+    
+    auto leftMiddle = middleBounds.removeFromLeft(middleBounds.getWidth()/2.0f);
+    auto rightMiddle = middleBounds;
+    
     
     auto quarterWidth = mainWindowBounds.getWidth()/4.0;
     
@@ -140,9 +176,20 @@ void WaveTablePluginAudioProcessorEditor::resized()
     waveBankTwo.setBounds(rightQuarterBounds);
     
     
-    auto centerPoint = middleBounds.getCentre();
+    //ADSR Sliders
+    rightMiddle.removeFromBottom(vertSliderTextHeight);
     
-    auto sliderBounds = juce::Rectangle<int>(sliderWidth, sliderHeight).withCentre(centerPoint);
+    s_envAttack.setBounds(rightMiddle.removeFromLeft(verticalSliderWidth));
+    s_envDecay.setBounds(rightMiddle.removeFromLeft(verticalSliderWidth));
+    s_envSustain.setBounds(rightMiddle.removeFromLeft(verticalSliderWidth));
+    s_envRelease.setBounds(rightMiddle.removeFromLeft(verticalSliderWidth));
+    
+    
+    
+    
+    auto leftMiddleCenterPoint = leftMiddle.getCentre();
+    
+    auto sliderBounds = juce::Rectangle<int>(sliderWidth, sliderHeight).withCentre(leftMiddleCenterPoint);
     s_interpolation.setBounds(sliderBounds);
 
     keyboardComponent.setBounds(0 + padding, getHeight() - (keyHeight + padding), getWidth() - 2 * padding, keyHeight);
