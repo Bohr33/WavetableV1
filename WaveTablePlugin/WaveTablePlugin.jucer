@@ -18,6 +18,8 @@
       <FILE id="EtVHWB" name="WaveTable.h" compile="0" resource="0" file="Source/WaveTable.h"/>
       <FILE id="aW8FGA" name="PluginProcessor.cpp" compile="1" resource="0"
             file="Source/PluginProcessor.cpp"/>
+      <FILE id="bg0ndQ" name="ADSR.cpp" compile="1" resource="0" file="Source/ADSR.cpp"/>
+      <FILE id="lpx7GC" name="ADSR.h" compile="0" resource="0" file="Source/ADSR.h"/>
       <FILE id="GB7ZvQ" name="PluginProcessor.h" compile="0" resource="0"
             file="Source/PluginProcessor.h"/>
       <FILE id="JF9PFy" name="PluginEditor.cpp" compile="1" resource="0"

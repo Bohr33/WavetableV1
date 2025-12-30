@@ -14,6 +14,7 @@
 #include <stdio.h>
 #include <vector>
 #include <span>
+#include "ADSR.h"
 
 class WaveTableSound : public juce::SynthesiserSound
 {
@@ -34,6 +35,10 @@ public:
     void startNote(int midiNoteNumber, float velocity, juce::SynthesiserSound *sound, int currentPitchWheelPosition) override;
     void stopNote(float velocity, bool allowTailOff) override;
     void renderNextBlock(juce::AudioBuffer<float> &outputBuffer, int startSample, int numSamples) override;
+    
+    
+    //Sets ADSR Sample Rate, but can do other stuff...
+    void prepare(double sampleRate);
     
     
     //Unused Pure Virtual Functions
@@ -59,19 +64,19 @@ public:
     
     
 private:
-    const float tailDecayTime = 1.0;
-    
+
     float currentIndex;
     float m_angle;
     float m_angleDelta;
     float m_level;
     float m_freq;
-    float m_tail;
-    float m_tailDec = 0.99;
+    
     
     std::atomic<float>* interpParam = nullptr;
 
     unsigned int m_tableSize;
+    
+    ADSR envelope;
     
     //Shared pointer to currently chosen table
     std::shared_ptr<const TableData> m_tableOne;

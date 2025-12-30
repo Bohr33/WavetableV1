@@ -115,6 +115,7 @@ void WaveTablePluginAudioProcessor::prepareToPlay (double sampleRate, int sample
         //add voice to synth; also provides default Table and Table Size to Synth Voice
         auto* voice = new SynthVoice(defaultTableOne, defaultTableTwo, defaultTableSize);
         voice->setParameters(interpolateParam);
+        voice->prepare(sampleRate);
         synth.addVoice(voice);
     }
     

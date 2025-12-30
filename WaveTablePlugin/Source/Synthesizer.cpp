@@ -38,12 +38,13 @@ void SynthVoice::startNote(int midiNoteNumber, float velocity, juce::Synthesiser
     m_angle = 0.0;
     m_angleDelta = 0.0;
     m_level = velocity;
-    m_tail = 0.0;
     
     //Set Frequency and Angle
     m_freq = juce::MidiMessage::getMidiNoteInHertz(midiNoteNumber);
     float cyclesPerSample = m_freq / getSampleRate();
     m_angleDelta = cyclesPerSample * (float) m_tableSize;
+    
+    envelope.noteOn();
     
     
     //Cast sound to new Type, and store wavetable Address
@@ -54,21 +55,15 @@ void SynthVoice::startNote(int midiNoteNumber, float velocity, juce::Synthesiser
 };
 void SynthVoice::stopNote(float velocity, bool allowTailOff)
 {
-
-    if(allowTailOff)
-    {
-        if(m_tail == 0.0)
-            m_tail = 1.0;
-    }
-    else
-    {
-        clearCurrentNote();
-        m_angle = 0.0;
-    }
+    envelope.noteOff();
 };
 
-//We never have to explicitely call this function, it is automatically called for every voice and summed in
-//the synthesizerSource class
+void SynthVoice::prepare(double sampleRate)
+{
+    envelope.setSampleRate(sampleRate);
+}
+
+
 void SynthVoice::renderNextBlock(juce::AudioBuffer<float> &outputBuffer, int startSample, int numSamples)
 {
     
@@ -83,46 +78,36 @@ void SynthVoice::renderNextBlock(juce::AudioBuffer<float> &outputBuffer, int sta
         float val1 = 0.0;
         float val2 = 0.0;
         float output = 0.0;
+        float envVal;
         
-        if(m_tail > 0.0)
-        {
-            while (--numSamples >= 0) {
-                //Processing loop for tail
-                val1 = interpNextSamp(tableOne);
-                val2 = interpNextSamp(tableTwo);
-                output = interpolate(interpVal, val1, val2);
-        
-                for(auto channel = 0; channel < outputBuffer.getNumChannels(); ++channel)
-                    outputBuffer.addSample(channel, startSample, output);
-                
-                //Update Angles after both interpolation values are retrieved
-                updateAngle();
-                startSample++;
-                m_tail *= m_tailDec;
-                
-                if (m_tail <= 0.005) {
-                    clearCurrentNote();
-                    m_angleDelta = 0.0;
-                    break;
-                    }
-                }
-        }else
-        {
-            //Main processing loop when note on
-            while (--numSamples >= 0) {
-                val1 = interpNextSamp(tableOne);
-                val2 = interpNextSamp(tableTwo);
-                output = interpolate(interpVal, val1,  val2);
-                
-                for(auto channel = 0; channel < outputBuffer.getNumChannels(); ++channel)
-                    outputBuffer.addSample(channel, startSample, output);
-                
-                updateAngle();
-                startSample++;
-                }
+        //Main processing loop when note on
+        while (--numSamples >= 0) {
+            envVal = envelope.getNextSample();
+            val1 = interpNextSamp(tableOne);
+            val2 = interpNextSamp(tableTwo);
+            output = interpolate(interpVal, val1,  val2) * m_level * envVal;
+            
+            for(auto channel = 0; channel < outputBuffer.getNumChannels(); ++channel)
+                outputBuffer.addSample(channel, startSample, output);
+            
+            updateAngle();
+            startSample++;
+            
+            if(!envelope.isActive())
+            {
+                clearCurrentNote();
+                m_angleDelta = 0.0;
+                break;
+            }
         }
     }
+        
+   
 };
+
+
+
+
 
 //Main table reading function, performs basic linearly interpolation expacting a guard point
 float SynthVoice::interpNextSamp(std::shared_ptr<const TableData> table) noexcept
