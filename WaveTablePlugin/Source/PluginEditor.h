@@ -65,6 +65,15 @@ private:
     
     juce::Slider    s_envRelease;
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> envReleaseAttachment;
+    
+    juce::Slider    s_attCurve;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> attCurveAttachment;
+    
+    juce::Slider    s_decCurve;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> decCurveAttachment;
+    
+    juce::Slider    s_relCurve;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> relCurveAttachment;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (WaveTablePluginAudioProcessorEditor)
 };

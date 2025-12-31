@@ -57,6 +57,22 @@ WaveTablePluginAudioProcessorEditor::WaveTablePluginAudioProcessorEditor (WaveTa
     addAndMakeVisible(s_envRelease);
     s_envRelease.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 80, 20);
     
+    //ADSR Slope Controls
+    s_attCurve.setSliderStyle(juce::Slider::LinearVertical);
+    attCurveAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(p.apvts, "env_att_curve", s_attCurve);
+    addAndMakeVisible(s_attCurve);
+    s_attCurve.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 80, 20);
+    
+    s_decCurve.setSliderStyle(juce::Slider::LinearVertical);
+    decCurveAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(p.apvts, "env_dec_curve", s_decCurve);
+    addAndMakeVisible(s_decCurve);
+    s_decCurve.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 80, 20);
+    
+    s_relCurve.setSliderStyle(juce::Slider::LinearVertical);
+    relCurveAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(p.apvts, "env_rel_curve", s_relCurve);
+    addAndMakeVisible(s_relCurve);
+    s_relCurve.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 80, 20);
+    
     
     //========Other GUI==============//
     addAndMakeVisible(waveBankOne);
@@ -141,7 +157,7 @@ void WaveTablePluginAudioProcessorEditor::resized()
     int slider_y = getHeight() - (keyHeight + padding * 2 + sliderHeight);
     
     int verticalSliderHeight = 150;
-    int verticalSliderWidth = 80;
+    int verticalSliderWidth = 50;
     int vertSliderTextHeight = 20;
     
     int combo_width = getWidth() - (display_width + dx + padding * 2);
@@ -153,7 +169,7 @@ void WaveTablePluginAudioProcessorEditor::resized()
     auto middleBounds = mainWindowBounds.removeFromBottom(sliderHeight + padding * 2);
     
     
-    auto leftMiddle = middleBounds.removeFromLeft(middleBounds.getWidth()/2.0f);
+    auto leftMiddle = middleBounds.removeFromLeft(middleBounds.getWidth()/4.0f);
     auto rightMiddle = middleBounds;
     
     
@@ -183,6 +199,10 @@ void WaveTablePluginAudioProcessorEditor::resized()
     s_envDecay.setBounds(rightMiddle.removeFromLeft(verticalSliderWidth));
     s_envSustain.setBounds(rightMiddle.removeFromLeft(verticalSliderWidth));
     s_envRelease.setBounds(rightMiddle.removeFromLeft(verticalSliderWidth));
+    
+    s_attCurve.setBounds(rightMiddle.removeFromLeft(verticalSliderWidth));
+    s_decCurve.setBounds(rightMiddle.removeFromLeft(verticalSliderWidth));
+    s_relCurve.setBounds(rightMiddle.removeFromLeft(verticalSliderWidth));
     
     
     

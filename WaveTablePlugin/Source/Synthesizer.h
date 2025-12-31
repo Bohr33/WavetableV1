@@ -82,6 +82,10 @@ private:
     std::atomic<float>* sustainParam = nullptr;
     std::atomic<float>* releaseParam = nullptr;
     
+    std::atomic<float>* attCurveParam = nullptr;
+    std::atomic<float>* decCurveParam = nullptr;
+    std::atomic<float>* relCurveParam = nullptr;
+    
 
     unsigned int m_tableSize;
     

@@ -31,9 +31,7 @@ void ADSR::noteOn()
     stageProgress = 0.0f;
     stageSamples = m_attack * m_sampleRate;
     m_currentStage = Stage::Attack;
-    
-    juce::Logger::writeToLog("Stage Samples = " + juce::String(stageSamples));
-    
+    m_attackStartLevel = m_currentLevel;
 }
 
 void ADSR::noteOff()
@@ -41,6 +39,7 @@ void ADSR::noteOff()
     stageProgress = 0.0f;
     stageSamples = m_release * m_sampleRate;
     m_currentStage = Stage::Release;
+    m_releaseStartLevel = m_currentLevel;
 };
 
 float ADSR::getNextSample()
@@ -52,7 +51,7 @@ float ADSR::getNextSample()
             
         case Stage::Attack:
             stageProgress += (1.0f / stageSamples);
-            m_currentLevel = stageProgress;
+            m_currentLevel = m_attackStartLevel + stageProgress * (1.0f - m_attackStartLevel);
             if (stageProgress >= 1.0f)
             {
                 m_currentStage = Stage::Decay;
@@ -76,7 +75,7 @@ float ADSR::getNextSample()
             break;
         case Stage::Release:
             stageProgress += 1.0 / stageSamples;
-            m_currentLevel = m_sustain * (1.0f - stageProgress);
+            m_currentLevel = m_releaseStartLevel * (1.0f - stageProgress);
             
             if(stageProgress >= 1.0f)
             {
@@ -90,6 +89,60 @@ float ADSR::getNextSample()
     
     return m_currentLevel;
 };
+
+
+float ADSR::getNextCurveSample()
+{
+    float curveVal;
+    switch (m_currentStage) {
+        case Stage::Idle:
+            return 0.0f;
+            
+        case Stage::Attack:
+            stageProgress += (1.0f / stageSamples);
+            
+            curveVal = std::pow(stageProgress, m_attackCurve);
+            m_currentLevel = m_attackStartLevel + curveVal * (1.0f - m_attackStartLevel);
+            if (stageProgress >= 1.0f)
+            {
+                m_currentStage = Stage::Decay;
+                stageProgress = 0.0f;
+                stageSamples = m_decay * m_sampleRate;
+                juce::Logger::writeToLog("Attack slope = " + juce::String(m_attackCurve));
+            }
+            break;
+        case Stage::Decay:
+            stageProgress += 1.0f / stageSamples;
+            curveVal = 1.0 - (std::pow(stageProgress, m_decayCurve) * (1.0 - m_sustain));
+            m_currentLevel = curveVal;
+            if(stageProgress >= 1.0f)
+            {
+                m_currentStage = Stage::Sustain;
+                m_currentLevel = m_sustain;
+                juce::Logger::writeToLog("Decay Curve = " + juce::String(m_decayCurve));
+            }
+            break;
+        case Stage::Sustain:
+            m_currentLevel = m_sustain;
+            break;
+        case Stage::Release:
+            stageProgress += 1.0 / stageSamples;
+            
+            curveVal = m_releaseStartLevel * (1.0f - std::pow(stageProgress, m_releaseCurve));
+            m_currentLevel = curveVal;
+            
+            if(stageProgress >= 1.0f)
+            {
+                m_currentStage = Stage::Idle;
+                m_currentLevel = 0.0f;
+                juce::Logger::writeToLog("Release Curve = " + juce::String(m_releaseCurve));
+            }
+            break;
+        
+    }
+    
+    return m_currentLevel;
+}
 
 
 void ADSR::setSampleRate(double sampleRate)

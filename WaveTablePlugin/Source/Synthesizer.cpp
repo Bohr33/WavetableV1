@@ -75,9 +75,9 @@ void SynthVoice::renderNextBlock(juce::AudioBuffer<float> &outputBuffer, int sta
         decayParam->load(),
         sustainParam->load(),
         releaseParam->load(),
-        0.0,
-        0.0,
-        0.0
+        attCurveParam->load(),
+        decCurveParam->load(),
+        relCurveParam->load()
     };
     
     envelope.setParameters(params);
@@ -95,7 +95,7 @@ void SynthVoice::renderNextBlock(juce::AudioBuffer<float> &outputBuffer, int sta
         
         //Main processing loop when note on
         while (--numSamples >= 0) {
-            envVal = envelope.getNextSample();
+            envVal = envelope.getNextCurveSample();
             val1 = interpNextSamp(tableOne);
             val2 = interpNextSamp(tableTwo);
             output = interpolate(interpVal, val1,  val2) * m_level * envVal;
@@ -189,6 +189,10 @@ void SynthVoice::setAPVTS(juce::AudioProcessorValueTreeState* apvts)
     decayParam = apvts->getRawParameterValue("env_decay");
     sustainParam = apvts->getRawParameterValue("env_sustain");
     releaseParam = apvts->getRawParameterValue("env_release");
+    
+    attCurveParam = apvts->getRawParameterValue("env_att_curve");
+    decCurveParam = apvts->getRawParameterValue("env_dec_curve");
+    relCurveParam = apvts->getRawParameterValue("env_rel_curve");
 }
 
 void SynthVoice::setWavetable(int tableID, std::shared_ptr<const TableData> newTable)

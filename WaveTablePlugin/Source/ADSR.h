@@ -10,6 +10,7 @@
 
 #pragma once
 #include <JuceHeader.h>
+#include <math.h>
 
 
 
@@ -42,6 +43,7 @@ public:
     bool isActive();
     
     float getNextSample();
+    float getNextCurveSample();
     
     void setSampleRate(double sampleRate);
     void setParameters(Parameters params);
@@ -57,6 +59,10 @@ private:
     float m_currentLevel = 0.0f;
     double m_sampleRate;
     
+    //Used for solving retriggering issue
+    float m_attackStartLevel = 0.0f;
+    float m_releaseStartLevel = 0.0f;
+    
     //Stage Variables
     float stageProgress = 0.0f;
     float stageSamples = 0.0f;
@@ -64,5 +70,7 @@ private:
     //Parameters
     float m_attack, m_decay, m_sustain, m_release;
     float m_attackCurve, m_decayCurve, m_releaseCurve;
+    
+    
     
 };
