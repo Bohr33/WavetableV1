@@ -36,6 +36,11 @@ public:
     void stopNote(float velocity, bool allowTailOff) override;
     void renderNextBlock(juce::AudioBuffer<float> &outputBuffer, int startSample, int numSamples) override;
     
+    void pitchWheelMoved(int newPitchWheelValue) override {
+        m_pitchBend = newPitchWheelValue;
+        juce::Logger::writeToLog("New Pitch Value: " + juce::String(m_pitchBend));
+    }
+    
     
     
     //Sets ADSR Sample Rate, but can do other stuff...
@@ -43,11 +48,11 @@ public:
     
     
     //Unused Pure Virtual Functions
-    void pitchWheelMoved(int newPitchWheelValue) override;
     void controllerMoved(int controllerNumber, int newControllerValue) override;
     
     
     //Rendering Functions
+    void setFrequency(float frequency);
     void updateAngle();
     
     float interpNextSamp(std::shared_ptr<const TableData> table) noexcept;
@@ -58,6 +63,10 @@ public:
     void setAPVTS(juce::AudioProcessorValueTreeState* apvts);
     void setWavetable(int tableID, std::shared_ptr<const TableData> newTable);
     
+    //PitchBend
+    void updateFrequency();
+    
+    
     
     //Misc Debug Functions
     void printTable();
@@ -66,13 +75,19 @@ public:
     
 private:
     
+    float calculateBendFreq();
+    
     juce::AudioProcessorValueTreeState* apvtsRef = nullptr;
 
     float currentIndex;
     float m_angle;
     float m_angleDelta;
     float m_level;
-    float m_freq;
+    float m_baseFreq;
+    float m_currentFreq;
+    
+    int m_pitchBend = 8192;
+    float m_pitchBendRange = 2.0;
     
     
     std::atomic<float>* interpParam = nullptr;
@@ -94,6 +109,9 @@ private:
     //Shared pointer to currently chosen table
     std::shared_ptr<const TableData> m_tableOne;
     std::shared_ptr<const TableData> m_tableTwo;
+    
+    
+    int test = 0;
     
 };
 

@@ -118,7 +118,6 @@ void WaveTablePluginAudioProcessor::prepareToPlay (double sampleRate, int sample
         synth.addVoice(voice);
     }
     
-    juce::Logger::writeToLog("Num Voices = " + juce::String(synth.getNumVoices()));
     midiCollector.reset(sampleRate);
     
 }
@@ -164,17 +163,26 @@ void WaveTablePluginAudioProcessor::processBlock (juce::AudioBuffer<float>& buff
     
     auto numSamples = buffer.getNumSamples();
     
+    //Don't forget to clear the buffer!
+    buffer.clear();
+    
     
     juce::MidiBuffer screenKeyBuffer;
     m_keystate.processNextMidiBuffer(screenKeyBuffer, 0, numSamples, true);
     
     //Combine both buffers by making a new buffer and add both events
     juce::MidiBuffer    combinedMidi;
+    
+//    for(const auto metadata : midiMessages){
+//        auto message = metadata.getMessage();
+//        juce::Logger::writeToLog("MIDI: " + message.getDescription());
+//    }
+    
+    
     combinedMidi.addEvents(midiMessages, 0, numSamples, 0);
     combinedMidi.addEvents(screenKeyBuffer, 0, numSamples, 0);
     
-    //Don't forget to clear the buffer!
-    buffer.clear();
+
     
     synth.renderNextBlock(buffer, combinedMidi, 0, numSamples);
     

@@ -57,7 +57,6 @@ float ADSR::getNextSample()
                 m_currentStage = Stage::Decay;
                 stageProgress = 0.0f;
                 stageSamples = m_decay * m_sampleRate;
-                juce::Logger::writeToLog("Done With Attack");
             }
             break;
         case Stage::Decay:
@@ -67,7 +66,6 @@ float ADSR::getNextSample()
             {
                 m_currentStage = Stage::Sustain;
                 m_currentLevel = m_sustain;
-                juce::Logger::writeToLog("Done With Decay");
             }
             break;
         case Stage::Sustain:
@@ -81,7 +79,6 @@ float ADSR::getNextSample()
             {
                 m_currentStage = Stage::Idle;
                 m_currentLevel = 0.0f;
-                juce::Logger::writeToLog("Done With Release");
             }
             break;
         
@@ -108,7 +105,6 @@ float ADSR::getNextCurveSample()
                 m_currentStage = Stage::Decay;
                 stageProgress = 0.0f;
                 stageSamples = m_decay * m_sampleRate;
-                juce::Logger::writeToLog("Attack slope = " + juce::String(m_attackCurve));
             }
             break;
         case Stage::Decay:
@@ -119,7 +115,6 @@ float ADSR::getNextCurveSample()
             {
                 m_currentStage = Stage::Sustain;
                 m_currentLevel = m_sustain;
-                juce::Logger::writeToLog("Decay Curve = " + juce::String(m_decayCurve));
             }
             break;
         case Stage::Sustain:
@@ -135,7 +130,6 @@ float ADSR::getNextCurveSample()
             {
                 m_currentStage = Stage::Idle;
                 m_currentLevel = 0.0f;
-                juce::Logger::writeToLog("Release Curve = " + juce::String(m_releaseCurve));
             }
             break;
         

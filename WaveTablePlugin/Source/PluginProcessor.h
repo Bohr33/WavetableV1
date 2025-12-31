@@ -77,7 +77,7 @@ private:
     unsigned int bufferSize = 128;
     
     //Synth Parameters
-    const int maxVoices = 64;
+    const int maxVoices = 16;
     const int defaultTableSize = 1 << 11;
     const int numTables = 4;
     

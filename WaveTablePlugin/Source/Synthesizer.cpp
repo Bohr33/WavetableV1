@@ -40,17 +40,21 @@ void SynthVoice::startNote(int midiNoteNumber, float velocity, juce::Synthesiser
     m_level = velocity;
     
     //Set Frequency and Angle
-    m_freq = juce::MidiMessage::getMidiNoteInHertz(midiNoteNumber);
-    float cyclesPerSample = m_freq / getSampleRate();
-    m_angleDelta = cyclesPerSample * (float) m_tableSize;
+    
+    auto freq = juce::MidiMessage::getMidiNoteInHertz(midiNoteNumber);
+    m_baseFreq = freq;
+    setFrequency(freq);
+
+    
+    m_pitchBend = currentPitchWheelPosition;
     
     envelope.noteOn();
-    
     
     //Cast sound to new Type, and store wavetable Address
     auto* newSound = dynamic_cast<WaveTableSound*>(sound);
 
     juce::Logger::outputDebugString("MIDI Note = " + juce::String(midiNoteNumber));
+    juce::Logger::outputDebugString("Current Wheel Position = " + juce::String(currentPitchWheelPosition));
     
 };
 void SynthVoice::stopNote(float velocity, bool allowTailOff)
@@ -62,6 +66,9 @@ void SynthVoice::prepare(double sampleRate)
 {
     envelope.setSampleRate(sampleRate);
 }
+
+
+//Pitch Wheel
 
 
 void SynthVoice::renderNextBlock(juce::AudioBuffer<float> &outputBuffer, int startSample, int numSamples)
@@ -93,8 +100,14 @@ void SynthVoice::renderNextBlock(juce::AudioBuffer<float> &outputBuffer, int sta
         float output = 0.0;
         float envVal;
         
+
+        
         //Main processing loop when note on
         while (--numSamples >= 0) {
+            
+            float bentFreq = calculateBendFreq();
+            setFrequency(bentFreq);
+            
             envVal = envelope.getNextCurveSample();
             val1 = interpNextSamp(tableOne);
             val2 = interpNextSamp(tableTwo);
@@ -114,7 +127,6 @@ void SynthVoice::renderNextBlock(juce::AudioBuffer<float> &outputBuffer, int sta
             }
         }
     }
-        
    
 };
 
@@ -142,6 +154,13 @@ float SynthVoice::interpNextSamp(std::shared_ptr<const TableData> table) noexcep
     currentVal = val_L + (val_H - val_L)*frac;
 
     return currentVal;
+}
+
+void SynthVoice::setFrequency(float frequency)
+{
+    m_currentFreq = frequency;
+    float cyclesPerSample = frequency / getSampleRate();
+    m_angleDelta = cyclesPerSample * (float) m_tableSize;
 }
 
 void SynthVoice::updateAngle()
@@ -239,11 +258,25 @@ void SynthVoice::reportTables()
         juce::Logger::writeToLog(juce::String(i + 100) + " = " + juce::String(val));
     }
 
+};
+
+
+float SynthVoice::calculateBendFreq()
+{
+    //Pitch wheel values 0 - 8192 - 16384
+    
+    float bendSemitones = m_pitchBendRange * ((m_pitchBend - 8192.0f) / 8192.0f);
+    float pitchMultiplier = std::pow(2.0f, bendSemitones /12.0f);
+    
+    return m_baseFreq * pitchMultiplier;
+    
 }
 
+
+
 //Unused Pure Virtual Functions
-void SynthVoice::pitchWheelMoved(int newPitchWheelValue)
-{};
 void SynthVoice::controllerMoved(int controllerNumber, int newControllerValue)
-{};
+{
+    juce::Logger::writeToLog("Mod Wheel Value: " + juce::String(newControllerValue));
+};
 
