@@ -40,7 +40,6 @@ void SynthVoice::startNote(int midiNoteNumber, float velocity, juce::Synthesiser
     m_level = velocity;
     
     //Set Frequency and Angle
-    
     auto freq = juce::MidiMessage::getMidiNoteInHertz(midiNoteNumber);
     m_baseFreq = freq;
     setFrequency(freq);

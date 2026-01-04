@@ -13,6 +13,7 @@
 #include "WavetableGenerator.h"
 #include "WaveTable.h"
 #include <span>
+#include "MipMapGenerator.h"
 
 //==============================================================================
 /**
@@ -83,10 +84,13 @@ private:
     
     juce::Synthesiser synth;
     
-    const int defaultNumHarmonics = 16;
+    const int defaultNumHarmonics = 100;
     WavetableGenerator tableGenerator;
     std::vector<float> m_table;
     std::vector<float> m_table2;
+    
+    MipMapGenerator m_mipmapGenerator;
+    
     
     //Wavetable Bank
     std::vector<std::shared_ptr<const TableData>> wavetableBank;

@@ -95,6 +95,11 @@ void WaveTablePluginAudioProcessor::changeProgramName (int index, const juce::St
 void WaveTablePluginAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
     
+    //Generate wavetable mipMaps
+    const std::vector<float>& tableData = wavetableBank[2]->getTable();
+    m_mipmapGenerator.generateMipMaps(tableData, sampleRate);
+    
+    
     //initialize members for the actual synth, including the sound and all voices
     synth.setCurrentPlaybackSampleRate(sampleRate);
     
@@ -166,23 +171,14 @@ void WaveTablePluginAudioProcessor::processBlock (juce::AudioBuffer<float>& buff
     //Don't forget to clear the buffer!
     buffer.clear();
     
-    
     juce::MidiBuffer screenKeyBuffer;
     m_keystate.processNextMidiBuffer(screenKeyBuffer, 0, numSamples, true);
     
     //Combine both buffers by making a new buffer and add both events
     juce::MidiBuffer    combinedMidi;
     
-//    for(const auto metadata : midiMessages){
-//        auto message = metadata.getMessage();
-//        juce::Logger::writeToLog("MIDI: " + message.getDescription());
-//    }
-    
-    
     combinedMidi.addEvents(midiMessages, 0, numSamples, 0);
     combinedMidi.addEvents(screenKeyBuffer, 0, numSamples, 0);
-    
-
     
     synth.renderNextBlock(buffer, combinedMidi, 0, numSamples);
     

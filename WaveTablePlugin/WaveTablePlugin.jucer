@@ -6,6 +6,10 @@
               cppLanguageStandard="20">
   <MAINGROUP id="n1Pey3" name="WaveTablePlugin">
     <GROUP id="{D6DEF27D-14FF-EC78-6776-264C8D4EB737}" name="Source">
+      <FILE id="Tzdcxy" name="MipMapGenerator.cpp" compile="1" resource="0"
+            file="Source/MipMapGenerator.cpp"/>
+      <FILE id="MLKlet" name="MipMapGenerator.h" compile="0" resource="0"
+            file="Source/MipMapGenerator.h"/>
       <FILE id="yQoYLV" name="Synthesizer.cpp" compile="1" resource="0" file="Source/Synthesizer.cpp"/>
       <FILE id="QxcUF2" name="Synthesizer.h" compile="0" resource="0" file="Source/Synthesizer.h"/>
       <FILE id="kD3tNK" name="WavetableGenerator.cpp" compile="1" resource="0"
@@ -37,6 +41,7 @@
     <MODULE id="juce_audio_utils" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
     <MODULE id="juce_core" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
     <MODULE id="juce_data_structures" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_dsp" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
     <MODULE id="juce_events" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
     <MODULE id="juce_graphics" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
     <MODULE id="juce_gui_basics" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
@@ -62,6 +67,7 @@
         <MODULEPATH id="juce_graphics" path="../../../../Documents/Programming/Audio/JUCE/JUCE/modules"/>
         <MODULEPATH id="juce_gui_basics" path="../../../../Documents/Programming/Audio/JUCE/JUCE/modules"/>
         <MODULEPATH id="juce_gui_extra" path="../../../../Documents/Programming/Audio/JUCE/JUCE/modules"/>
+        <MODULEPATH id="juce_dsp" path="../../../../Documents/Programming/Audio/JUCE/JUCE/modules"/>
       </MODULEPATHS>
     </XCODE_MAC>
   </EXPORTFORMATS>

@@ -14,5 +14,17 @@
 struct TableData
 {
     std::vector<float> samples;
+    
+    
+    const std::vector<float>& getTable() const
+    {
+        return samples;
+    }
+    
+    
+    const float* getData() const {
+        return samples.data();
+    }
+    
 };
 
