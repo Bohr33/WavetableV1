@@ -16,36 +16,26 @@ MipMapGenerator::MipMapGenerator() : fft_object(fft_order)
     //resize buffers
     fft_data.resize(m_tableSize * 2.0);
     mipmap_buffer.resize(m_tableSize * 2.0);
-    
 };
 MipMapGenerator::~MipMapGenerator() = default;
 
-std::vector<std::vector<float>>& MipMapGenerator::generateMipMaps(const std::vector<float>& wavetable, double sampleRate)
+std::vector<std::vector<float>> MipMapGenerator::generateMipMaps(const std::vector<float>& wavetable, double sampleRate)
 {
     
-    //Create mipmap object to store mipmaps
+    //Create mipmap object to store mipmaps and eventually return to caller
     std::vector<std::vector<float>> mipmaps;
     
     //Check wavetable is valid size
     if(!validateTable(wavetable))
     {
         juce::Logger::writeToLog("Error Generating MipMap: Table Invalid");
+        return {};
     }
-    
-    
-    //FFT the table
-    //Input: Table in Question
-    //Output: New FFT Table with real and imaginary parts? Maybe just real?
     
     //Copy wavetable to fft operation buffer
     juce::FloatVectorOperations::copy(fft_data.data(), wavetable.data(), m_tableSize);
-    
+    //Perform Forward Transform on 2*tablesize Sized buffer
     fft_object.performRealOnlyForwardTransform(fft_data.data());
-    
-    //Loop
-    //Filter Highest harmonics
-    //Store as mip map
-    //Repeat
     
     
     //Note: B-1, the highest frequency of the lowest octave
@@ -67,10 +57,23 @@ std::vector<std::vector<float>>& MipMapGenerator::generateMipMaps(const std::vec
             tablePointer[bin * 2 + 1]= 0.0f;
         }
         
-        //perform IFT
+        //perform Inverse Transform
         fft_object.performRealOnlyInverseTransform(mipmap_buffer.data());
+        
+        
+        std::vector<float> processedTable(m_tableSize + 1);
+        auto mipmap = mipmap_buffer.data();
+        
+        for (auto i = 0; i < m_tableSize; ++i) {
+            //Copy only First half of buffer
+            processedTable[i] = mipmap[i];
+        }
+        
+        //Guard Point
+        processedTable[m_tableSize] = processedTable[0];
+        
         //store table
-        mipmaps.push_back(mipmap_buffer);
+        mipmaps.push_back(std::move(processedTable));
         juce::Logger::writeToLog("MipMap Added!");
         
     }

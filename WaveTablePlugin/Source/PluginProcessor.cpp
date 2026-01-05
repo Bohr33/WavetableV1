@@ -95,9 +95,23 @@ void WaveTablePluginAudioProcessor::changeProgramName (int index, const juce::St
 void WaveTablePluginAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
     
-    //Generate wavetable mipMaps
-    const std::vector<float>& tableData = wavetableBank[2]->getTable();
-    m_mipmapGenerator.generateMipMaps(tableData, sampleRate);
+
+    
+    
+    for (int i = 0; i < numTables; i++) {
+        
+        //Generate wavetable mipMaps
+        const std::vector<float>& tableData = wavetableBank[i]->getTable();
+        auto currentMipmap = m_mipmapGenerator.generateMipMaps(tableData, sampleRate);
+        
+        //Create new temporary mipmap, move generated mip map, and store structure in bank
+        auto mipmap = std::make_shared<MipMap>();
+        mipmap->stages = std::move(currentMipmap);
+        mipmapBank.push_back(mipmap);
+    }
+
+    
+    juce::Logger::writeToLog("No Issue Here!");
     
     
     //initialize members for the actual synth, including the sound and all voices
@@ -105,7 +119,6 @@ void WaveTablePluginAudioProcessor::prepareToPlay (double sampleRate, int sample
     
     synth.clearSounds();
     synth.clearVoices();
-    
     
     //add sound to synth
     synth.addSound(new WaveTableSound());
@@ -116,14 +129,14 @@ void WaveTablePluginAudioProcessor::prepareToPlay (double sampleRate, int sample
     for(auto i = 0; i < maxVoices; ++i)
     {
         //add voice to synth; also provides default Table and Table Size to Synth Voice
-        auto* voice = new SynthVoice(defaultTableOne, defaultTableTwo, defaultTableSize);
-//        voice->setParameters(interpolateParam);
+        auto* voice = new SynthVoice(mipmapBank[0], mipmapBank[1], defaultTableSize);
         voice->setAPVTS(&apvts);
         voice->prepare(sampleRate);
         synth.addVoice(voice);
     }
     
     midiCollector.reset(sampleRate);
+    juce::Logger::writeToLog("Nor an Issue Here!");
     
 }
 
@@ -226,7 +239,7 @@ void WaveTablePluginAudioProcessor::setWaveform(int tableID, int waveformID)
     {
         if (auto* voice = dynamic_cast<SynthVoice*>(synth.getVoice(i)))
         {
-            voice->setWavetable(tableID, wavetableBank[waveformID]);
+            voice->setMipMap(tableID, mipmapBank[waveformID]);
         }
             
     }
@@ -243,6 +256,18 @@ std::shared_ptr<const TableData> WaveTablePluginAudioProcessor::getTable(int tab
     else
         return wavetableBank[0];
     
+}
+
+std::shared_ptr<const MipMap> WaveTablePluginAudioProcessor::getMipMap(int mapID)
+{
+    //Logic to select table from ID
+    juce::Logger::writeToLog("Gettting new Mip Map!");
+    
+    if(mapID > 0 && mapID < 4)
+        return mipmapBank[mapID];
+    else
+        return mipmapBank[0];
+
 }
 
 //Is called on Construction, generates the basic wavetable shapes

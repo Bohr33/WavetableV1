@@ -29,7 +29,8 @@ private:
 class SynthVoice : public juce::SynthesiserVoice
 {
 public:
-    SynthVoice(std::shared_ptr<const TableData> tableOne, std::shared_ptr<const TableData> tableTwo, int tableSize);
+//    SynthVoice(std::shared_ptr<const TableData> tableOne, std::shared_ptr<const TableData> tableTwo, std::shared_ptr<const MipMap> mipmapA, std::shared_ptr<const MipMap> mipmapB, int tableSize);
+    SynthVoice(std::shared_ptr<const MipMap> mipmapA, std::shared_ptr<const MipMap> mipmapB, int tableSize);
     
     bool canPlaySound(juce::SynthesiserSound*) override;
     void startNote(int midiNoteNumber, float velocity, juce::SynthesiserSound *sound, int currentPitchWheelPosition) override;
@@ -56,12 +57,14 @@ public:
     void updateAngle();
     
     float interpNextSamp(std::shared_ptr<const TableData> table) noexcept;
+    float interpNextSamp(std::vector<float>& table);
     float interpolate(float interp_val, std::shared_ptr<const TableData> tableOne, std::shared_ptr<const TableData> tableTwo);
     float interpolate(float interp_val, float val1, float val2);
     
     //Setter Functions
     void setAPVTS(juce::AudioProcessorValueTreeState* apvts);
     void setWavetable(int tableID, std::shared_ptr<const TableData> newTable);
+    void setMipMap(int displayID, std::shared_ptr<const MipMap> newMipMap);
     
     //PitchBend
     void updateFrequency();
@@ -71,6 +74,7 @@ public:
     //Misc Debug Functions
     void printTable();
     void reportTables();
+    void reportMipMaps();
     
     
 private:
@@ -109,6 +113,13 @@ private:
     //Shared pointer to currently chosen table
     std::shared_ptr<const TableData> m_tableOne;
     std::shared_ptr<const TableData> m_tableTwo;
+    
+    int m_mapStage;
+    
+    //Shared Pointers to Mipmaps
+    std::shared_ptr<const MipMap> m_mipmapA;
+    std::shared_ptr<const MipMap> m_mipmapB;
+    
     
     
     int test = 0;

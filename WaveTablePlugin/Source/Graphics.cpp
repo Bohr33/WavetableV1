@@ -18,9 +18,9 @@
 WavetableDisplay::WavetableDisplay(){};
 WavetableDisplay::~WavetableDisplay() = default;
 
-void WavetableDisplay::setTable(std::shared_ptr<const TableData> table)
+void WavetableDisplay::setTable(const std::vector<float>& table)
 {
-    m_wavetable = table;
+    m_table = table;
     repaint();
 }
 
@@ -35,16 +35,14 @@ void WavetableDisplay::paint(juce::Graphics& g)
     g.drawRect(getLocalBounds());
     g.fillAll();
     
-    
-    if (m_wavetable != nullptr)
-        drawTable(g);
+    drawTable(g);
     
 }
 
 void WavetableDisplay::drawTable(juce::Graphics& g)
 {
     g.setColour(juce::Colours::whitesmoke);
-    int tablesize = static_cast<int>(m_wavetable->samples.size()) - 1;
+    int tablesize = static_cast<int>(m_table.size() - 1);
     juce::Logger::writeToLog("TableSize = " + juce::String(tablesize));
     jassert(tablesize == 2048);
     
@@ -57,7 +55,7 @@ void WavetableDisplay::drawTable(juce::Graphics& g)
     float current_x = 0.0;
     float current_y = 0.0;
     
-    auto table = m_wavetable->samples.data();
+    auto table = m_table.data();
     
     for (auto i = 0; i < tablesize; i++) {
         current_y = (1-(table[i] + 1.0)/2) * bounds.getHeight();
@@ -78,13 +76,12 @@ void InterpolatedDisplay::paint(juce::Graphics& g)
     g.drawRect(getLocalBounds());
     g.fillAll();
     
-    if (m_wavetable != nullptr && m_wavetable2 != nullptr)
-        drawInterpolatedTable(g);
+    drawInterpolatedTable(g);
 }
 
-void InterpolatedDisplay::setTableTwo(std::shared_ptr<const TableData> table)
+void InterpolatedDisplay::setTableTwo(const std::vector<float>& table)
 {
-    m_wavetable2 = table;
+    m_table2 = table;
     repaint();
 }
 
@@ -111,10 +108,10 @@ void InterpolatedDisplay::drawInterpolatedTable(juce::Graphics& g)
 {
     
     g.setColour(juce::Colours::whitesmoke);
-    int tablesize = static_cast<int>(m_wavetable->samples.size()) - 1;
-    int tablesize2 = static_cast<int>(m_wavetable2->samples.size()) - 1;
-//    jassert(tablesize == 2048);
-//    jassert(tablesize2 == 2048);
+    //Get Table Size, Remove Guard Point
+    int tablesize = static_cast<int>(m_table.size() - 1);
+    int tablesize2 = static_cast<int>(m_table2.size() - 1);
+    jassert(tablesize == tablesize2);
     
     auto pointRadius = 2;
     auto bounds = getLocalBounds();
@@ -125,8 +122,8 @@ void InterpolatedDisplay::drawInterpolatedTable(juce::Graphics& g)
     float current_x = 0.0;
     float current_y = 0.0;
     
-    auto tableOne = m_wavetable->samples.data();
-    auto tableTwo = m_wavetable2->samples.data();
+    auto tableOne = m_table.data();
+    auto tableTwo = m_table2.data();
     
     for (auto i = 0; i < tablesize; i++) {
         

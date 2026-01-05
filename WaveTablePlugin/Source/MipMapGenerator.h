@@ -11,14 +11,16 @@
 #pragma once
 #include <juce_dsp/juce_dsp.h>
 
-
+//MipMap Generator Class receives a table of float values, and returns a 'mipmap'
+//In this case, a 'MipMap' is our band limited copies of tables used for playback by the synthesis engine
 class MipMapGenerator
 {
 public:
     MipMapGenerator();
     ~MipMapGenerator();
     
-    std::vector<std::vector<float>>& generateMipMaps(const std::vector<float>& wavetable, double sampleRate);
+    
+    std::vector<std::vector<float>> generateMipMaps(const std::vector<float>& wavetable, double sampleRate);
 
     int calculate_num_mipmaps(float sample_rate, int max_midi_note = 127);
     

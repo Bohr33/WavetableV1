@@ -109,11 +109,11 @@ WaveTablePluginAudioProcessorEditor::WaveTablePluginAudioProcessorEditor (WaveTa
     //Set Default Table Display
     
     
-    m_interpDisplay.setTable(audioProcessor.getTable(0));
-    m_interpDisplay.setTableTwo(audioProcessor.getTable(1));
+    m_interpDisplay.setTable(audioProcessor.getMipMap(0)->getStage(0));
+    m_interpDisplay.setTableTwo(audioProcessor.getMipMap(1)->getStage(1));
     
-    m_displayOne.setTable(audioProcessor.getTable(0));
-    m_displayTwo.setTable(audioProcessor.getTable(1));
+    m_displayOne.setTable(audioProcessor.getMipMap(0)->getStage(0));
+    m_displayTwo.setTable(audioProcessor.getMipMap(1)->getStage(1));
     
     m_interpDisplay.setColours(juce::Colours::rebeccapurple);
     m_displayOne.setColours(juce::Colours::gold);
@@ -221,25 +221,27 @@ void WaveTablePluginAudioProcessorEditor::selectNewWaveform(int tableId, int wav
     WavetableDisplay* display;
     
     auto table = audioProcessor.getTable(waveformId);
+    auto mipmap = audioProcessor.getMipMap(waveformId);
     
     //Set Display Tables
     if(tableId)
     {
         //Second Table
         display = &m_displayTwo;
-        m_interpDisplay.setTableTwo(table);
+        m_interpDisplay.setTableTwo(mipmap->getStage(0));
     }
     else
     {
         display = &m_displayOne;
-        m_interpDisplay.setTable(table);
+        m_interpDisplay.setTable(mipmap->getStage(0));
     }
         
-    display->setTable(table);
+    display->setTable(mipmap->getStage(0));
     display->repaint();
     
     //Set Waveform in Audio Processor/Synth Voice and alert interpolation display
     audioProcessor.setWaveform(tableId, waveformId);
+    
     m_interpDisplay.repaint();
 }
 

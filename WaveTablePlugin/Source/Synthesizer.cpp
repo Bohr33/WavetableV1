@@ -27,7 +27,7 @@ bool WaveTableSound::appliesToChannel(int midiChannel)
 /*=============================================================================*/
 /*----------------------------Synth Voice--------------------------------------*/
 /*=============================================================================*/
-SynthVoice::SynthVoice(std::shared_ptr<const TableData> tableOne, std::shared_ptr<const TableData> tableTwo, int tableSize) : m_tableSize(tableSize), m_tableOne(tableOne), m_tableTwo(tableTwo)
+SynthVoice::SynthVoice(std::shared_ptr<const MipMap> mipmapA, std::shared_ptr<const MipMap> mipmapB, int tableSize) : m_tableSize(tableSize), m_mipmapA(mipmapA), m_mipmapB(mipmapB)
 {};
 bool SynthVoice::canPlaySound(juce::SynthesiserSound*)
 {return true;};
@@ -43,6 +43,9 @@ void SynthVoice::startNote(int midiNoteNumber, float velocity, juce::Synthesiser
     auto freq = juce::MidiMessage::getMidiNoteInHertz(midiNoteNumber);
     m_baseFreq = freq;
     setFrequency(freq);
+    
+    //Set stage so processor can retrieve right table
+    m_mapStage = midiNoteNumber / 12;
 
     
     m_pitchBend = currentPitchWheelPosition;
@@ -53,6 +56,7 @@ void SynthVoice::startNote(int midiNoteNumber, float velocity, juce::Synthesiser
     auto* newSound = dynamic_cast<WaveTableSound*>(sound);
 
     juce::Logger::outputDebugString("MIDI Note = " + juce::String(midiNoteNumber));
+    juce::Logger::outputDebugString("Map Stage = " + juce::String(m_mapStage));
     juce::Logger::outputDebugString("Current Wheel Position = " + juce::String(currentPitchWheelPosition));
     
 };
@@ -89,8 +93,18 @@ void SynthVoice::renderNextBlock(juce::AudioBuffer<float> &outputBuffer, int sta
     envelope.setParameters(params);
     
     //atomically load tables from shared pointers
-    auto tableOne = std::atomic_load(&m_tableOne);
-    auto tableTwo = std::atomic_load(&m_tableTwo);
+//    auto tableOne = std::atomic_load(&m_tableOne);
+//    auto tableTwo = std::atomic_load(&m_tableTwo);
+    
+    
+    auto mapA = std::atomic_load(&m_mipmapA);
+    auto mapB = std::atomic_load(&m_mipmapB);
+    
+    if(!mapA || !mapB)
+        return;
+    
+    auto tableA = mapA->getStage(m_mapStage);
+    auto tableB = mapB->getStage(m_mapStage);
 
     if(m_angleDelta != 0.0)
     {
@@ -108,8 +122,8 @@ void SynthVoice::renderNextBlock(juce::AudioBuffer<float> &outputBuffer, int sta
             setFrequency(bentFreq);
             
             envVal = envelope.getNextCurveSample();
-            val1 = interpNextSamp(tableOne);
-            val2 = interpNextSamp(tableTwo);
+            val1 = interpNextSamp(tableA);
+            val2 = interpNextSamp(tableB);
             output = interpolate(interpVal, val1,  val2) * m_level * envVal;
             
             for(auto channel = 0; channel < outputBuffer.getNumChannels(); ++channel)
@@ -129,12 +143,23 @@ void SynthVoice::renderNextBlock(juce::AudioBuffer<float> &outputBuffer, int sta
    
 };
 
+float SynthVoice::interpNextSamp(std::vector<float>& table)
+{
+    jassert(table.size() == 2049 || table.size() == 2048);
+    
+    float currentVal;
+    auto data = table.data();
+    
+    int index = (int) m_angle;
+    
+    float val_L = data[index];
+    float val_H = data[index + 1];
+    float frac = m_angle - (float) index;
+    
+    currentVal = val_L + (val_H - val_L)*frac;
 
-
-
-
-
-
+    return currentVal;
+}
 
 //Main table reading function, performs basic linearly interpolation expacting a guard point
 float SynthVoice::interpNextSamp(std::shared_ptr<const TableData> table) noexcept
@@ -222,6 +247,15 @@ void SynthVoice::setWavetable(int tableID, std::shared_ptr<const TableData> newT
         std::atomic_store(&m_tableOne, newTable);
 }
 
+void SynthVoice::setMipMap(int displayID, std::shared_ptr<const MipMap> newMipMap)
+{
+    //DisplayID
+    if (displayID == 1)
+        std::atomic_store(&m_mipmapA, newMipMap);
+    else
+        std::atomic_store(&m_mipmapB, newMipMap);
+}
+
 
 
 void SynthVoice::printTable()
@@ -258,6 +292,29 @@ void SynthVoice::reportTables()
     }
 
 };
+
+
+void SynthVoice::reportMipMaps()
+{
+    auto tableSize1 = m_mipmapA->size();
+    
+    int i = 0;
+    for (auto stages : m_mipmapA->getMipMap()) {
+        juce::Logger::writeToLog("Table " + juce::String(i) + " Size = " + juce::String(stages.size()));
+        i++;
+    }
+    
+    juce::Logger::writeToLog("Total Stages = " + juce::String(i));
+    
+    juce::Logger::writeToLog("Values 100 - 150: " + juce::String(tableSize1));
+    
+    for (auto i = 0; i < 50; i++) {
+        auto val = m_tableOne->samples[i + 100];
+        juce::Logger::writeToLog(juce::String(i + 100) + " = " + juce::String(val));
+    }
+
+};
+
 
 
 float SynthVoice::calculateBendFreq()

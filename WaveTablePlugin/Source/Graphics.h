@@ -19,7 +19,7 @@ public:
     WavetableDisplay();
     ~WavetableDisplay();
     
-    void setTable(std::shared_ptr<const TableData> table);
+    void setTable(const std::vector<float>& table);
     void setColours(juce::Colour colour);
     
     float interpolateValue(float interpolation, float val1, float val2);
@@ -29,7 +29,7 @@ public:
     void drawTable(juce::Graphics& g);
     
 protected:
-    std::shared_ptr<const TableData> m_wavetable;
+    std::vector<float> m_table;
     juce::Colour backgroundColour;
 };
 
@@ -37,7 +37,7 @@ protected:
 class InterpolatedDisplay : public WavetableDisplay
 {
 public:
-    void setTableTwo(std::shared_ptr<const TableData> table);
+    void setTableTwo(const std::vector<float>& table);
     void setInterpolation(float value);
     
     float interpolateValue(float interpolation, float val1, float val2);
@@ -47,6 +47,7 @@ public:
     
     
 private:
-    std::shared_ptr<const TableData> m_wavetable2;
+    std::vector<float> m_table2;
+    
     float interpVal;
 };

@@ -63,6 +63,7 @@ public:
     juce::MidiKeyboardState& getMidiKeyboardState();
     void setWaveform(int tableID, int waveformID);
     std::shared_ptr<const TableData> getTable(int tableID);
+    std::shared_ptr<const MipMap> getMipMap(int mapID);
     void generateWavetableBank();
     
     //==============================================================================
@@ -90,6 +91,9 @@ private:
     std::vector<float> m_table2;
     
     MipMapGenerator m_mipmapGenerator;
+    
+    //MipMap Bank
+    std::vector<std::shared_ptr<const MipMap>> mipmapBank;
     
     
     //Wavetable Bank
