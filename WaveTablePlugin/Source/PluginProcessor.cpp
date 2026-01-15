@@ -95,13 +95,11 @@ void WaveTablePluginAudioProcessor::changeProgramName (int index, const juce::St
 void WaveTablePluginAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
     
-
-    
-    
+    //Generate Mipmap from wavetable, store in bank
     for (int i = 0; i < numTables; i++) {
         
         //Generate wavetable mipMaps
-        const std::vector<float>& tableData = wavetableBank[i]->getTable();
+        const std::vector<float>& tableData = wavetableBank[i];
         auto currentMipmap = m_mipmapGenerator.generateMipMaps(tableData, sampleRate);
         
         //Create new temporary mipmap, move generated mip map, and store structure in bank
@@ -109,14 +107,10 @@ void WaveTablePluginAudioProcessor::prepareToPlay (double sampleRate, int sample
         mipmap->stages = std::move(currentMipmap);
         mipmapBank.push_back(mipmap);
     }
-
-    
-    juce::Logger::writeToLog("No Issue Here!");
     
     
     //initialize members for the actual synth, including the sound and all voices
     synth.setCurrentPlaybackSampleRate(sampleRate);
-    
     synth.clearSounds();
     synth.clearVoices();
     
@@ -126,6 +120,7 @@ void WaveTablePluginAudioProcessor::prepareToPlay (double sampleRate, int sample
     auto defaultTableOne = wavetableBank[0];
     auto defaultTableTwo = wavetableBank[1];
     
+    //Add and Prepare All voices for synth
     for(auto i = 0; i < maxVoices; ++i)
     {
         //add voice to synth; also provides default Table and Table Size to Synth Voice
@@ -136,7 +131,6 @@ void WaveTablePluginAudioProcessor::prepareToPlay (double sampleRate, int sample
     }
     
     midiCollector.reset(sampleRate);
-    juce::Logger::writeToLog("Nor an Issue Here!");
     
 }
 
@@ -246,7 +240,7 @@ void WaveTablePluginAudioProcessor::setWaveform(int tableID, int waveformID)
 }
 
 //Returns a table from the wavetable bank
-std::shared_ptr<const TableData> WaveTablePluginAudioProcessor::getTable(int tableID)
+const std::vector<float> WaveTablePluginAudioProcessor::getTable(int tableID)
 {
     //Logic to select table from ID
     juce::Logger::writeToLog("Gettting new Table!");
@@ -283,9 +277,9 @@ void WaveTablePluginAudioProcessor::generateWavetableBank()
     };
     
     for (auto func : generatorFuncs) {
-        auto table = std::make_shared<TableData>();
-        table->samples.resize(defaultTableSize + 1);
-        (tableGenerator.*func)(table->samples, defaultNumHarmonics);
+        auto table = std::vector<float>();
+        table.resize(defaultTableSize + 1);
+        (tableGenerator.*func)(table, defaultNumHarmonics);
         wavetableBank.push_back(table);
     }
 }

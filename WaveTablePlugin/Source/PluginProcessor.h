@@ -62,7 +62,7 @@ public:
     //Added Functions
     juce::MidiKeyboardState& getMidiKeyboardState();
     void setWaveform(int tableID, int waveformID);
-    std::shared_ptr<const TableData> getTable(int tableID);
+    const std::vector<float> getTable(int tableID);
     std::shared_ptr<const MipMap> getMipMap(int mapID);
     void generateWavetableBank();
     
@@ -77,6 +77,8 @@ private:
     juce::MidiMessageCollector midiCollector;
     
     unsigned int bufferSize = 128;
+    const int defaultNumHarmonics = 100;
+    
     
     //Synth Parameters
     const int maxVoices = 16;
@@ -85,19 +87,19 @@ private:
     
     juce::Synthesiser synth;
     
-    const int defaultNumHarmonics = 100;
-    WavetableGenerator tableGenerator;
     std::vector<float> m_table;
     std::vector<float> m_table2;
     
+    WavetableGenerator tableGenerator;
     MipMapGenerator m_mipmapGenerator;
+
+    //Wavetable Bank
+    std::vector<const std::vector<float>> wavetableBank;
     
     //MipMap Bank
     std::vector<std::shared_ptr<const MipMap>> mipmapBank;
     
-    
-    //Wavetable Bank
-    std::vector<std::shared_ptr<const TableData>> wavetableBank;
+
     
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (WaveTablePluginAudioProcessor)

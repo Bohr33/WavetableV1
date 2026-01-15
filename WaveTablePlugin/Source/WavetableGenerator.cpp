@@ -36,6 +36,11 @@ void WavetableGenerator::normalizeTable(std::span<float> buffer, float normValue
     }
 }
 
+void WavetableGenerator::normalizeTable(std::vector<float> buffer, float normValue = 1.0)
+{
+    normalizeTable(std::span<float> (buffer), normValue);
+}
+
 
 void WavetableGenerator::additiveGenerator(std::span<float> bufferToFill, std::span<Partial> partials, size_t guardPoints = 1)
 {
@@ -75,6 +80,11 @@ void WavetableGenerator::additiveGenerator(std::span<float> bufferToFill, std::s
     
 }
 
+void WavetableGenerator::additiveGenerator(std::vector<float> bufferToFill, std::vector<Partial> partials, size_t guardPoints = 1)
+{
+    additiveGenerator(std::span<float> (bufferToFill), std::span<Partial> (partials), guardPoints);
+}
+
 
 void WavetableGenerator::genSine(std::span<float> bufferToFill, int numHarmonics)
 {
@@ -85,6 +95,12 @@ void WavetableGenerator::genSine(std::span<float> bufferToFill, int numHarmonics
     std::span<Partial> span(&sine, 1);
     
     additiveGenerator(bufferToFill, span);
+}
+
+void WavetableGenerator::genSine(std::vector<float> bufferToFill, int numharmonics)
+{
+    
+    genSine(std::span<float>(bufferToFill), numharmonics);
 }
 
 
@@ -102,6 +118,10 @@ void WavetableGenerator::genSaw(std::span<float> bufferToFill, int numHarmonics)
     
     additiveGenerator(bufferToFill, sawPartials);
     normalizeTable(bufferToFill);
+}
+void WavetableGenerator::genSaw(std::vector<float> bufferToFill, int numharmonics)
+{
+    genSaw(std::span<float>(bufferToFill), numharmonics);
 }
 
 void WavetableGenerator::genTri(std::span<float> bufferToFill, int numHarmonics)
@@ -122,6 +142,12 @@ void WavetableGenerator::genTri(std::span<float> bufferToFill, int numHarmonics)
     normalizeTable(bufferToFill);
 }
 
+void WavetableGenerator::genTri(std::vector<float> bufferToFill, int numharmonics)
+{
+    genTri(std::span<float> (bufferToFill), numharmonics);
+    
+}
+
 
 void WavetableGenerator::genSquare(std::span<float> bufferToFill, int numHarmonics)
 {
@@ -138,4 +164,9 @@ void WavetableGenerator::genSquare(std::span<float> bufferToFill, int numHarmoni
     
     additiveGenerator(bufferToFill, partials);
     normalizeTable(bufferToFill);
+}
+
+void WavetableGenerator::genSquare(std::vector<float> bufferToFill, int numharmonics)
+{
+    genSquare(std::span<float> (bufferToFill), numharmonics);
 }

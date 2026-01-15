@@ -71,9 +71,6 @@ void SynthVoice::prepare(double sampleRate)
 }
 
 
-//Pitch Wheel
-
-
 void SynthVoice::renderNextBlock(juce::AudioBuffer<float> &outputBuffer, int startSample, int numSamples)
 {
     
@@ -93,10 +90,6 @@ void SynthVoice::renderNextBlock(juce::AudioBuffer<float> &outputBuffer, int sta
     envelope.setParameters(params);
     
     //atomically load tables from shared pointers
-//    auto tableOne = std::atomic_load(&m_tableOne);
-//    auto tableTwo = std::atomic_load(&m_tableTwo);
-    
-    
     auto mapA = std::atomic_load(&m_mipmapA);
     auto mapB = std::atomic_load(&m_mipmapB);
     
@@ -143,6 +136,7 @@ void SynthVoice::renderNextBlock(juce::AudioBuffer<float> &outputBuffer, int sta
    
 };
 
+//Main table reading function, performs basic linearly interpolation expacting a guard point
 float SynthVoice::interpNextSamp(std::vector<float>& table)
 {
     jassert(table.size() == 2049 || table.size() == 2048);
@@ -161,24 +155,8 @@ float SynthVoice::interpNextSamp(std::vector<float>& table)
     return currentVal;
 }
 
-//Main table reading function, performs basic linearly interpolation expacting a guard point
-float SynthVoice::interpNextSamp(std::shared_ptr<const TableData> table) noexcept
-{
-    jassert(table->samples.size() == 2049);
-    
-    float currentVal;
-    auto data = table->samples.data();
-    
-    int index = (int) m_angle;
-    
-    float val_L = data[index];
-    float val_H = data[index + 1];
-    float frac = m_angle - (float) index;
-    
-    currentVal = val_L + (val_H - val_L)*frac;
 
-    return currentVal;
-}
+
 
 void SynthVoice::setFrequency(float frequency)
 {
@@ -196,18 +174,6 @@ void SynthVoice::updateAngle()
 
 //Returns interpolated value based on interpolation value and tables given
 //This version isn't used, instead the below version is used rendering loop
-float SynthVoice::interpolate(float interp_val, std::shared_ptr<const TableData> tableOne, std::shared_ptr<const TableData> tableTwo)
-{
-    auto interpVal = juce::jlimit(0.0f, 1.0f, interp_val);
-
-    auto val1 = interpNextSamp(tableOne);
-    auto val2 = interpNextSamp(tableTwo);
-    
-    auto diff = val1 - val2;
-    
-    float result = val1 - interpVal * diff;
-    return result;
-};
 
 
 float SynthVoice::interpolate(float interp_val, float val1, float val2)
@@ -238,60 +204,14 @@ void SynthVoice::setAPVTS(juce::AudioProcessorValueTreeState* apvts)
     relCurveParam = apvts->getRawParameterValue("env_rel_curve");
 }
 
-void SynthVoice::setWavetable(int tableID, std::shared_ptr<const TableData> newTable)
-{
-    //index from One
-    if (tableID == 1)
-        std::atomic_store(&m_tableTwo, newTable);
-    else
-        std::atomic_store(&m_tableOne, newTable);
-}
-
 void SynthVoice::setMipMap(int displayID, std::shared_ptr<const MipMap> newMipMap)
 {
-    //DisplayID
+    //DisplayID !!!! ID Index starts at 0!
     if (displayID == 1)
-        std::atomic_store(&m_mipmapA, newMipMap);
-    else
         std::atomic_store(&m_mipmapB, newMipMap);
+    else
+        std::atomic_store(&m_mipmapA, newMipMap);
 }
-
-
-
-void SynthVoice::printTable()
-{
-    for (auto i = 0; i < m_tableSize; i++) {
-        auto val = m_tableOne->samples[i];
-        juce::Logger::writeToLog("Val = " + juce::String(val));
-    }
-    juce::Logger::writeToLog("Done");
-}
-
-void SynthVoice::reportTables()
-{
-    
-    auto tableSize1 = m_tableOne->samples.size();
-    auto tableSize2 = m_tableTwo->samples.size();
-    
-    
-    juce::Logger::writeToLog("Table 1; Size = " + juce::String(tableSize1));
-    
-    
-    juce::Logger::writeToLog("Values 100 - 150: " + juce::String(tableSize1));
-    
-    for (auto i = 0; i < 50; i++) {
-        auto val = m_tableOne->samples[i + 100];
-        juce::Logger::writeToLog(juce::String(i + 100) + " = " + juce::String(val));
-    }
-    
-    juce::Logger::writeToLog("Table 2; Size = " + juce::String(tableSize2));
-    
-    for (auto i = 0; i < 50; i++) {
-        auto val = m_tableTwo->samples[i + 100];
-        juce::Logger::writeToLog(juce::String(i + 100) + " = " + juce::String(val));
-    }
-
-};
 
 
 void SynthVoice::reportMipMaps()
@@ -309,7 +229,7 @@ void SynthVoice::reportMipMaps()
     juce::Logger::writeToLog("Values 100 - 150: " + juce::String(tableSize1));
     
     for (auto i = 0; i < 50; i++) {
-        auto val = m_tableOne->samples[i + 100];
+        auto val = "Implement this";
         juce::Logger::writeToLog(juce::String(i + 100) + " = " + juce::String(val));
     }
 

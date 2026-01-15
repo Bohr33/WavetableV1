@@ -224,7 +224,7 @@ void WaveTablePluginAudioProcessorEditor::selectNewWaveform(int tableId, int wav
     auto mipmap = audioProcessor.getMipMap(waveformId);
     
     //Set Display Tables
-    if(tableId)
+    if(tableId == 2)
     {
         //Second Table
         display = &m_displayTwo;

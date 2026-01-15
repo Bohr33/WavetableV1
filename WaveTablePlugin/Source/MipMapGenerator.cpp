@@ -74,7 +74,6 @@ std::vector<std::vector<float>> MipMapGenerator::generateMipMaps(const std::vect
         
         //store table
         mipmaps.push_back(std::move(processedTable));
-        juce::Logger::writeToLog("MipMap Added!");
         
     }
     
@@ -107,8 +106,6 @@ int MipMapGenerator::calculate_num_mipmaps(float sample_rate, int max_midi_note)
 bool MipMapGenerator::validateTable(const std::vector<float>& wavetable)
 {
     auto size = wavetable.size();
-    
-    juce::Logger::writeToLog("TableSize = " + juce::String(size));
     
     return (size == 2048 || size == 2049);
 }
