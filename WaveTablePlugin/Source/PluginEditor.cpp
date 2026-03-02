@@ -100,6 +100,38 @@ WaveTablePluginAudioProcessorEditor::WaveTablePluginAudioProcessorEditor (WaveTa
         juce::Logger::writeToLog("Change on wave bank two");
     };
     
+    
+    
+    addAndMakeVisible(load_table_btn);
+    
+    load_table_btn.onClick = [this] {
+        chooser = std::make_unique<juce::FileChooser>(
+            "Select a wavetable...",
+            juce::File{},
+            "*.wav"
+        );
+
+        chooser->launchAsync(juce::FileBrowserComponent::canSelectFiles, [this](const juce::FileChooser& fc)
+        {
+            auto file = fc.getResult();
+            if (file.existsAsFile())
+            {
+                //Get total number of files added, and add to display
+                int numNewFiles = audioProcessor.loadWavetableFile(file);
+                
+                for(int i = 0; i < numNewFiles; i++)
+                {
+                    waveBankOne.addItem("Import " + juce::String(i), 4 + i);
+                    waveBankTwo.addItem("Import " + juce::String(i), 4 + i);
+                
+                }
+                
+            }
+        });
+        
+    };
+    
+    
     //========Displays=============//
     
     addAndMakeVisible(m_interpDisplay);
@@ -154,7 +186,13 @@ void WaveTablePluginAudioProcessorEditor::resized()
     
     int sliderHeight = 150;
     int sliderWidth = 150;
-    int slider_y = getHeight() - (keyHeight + padding * 2 + sliderHeight);
+    int slider_y = getHeight() - (keyHeight + padding);
+    
+    auto btn_height = 20;
+    auto btn_width = 50;
+    auto btn_y = slider_y + btn_height + padding;
+    
+    
     
     int verticalSliderHeight = 150;
     int verticalSliderWidth = 50;
@@ -174,6 +212,8 @@ void WaveTablePluginAudioProcessorEditor::resized()
     
     
     auto quarterWidth = mainWindowBounds.getWidth()/4.0;
+    
+
     
     
     
@@ -204,13 +244,17 @@ void WaveTablePluginAudioProcessorEditor::resized()
     s_decCurve.setBounds(rightMiddle.removeFromLeft(verticalSliderWidth));
     s_relCurve.setBounds(rightMiddle.removeFromLeft(verticalSliderWidth));
     
+    juce::FlexBox fb;
+    fb.flexDirection = juce::FlexBox::Direction::column;
+    fb.justifyContent = juce::FlexBox::JustifyContent::spaceAround;
+    fb.alignItems = juce::FlexBox::AlignItems::flexStart;
+    
+    fb.items.add(juce::FlexItem(load_table_btn).withHeight(btn_height).withWidth(btn_width));
+    fb.items.add(juce::FlexItem(s_interpolation).withHeight(sliderHeight).withWidth(sliderWidth));
+    
+    fb.performLayout(leftMiddle);
     
     
-    
-    auto leftMiddleCenterPoint = leftMiddle.getCentre();
-    
-    auto sliderBounds = juce::Rectangle<int>(sliderWidth, sliderHeight).withCentre(leftMiddleCenterPoint);
-    s_interpolation.setBounds(sliderBounds);
 
     keyboardComponent.setBounds(0 + padding, getHeight() - (keyHeight + padding), getWidth() - 2 * padding, keyHeight);
 }
@@ -255,3 +299,4 @@ void WaveTablePluginAudioProcessorEditor::handleNoteOff(juce::MidiKeyboardState*
 {
     
 }
+

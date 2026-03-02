@@ -11,6 +11,7 @@
 #include <JuceHeader.h>
 #include "PluginProcessor.h"
 #include "Graphics.h"
+#include "ImportWavetable.h"
 
 //==============================================================================
 /**
@@ -31,6 +32,7 @@ public:
     void resized() override;
     
     void selectNewWaveform(int tableId, int waveformId);
+    void importWavetable(const juce::File& file);
 
 private:
     // This reference is provided as a quick way for your editor to
@@ -74,6 +76,11 @@ private:
     
     juce::Slider    s_relCurve;
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> relCurveAttachment;
+    
+    
+    //Wavetable Import Button
+    std::unique_ptr<juce::FileChooser> chooser;
+    juce::TextButton load_table_btn;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (WaveTablePluginAudioProcessorEditor)
 };

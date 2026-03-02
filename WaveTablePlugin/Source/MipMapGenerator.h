@@ -11,6 +11,7 @@
 #pragma once
 #include <juce_dsp/juce_dsp.h>
 
+
 //MipMap Generator Class receives a table of float values, and returns a 'mipmap'
 //In this case, a 'MipMap' is our band limited copies of tables used for playback by the synthesis engine
 class MipMapGenerator

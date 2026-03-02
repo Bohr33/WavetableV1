@@ -14,6 +14,7 @@
 #include "WaveTable.h"
 #include <span>
 #include "MipMapGenerator.h"
+#include "ImportWavetable.h"
 
 //==============================================================================
 /**
@@ -24,7 +25,6 @@ public:
     //==============================================================================
     WaveTablePluginAudioProcessor();
     ~WaveTablePluginAudioProcessor() override;
-
     //==============================================================================
     void prepareToPlay (double sampleRate, int samplesPerBlock) override;
     void releaseResources() override;
@@ -65,6 +65,10 @@ public:
     const std::vector<float> getTable(int tableID);
     std::shared_ptr<const MipMap> getMipMap(int mapID);
     void generateWavetableBank();
+    
+    int loadWavetableFile(const juce::File& file);
+    
+
     
     //==============================================================================
     //Value Tree State

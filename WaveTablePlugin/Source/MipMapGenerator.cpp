@@ -94,11 +94,19 @@ int MipMapGenerator::calculate_num_mipmaps(float sample_rate, int max_midi_note)
 {
     float max_freq = 440.0f * std::pow(2.0f, (max_midi_note - 69) / 12.0f);
     float nyquist = sample_rate  / 2.0f;
+    
+    if(max_freq >= nyquist) return 1;
+    
     int max_harmonics = nyquist / max_freq;
     
-    int num_mipmaps = std::ceil(std::log2((m_tableSize/2.0f)/max_harmonics)) + 1;
+    if(max_harmonics <= 0) return 1;
+
+    float ratio = (m_tableSize / 2.0f) / max_harmonics;
+    if (ratio <= 1.0f) return 1;
     
-    return num_mipmaps;
+    int num_mipmaps = (int)std::ceil(std::log2(ratio)) + 1;
+    
+    return std::max(1, num_mipmaps);
 }
 
 

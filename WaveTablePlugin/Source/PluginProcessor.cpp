@@ -96,30 +96,32 @@ void WaveTablePluginAudioProcessor::prepareToPlay (double sampleRate, int sample
 {
     
     //Generate Mipmap from wavetable, store in bank
+    int numTables = (int)wavetableBank.size();
+    
+    
     for (int i = 0; i < numTables; i++) {
-        
+
         //Generate wavetable mipMaps
         const std::vector<float>& tableData = wavetableBank[i];
         auto currentMipmap = m_mipmapGenerator.generateMipMaps(tableData, sampleRate);
-        
+
         //Create new temporary mipmap, move generated mip map, and store structure in bank
         auto mipmap = std::make_shared<MipMap>();
         mipmap->stages = std::move(currentMipmap);
         mipmapBank.push_back(mipmap);
     }
-    
-    
+
     //initialize members for the actual synth, including the sound and all voices
     synth.setCurrentPlaybackSampleRate(sampleRate);
     synth.clearSounds();
     synth.clearVoices();
-    
+
     //add sound to synth
     synth.addSound(new WaveTableSound());
-    
+
     auto defaultTableOne = wavetableBank[0];
     auto defaultTableTwo = wavetableBank[1];
-    
+
     //Add and Prepare All voices for synth
     for(auto i = 0; i < maxVoices; ++i)
     {
@@ -129,7 +131,7 @@ void WaveTablePluginAudioProcessor::prepareToPlay (double sampleRate, int sample
         voice->prepare(sampleRate);
         synth.addVoice(voice);
     }
-    
+
     midiCollector.reset(sampleRate);
     
 }
@@ -282,6 +284,43 @@ void WaveTablePluginAudioProcessor::generateWavetableBank()
         (tableGenerator.*func)(table, defaultNumHarmonics);
         wavetableBank.push_back(table);
     }
+}
+
+int WaveTablePluginAudioProcessor::loadWavetableFile(const juce::File& file)
+{
+//    importWavetable(file);
+    
+    int frameSize = 2048;
+    
+    juce::AudioFormatManager formatManager;
+    formatManager.registerBasicFormats();
+
+    std::unique_ptr<juce::AudioFormatReader> reader(formatManager.createReaderFor(file));
+    if (reader == nullptr) return 0;
+
+    juce::AudioBuffer<float> buffer(1, (int)reader->lengthInSamples);
+    reader->read(&buffer, 0, (int)reader->lengthInSamples, 0, true, false);
+    
+    int numFrames = buffer.getNumSamples() / frameSize;
+    
+    //For each frame, isolate wavetable, create mip map, and store
+    for( int i = 0; i < numFrames; ++i)
+    {
+        auto ptr = buffer.getReadPointer(0, i * frameSize);
+        
+        std::vector<float> frameBuffer(ptr, ptr + frameSize);
+        
+        auto mipMap = m_mipmapGenerator.generateMipMaps(frameBuffer, getSampleRate());
+        
+        auto mipmap = std::make_shared<MipMap>();
+        mipmap->stages = std::move(mipMap);
+        mipmapBank.push_back(mipmap);
+        
+    }
+    
+    return numFrames;
+    
+    
 }
 
 //Helper function to create parameter layout for AudioValueTreeState
