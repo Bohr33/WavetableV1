@@ -8,3 +8,6 @@ JuceLibraryCode/
 # Ignore My Notes
 Notes/
 
+*.jucer
+*.xcodeproj
+
