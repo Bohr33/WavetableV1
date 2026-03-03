@@ -1,8 +1,10 @@
 # Ignore build folder
 Builds/
+build/
 
 # Ignore JUCE Library Code
 JuceLibraryCode/
 
 # Ignore My Notes
-MyNotes.md
+Notes/
+

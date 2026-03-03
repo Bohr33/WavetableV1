@@ -1,0 +1,3 @@
+[submodule "WaveTablePlugin/JUCE"]
+	path = WaveTablePlugin/JUCE
+	url = https://github.com/juce-framework/JUCE.git

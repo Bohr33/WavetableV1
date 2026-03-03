@@ -1,7 +1,7 @@
 /*
   ==============================================================================
 
-    ADSR.h
+    BWADSR.h
     Created: 29 Dec 2025 7:09:57pm
     Author:  Benjamin Ward (Old Computer)
 
@@ -15,7 +15,7 @@
 
 
 
-class ADSR
+class BWADSR
 {
 public:
     enum class Param {
@@ -34,8 +34,8 @@ public:
     };
     
     
-    ADSR();
-    ~ADSR();
+    BWADSR();
+    ~BWADSR();
     
     void noteOn();
     void noteOff();

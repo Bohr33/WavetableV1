@@ -4,9 +4,9 @@
               addUsingNamespaceToJuceHeader="0" jucerFormatVersion="1" pluginCharacteristicsValue="pluginIsSynth,pluginWantsMidiIn"
               pluginFormats="buildAAX,buildAU,buildAUv3,buildStandalone,buildVST3"
               cppLanguageStandard="20" bundleIdentifier="com.benward.wavetable"
-              pluginName="WavetablePlugin" companyName="benward" pluginCode="Prjt"
+              pluginName="WavetablePlugin" companyName="benward" pluginCode="Wtbl"
               pluginManufacturerCode="Bdub" pluginManufacturer="benward" pluginDesc="WavetablePlugin"
-              version="1.0.0" pluginAUExportPrefix="WaveTablePluginAU" pluginAUIsSandboxSafe="0">
+              version="1.0.0" pluginAUExportPrefix="WaveTablePluginAU">
   <MAINGROUP id="n1Pey3" name="WaveTablePlugin">
     <GROUP id="{D6DEF27D-14FF-EC78-6776-264C8D4EB737}" name="Source">
       <FILE id="quWdtP" name="ImportWavetable.cpp" compile="1" resource="0"
@@ -56,8 +56,7 @@
   </MODULES>
   <JUCEOPTIONS JUCE_STRICT_REFCOUNTEDPOINTER="1" JUCE_VST3_CAN_REPLACE_VST2="0"/>
   <EXPORTFORMATS>
-    <XCODE_MAC targetFolder="Builds/MacOSX" appSandboxOptions="com.apple.security.assets.movies.read-only,com.apple.security.assets.movies.read-write,com.apple.security.assets.music.read-only,com.apple.security.assets.music.read-write,com.apple.security.files.downloads.read-only,com.apple.security.files.downloads.read-write,com.apple.security.files.pictures.read-only,com.apple.security.files.pictures.read-write,com.apple.security.files.user-selected.read-only,com.apple.security.files.user-selected.read-write,com.apple.security.network.client,com.apple.security.network.server,com.apple.security.temporary-exception.audio-unit-host,com.apple.security.temporary-exception.mach-lookup.global-name,com.apple.security.temporary-exception.mach-register.global-name,com.apple.security.temporary-exception.shared-preference.read-only,com.apple.security.temporary-exception.shared-preference.read-write"
-               appSandboxInheritance="0">
+    <XCODE_MAC targetFolder="Builds/MacOSX" appSandboxInheritance="0">
       <CONFIGURATIONS>
         <CONFIGURATION isDebug="1" name="Debug" targetName="WaveTablePlugin" fastMath="1"/>
         <CONFIGURATION isDebug="0" name="Release" targetName="WaveTablePlugin"/>

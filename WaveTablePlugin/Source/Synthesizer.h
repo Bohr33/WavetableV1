@@ -14,7 +14,7 @@
 #include <stdio.h>
 #include <vector>
 #include <span>
-#include "ADSR.h"
+#include "BWADSR.h"
 
 class WaveTableSound : public juce::SynthesiserSound
 {
@@ -103,7 +103,7 @@ private:
 
     unsigned int m_tableSize;
     
-    ADSR envelope;
+    BWADSR envelope;
     
     int m_mapStage;
     //Shared Pointers to Mipmaps

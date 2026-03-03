@@ -1,31 +1,31 @@
 /*
   ==============================================================================
 
-    ADSR.cpp
+    BWADSR.cpp
     Created: 29 Dec 2025 7:09:57pm
     Author:  Benjamin Ward (Old Computer)
 
   ==============================================================================
 */
 
-#include "ADSR.h"
+#include "BWADSR.h"
 
 
-ADSR::ADSR()
+BWADSR::BWADSR()
 {
     Parameters defaultParams;
     setParameters(defaultParams);
 };
 
-ADSR::~ADSR() = default;
+BWADSR::~BWADSR() = default;
 
 
-bool ADSR::isActive()
+bool BWADSR::isActive()
 {
     return m_currentStage != Stage::Idle;
 }
 
-void ADSR::noteOn()
+void BWADSR::noteOn()
 {
     //Initialize parameters and Update Stage
     stageProgress = 0.0f;
@@ -34,7 +34,7 @@ void ADSR::noteOn()
     m_attackStartLevel = m_currentLevel;
 }
 
-void ADSR::noteOff()
+void BWADSR::noteOff()
 {
     stageProgress = 0.0f;
     stageSamples = m_release * m_sampleRate;
@@ -42,7 +42,7 @@ void ADSR::noteOff()
     m_releaseStartLevel = m_currentLevel;
 };
 
-float ADSR::getNextSample()
+float BWADSR::getNextSample()
 {
 
     switch (m_currentStage) {
@@ -88,7 +88,7 @@ float ADSR::getNextSample()
 };
 
 
-float ADSR::getNextCurveSample()
+float BWADSR::getNextCurveSample()
 {
     float curveVal;
     switch (m_currentStage) {
@@ -139,13 +139,13 @@ float ADSR::getNextCurveSample()
 }
 
 
-void ADSR::setSampleRate(double sampleRate)
+void BWADSR::setSampleRate(double sampleRate)
 {
     m_sampleRate = sampleRate;
 }
 
 
-void ADSR::setParameters(Parameters params)
+void BWADSR::setParameters(Parameters params)
 {
     m_attack = params.attackTime;
     m_decay = params.decayTime;
@@ -158,7 +158,7 @@ void ADSR::setParameters(Parameters params)
     
 }
 
-void ADSR::setParameter(Param param, float value)
+void BWADSR::setParameter(Param param, float value)
 {
     auto val = juce::jlimit(0.0f, 1.0f, value);
     switch (param) {

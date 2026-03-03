@@ -12,6 +12,7 @@
 #include "Synthesizer.h"
 
 
+
 /*=============================================================================*/
 /*----------------------------Synth Sound--------------------------------------*/
 /*=============================================================================*/
@@ -76,7 +77,7 @@ void SynthVoice::renderNextBlock(juce::AudioBuffer<float> &outputBuffer, int sta
     
     auto interpVal = interpParam->load();
     
-    ADSR::Parameters params =
+    BWADSR::Parameters params =
     {
         attackParam->load(),
         decayParam->load(),
