@@ -7,6 +7,7 @@ JuceLibraryCode/
 
 # Ignore My Notes
 Notes/
+Legacy/
 
 *.jucer
 *.xcodeproj

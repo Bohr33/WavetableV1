@@ -41,20 +41,29 @@ target_sources(WaveTablePlugin PRIVATE
 
     # Plugin Core
     Source/PluginProcessor.cpp
+    Source/PluginProcessor.h
     Source/PluginEditor.cpp
+    Source/PluginEditor.h
 
     # Synth Engine
     Source/Synthesizer.cpp
+    Source/Synthesizer.h
     Source/BWADSR.cpp
+    Source/BWADSR.h
 
     # DSP / Wavetable
     Source/WaveTable.cpp
+    Source/WaveTable.h
     Source/WavetableGenerator.cpp
+    Source/WavetableGenerator.h
     Source/MipMapGenerator.cpp
+    Source/MipMapGenerator.h
     Source/ImportWavetable.cpp
+    Source/ImportWavetable.h
 
     # UI
     Source/Graphics.cpp
+    Source/Graphics.h
 )
 
 target_include_directories(WaveTablePlugin PRIVATE
