@@ -31,7 +31,11 @@ public:
     void paint (juce::Graphics&) override;
     void resized() override;
     
-    void selectNewWaveform(int tableId, int waveformId);
+//    void selectNewWaveform(int tableId, int waveformId);
+    
+    void selectNewWaveformTableOne(int waveformID);
+    void selectNewWaveformTableTwo(int waveformID);
+    
     void importWavetable(const juce::File& file);
 
 private:

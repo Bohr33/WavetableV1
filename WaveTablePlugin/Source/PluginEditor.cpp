@@ -90,13 +90,13 @@ WaveTablePluginAudioProcessorEditor::WaveTablePluginAudioProcessorEditor (WaveTa
     
     waveBankOne.onChange = [this] {
         int selectedId = waveBankOne.getSelectedId();
-        selectNewWaveform(0, selectedId-1);
+        selectNewWaveformTableOne(selectedId-1);
         juce::Logger::writeToLog("Change on wave bank one");
     };
     
     waveBankTwo.onChange = [this] {
         int selectedId = waveBankTwo.getSelectedId();
-        selectNewWaveform(1, selectedId-1);
+        selectNewWaveformTableTwo(selectedId-1);
         juce::Logger::writeToLog("Change on wave bank two");
     };
     
@@ -111,7 +111,7 @@ WaveTablePluginAudioProcessorEditor::WaveTablePluginAudioProcessorEditor (WaveTa
             "*.wav"
         );
 
-        chooser->launchAsync(juce::FileBrowserComponent::canSelectFiles, [this](const juce::FileChooser& fc)
+    chooser->launchAsync(juce::FileBrowserComponent::canSelectFiles, [this](const juce::FileChooser& fc)
         {
             auto file = fc.getResult();
             if (file.existsAsFile())
@@ -119,8 +119,9 @@ WaveTablePluginAudioProcessorEditor::WaveTablePluginAudioProcessorEditor (WaveTa
                 //Get total number of files added, and add to display
                 int numNewFiles = audioProcessor.loadWavetableFile(file);
                 
-                for(int i = 0; i < numNewFiles; i++)
+                for(int i = 1; i <= numNewFiles; i++)
                 {
+                    juce::Logger::writeToLog("We are " + juce::String(i));
                     waveBankOne.addItem("Import " + juce::String(i), 4 + i);
                     waveBankTwo.addItem("Import " + juce::String(i), 4 + i);
                 
@@ -259,34 +260,79 @@ void WaveTablePluginAudioProcessorEditor::resized()
     keyboardComponent.setBounds(0 + padding, getHeight() - (keyHeight + padding), getWidth() - 2 * padding, keyHeight);
 }
 
-void WaveTablePluginAudioProcessorEditor::selectNewWaveform(int tableId, int waveformId)
+//void WaveTablePluginAudioProcessorEditor::selectNewWaveform(int tableId, int waveformId)
+//{
+//    //Update Preview Display and Interpoalated Display
+//    WavetableDisplay* display;
+//
+//    auto table = audioProcessor.getTable(waveformId);
+//    auto mipmap = audioProcessor.getMipMap(waveformId);
+//    
+//    if(!mipmap)
+//        return;
+//
+//    //Set Display Tables
+//    if(tableId == 2)
+//    {
+//        //Second Table
+//        display = &m_displayTwo;
+//        m_interpDisplay.setTableTwo(mipmap->getStage(0));
+//    }
+//    else
+//    {
+//        display = &m_displayOne;
+//        m_interpDisplay.setTable(mipmap->getStage(0));
+//    }
+//
+//    display->setTable(mipmap->getStage(0));
+//    display->repaint();
+//
+//    //Set Waveform in Audio Processor/Synth Voice and alert interpolation display
+//    audioProcessor.setWaveform(tableId, waveformId);
+//
+//    m_interpDisplay.repaint();
+//}
+
+
+
+void WaveTablePluginAudioProcessorEditor::selectNewWaveformTableOne(int waveformID)
 {
-    //Update Preview Display and Interpoalated Display
-    WavetableDisplay* display;
+    auto mipmap = audioProcessor.getMipMap(waveformID);
     
-    auto table = audioProcessor.getTable(waveformId);
-    auto mipmap = audioProcessor.getMipMap(waveformId);
+    if(!mipmap)
+        return;
     
-    //Set Display Tables
-    if(tableId == 2)
-    {
-        //Second Table
-        display = &m_displayTwo;
-        m_interpDisplay.setTableTwo(mipmap->getStage(0));
-    }
-    else
-    {
-        display = &m_displayOne;
-        m_interpDisplay.setTable(mipmap->getStage(0));
-    }
-        
-    display->setTable(mipmap->getStage(0));
-    display->repaint();
+    auto firstStage = mipmap->getStage(0);
     
-    //Set Waveform in Audio Processor/Synth Voice and alert interpolation display
-    audioProcessor.setWaveform(tableId, waveformId);
+    audioProcessor.setWaveform(0, waveformID);
     
+    m_displayOne.setTable(firstStage);
+    m_interpDisplay.setTable(firstStage);
+    
+    m_displayOne.repaint();
     m_interpDisplay.repaint();
+    
+}
+
+
+void WaveTablePluginAudioProcessorEditor::selectNewWaveformTableTwo(int waveformID)
+{
+    auto mipmap = audioProcessor.getMipMap(waveformID);
+    
+    if(!mipmap)
+        return;
+    
+    auto firstStage = mipmap->getStage(0);
+    
+    
+    audioProcessor.setWaveform(1, waveformID);
+    
+    m_displayTwo.setTable(firstStage);
+    m_interpDisplay.setTableTwo(firstStage);
+    
+    m_displayTwo.repaint();
+    m_interpDisplay.repaint();
+
 }
 
 //Midi Keyboard Note Callback Functions

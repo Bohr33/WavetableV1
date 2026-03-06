@@ -59,7 +59,8 @@ public:
     
     //Setter Functions
     void setAPVTS(juce::AudioProcessorValueTreeState* apvts);
-    void setMipMap(int displayID, std::shared_ptr<const MipMap> newMipMap);
+    void setVoiceOneMipMap(std::shared_ptr<const MipMap> newMipMap);
+    void setVoiceTwoMipMap(std::shared_ptr<const MipMap> newMipMap);
     
     //PitchBend
     void updateFrequency();

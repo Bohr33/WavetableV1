@@ -235,7 +235,7 @@ void WaveTablePluginAudioProcessor::setWaveform(int tableID, int waveformID)
     {
         if (auto* voice = dynamic_cast<SynthVoice*>(synth.getVoice(i)))
         {
-            voice->setMipMap(tableID, mipmapBank[waveformID]);
+            tableID == 0 ? voice->setVoiceOneMipMap(mipmapBank[waveformID]) : voice->setVoiceTwoMipMap(mipmapBank[waveformID]);
         }
             
     }
@@ -317,6 +317,9 @@ int WaveTablePluginAudioProcessor::loadWavetableFile(const juce::File& file)
         mipmapBank.push_back(mipmap);
         
     }
+    
+    
+    juce::Logger::writeToLog("Hello! Made it!");
     
     return numFrames;
     

@@ -205,14 +205,16 @@ void SynthVoice::setAPVTS(juce::AudioProcessorValueTreeState* apvts)
     relCurveParam = apvts->getRawParameterValue("env_rel_curve");
 }
 
-void SynthVoice::setMipMap(int displayID, std::shared_ptr<const MipMap> newMipMap)
+void SynthVoice::setVoiceOneMipMap(std::shared_ptr<const MipMap> newMipMap)
 {
-    //DisplayID !!!! ID Index starts at 0!
-    if (displayID == 1)
-        std::atomic_store(&m_mipmapB, newMipMap);
-    else
-        std::atomic_store(&m_mipmapA, newMipMap);
+    std::atomic_store(&m_mipmapA, newMipMap);
 }
+
+void SynthVoice::setVoiceTwoMipMap(std::shared_ptr<const MipMap> newMipMap)
+{
+    std::atomic_store(&m_mipmapB, newMipMap);
+}
+    
 
 
 void SynthVoice::reportMipMaps()
