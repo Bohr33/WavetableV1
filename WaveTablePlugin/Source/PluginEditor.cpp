@@ -121,7 +121,6 @@ WaveTablePluginAudioProcessorEditor::WaveTablePluginAudioProcessorEditor (WaveTa
                 
                 for(int i = 1; i <= numNewFiles; i++)
                 {
-                    juce::Logger::writeToLog("We are " + juce::String(i));
                     waveBankOne.addItem("Import " + juce::String(i), 4 + i);
                     waveBankTwo.addItem("Import " + juce::String(i), 4 + i);
                 
@@ -260,39 +259,6 @@ void WaveTablePluginAudioProcessorEditor::resized()
     keyboardComponent.setBounds(0 + padding, getHeight() - (keyHeight + padding), getWidth() - 2 * padding, keyHeight);
 }
 
-//void WaveTablePluginAudioProcessorEditor::selectNewWaveform(int tableId, int waveformId)
-//{
-//    //Update Preview Display and Interpoalated Display
-//    WavetableDisplay* display;
-//
-//    auto table = audioProcessor.getTable(waveformId);
-//    auto mipmap = audioProcessor.getMipMap(waveformId);
-//    
-//    if(!mipmap)
-//        return;
-//
-//    //Set Display Tables
-//    if(tableId == 2)
-//    {
-//        //Second Table
-//        display = &m_displayTwo;
-//        m_interpDisplay.setTableTwo(mipmap->getStage(0));
-//    }
-//    else
-//    {
-//        display = &m_displayOne;
-//        m_interpDisplay.setTable(mipmap->getStage(0));
-//    }
-//
-//    display->setTable(mipmap->getStage(0));
-//    display->repaint();
-//
-//    //Set Waveform in Audio Processor/Synth Voice and alert interpolation display
-//    audioProcessor.setWaveform(tableId, waveformId);
-//
-//    m_interpDisplay.repaint();
-//}
-
 
 
 void WaveTablePluginAudioProcessorEditor::selectNewWaveformTableOne(int waveformID)
@@ -304,7 +270,15 @@ void WaveTablePluginAudioProcessorEditor::selectNewWaveformTableOne(int waveform
     
     auto firstStage = mipmap->getStage(0);
     
+    
+    
+    for(int i = 0; i < 2048; i++)
+    {
+        juce::Logger::writeToLog("Val at " + juce::String(i) + " = " + juce::String(firstStage[i]));
+    }
+    
     audioProcessor.setWaveform(0, waveformID);
+    
     
     m_displayOne.setTable(firstStage);
     m_interpDisplay.setTable(firstStage);

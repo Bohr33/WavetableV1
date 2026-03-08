@@ -259,11 +259,8 @@ std::shared_ptr<const MipMap> WaveTablePluginAudioProcessor::getMipMap(int mapID
     //Logic to select table from ID
     juce::Logger::writeToLog("Gettting new Mip Map!");
     
-    if(mapID > 0 && mapID < 4)
-        return mipmapBank[mapID];
-    else
-        return mipmapBank[0];
-
+    mapID = juce::jlimit(0, (int)mipmapBank.size(), mapID);
+    return mipmapBank[mapID];
 }
 
 //Is called on Construction, generates the basic wavetable shapes
