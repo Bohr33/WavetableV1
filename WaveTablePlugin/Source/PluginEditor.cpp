@@ -77,6 +77,7 @@ WaveTablePluginAudioProcessorEditor::WaveTablePluginAudioProcessorEditor (WaveTa
     //========Other GUI==============//
     addAndMakeVisible(waveBankOne);
     addAndMakeVisible(waveBankTwo);
+    addAndMakeVisible(waveBankSelect);
     
     waveBankOne.addItem("Sine", 1);
     waveBankOne.addItem("Triangle", 2);
@@ -88,6 +89,11 @@ WaveTablePluginAudioProcessorEditor::WaveTablePluginAudioProcessorEditor (WaveTa
     waveBankTwo.addItem("Sawtooth", 3);
     waveBankTwo.addItem("Square", 4);
     
+    
+    waveBankSelect.addItem("Basic 1", 1);
+    waveBankSelect.addItem("Rename 2", 2);
+    waveBankSelect.addItem("Pontific 3", 3);
+    
     waveBankOne.onChange = [this] {
         int selectedId = waveBankOne.getSelectedId();
         selectNewWaveformTableOne(selectedId-1);
@@ -98,6 +104,13 @@ WaveTablePluginAudioProcessorEditor::WaveTablePluginAudioProcessorEditor (WaveTa
         int selectedId = waveBankTwo.getSelectedId();
         selectNewWaveformTableTwo(selectedId-1);
         juce::Logger::writeToLog("Change on wave bank two");
+    };
+    
+    
+    waveBankSelect.onChange = [this] {
+        int selectedId = waveBankSelect.getSelectedId();
+        selectNewWaveBank(selectedId);
+        juce::Logger::writeToLog("Selected new wave bank");
     };
     
     
@@ -307,6 +320,17 @@ void WaveTablePluginAudioProcessorEditor::selectNewWaveformTableTwo(int waveform
     m_displayTwo.repaint();
     m_interpDisplay.repaint();
 
+}
+
+
+void WaveTablePluginAudioProcessorEditor::selectNewWaveBank(int wavebankID)
+{
+    //retrieve wav file pointer
+    
+    //create mipmaps for each wavebank
+    
+    
+    
 }
 
 //Midi Keyboard Note Callback Functions

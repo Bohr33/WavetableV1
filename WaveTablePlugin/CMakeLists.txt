@@ -64,6 +64,11 @@ target_sources(WaveTablePlugin PRIVATE
     # UI
     Source/Graphics.cpp
     Source/Graphics.h
+    
+    # Rescource Functions
+    Source/BinaryManager.cpp
+    Source/BinaryManager.h
+    
 )
 
 target_include_directories(WaveTablePlugin PRIVATE
@@ -89,6 +94,29 @@ target_link_libraries(WaveTablePlugin PRIVATE
     juce::juce_dsp
 )
 
+
+# ============================================================
+# juce_add_binary_data to embed audio files
+# ============================================================
+set(ASSETS_DIR "${CMAKE_SOURCE_DIR}/assets")
+
+# Define a new static library target containing your audio files
+# The SOURCES argument lists the audio files (e.g., .wav, .mp3) to be included
+juce_add_binary_data(WaveTablePlugin_data
+    SOURCES
+        assets/Test/Virus_1.wav
+        assets/Test/Virus_2.wav
+        assets/Test/Virus_3.wav
+    NAMESPACE MyWavetableData # Optional: specifies the C++ namespace for the generated class
+)
+
+# Link the generated binary data target to your plugin executable
+target_link_libraries(WaveTablePlugin PRIVATE
+    WaveTablePlugin_data
+    juce::juce_audio_utils
+)
+
+
 # ============================================================
 # IDE Organization (Optional but Clean)
 # ============================================================
@@ -113,3 +141,10 @@ source_group("DSP" FILES
 source_group("UI" FILES
     Source/Graphics.cpp
 )
+
+source_group("RESCOURCE" FILES
+    Source/BinaryManager.cpp
+    Source/BinaryManager.h
+)
+
+

@@ -10,6 +10,8 @@
 
 
 #include "Synthesizer.h"
+#include <BinaryData.h>
+
 
 
 

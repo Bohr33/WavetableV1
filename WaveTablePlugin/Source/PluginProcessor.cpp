@@ -23,6 +23,16 @@ WaveTablePluginAudioProcessor::WaveTablePluginAudioProcessor()
 #endif
 {
     generateWavetableBank();
+    
+  
+    //Loads wavetable from Binary into wavetable manager
+    m_waveManager.loadWavetableFromBinary();
+//    loadBinaryData();
+//    m_waveManager.loadDefaultTables(wavetableFolder);
+    
+    //Old load wavetable function that issues with getting sampling rate, led to createing the above
+    //.Wave manager to handle seperation of tasks.
+//    loadWavetable(default_wavetable, wavebankBank, getSampleRate());
 }
 
 WaveTablePluginAudioProcessor::~WaveTablePluginAudioProcessor()
@@ -97,6 +107,16 @@ void WaveTablePluginAudioProcessor::prepareToPlay (double sampleRate, int sample
     
     //Generate Mipmap from wavetable, store in bank
     int numTables = (int)wavetableBank.size();
+    
+    
+    
+    m_waveManager.updateSampleRate(sampleRate);
+    m_waveManager.prepareToPlay();
+    
+    
+    m_waveManager.reportTableData(0, 0);
+    
+    
     
     
     for (int i = 0; i < numTables; i++) {
@@ -257,8 +277,6 @@ const std::vector<float> WaveTablePluginAudioProcessor::getTable(int tableID)
 std::shared_ptr<const MipMap> WaveTablePluginAudioProcessor::getMipMap(int mapID)
 {
     //Logic to select table from ID
-    juce::Logger::writeToLog("Gettting new Mip Map!");
-    
     mapID = juce::jlimit(0, (int)mipmapBank.size(), mapID);
     return mipmapBank[mapID];
 }
@@ -283,6 +301,8 @@ void WaveTablePluginAudioProcessor::generateWavetableBank()
     }
 }
 
+
+//Loads a user selected wavetable file into bank (not currently wavetable bank)
 int WaveTablePluginAudioProcessor::loadWavetableFile(const juce::File& file)
 {
 //    importWavetable(file);
@@ -323,6 +343,73 @@ int WaveTablePluginAudioProcessor::loadWavetableFile(const juce::File& file)
     
 }
 
+
+//Load Preset Wavetable Files and store
+void WaveTablePluginAudioProcessor::loadWavetableRescources()
+{
+        int frameSize = 2048;
+        
+        juce::AudioFormatManager formatManager;
+        formatManager.registerBasicFormats();
+    
+        // get default wavetable file path relative to the plugin's directory (good for deployment)
+        //Currently Only getting a single test file from test directory
+        juce::File default_wavetable = juce::File::getSpecialLocation(juce::File::currentApplicationFile)
+            .getParentDirectory()
+            .getChildFile("Rescources/Test/Virus_1.wav");
+
+        std::unique_ptr<juce::AudioFormatReader> reader(formatManager.createReaderFor(default_wavetable));
+        if (reader == nullptr) return 0;
+
+        juce::AudioBuffer<float> buffer(1, (int)reader->lengthInSamples);
+        reader->read(&buffer, 0, (int)reader->lengthInSamples, 0, true, false);
+        
+        loadWavetable(default_wavetable, wavebankBank, getSampleRate());
+        
+}
+
+
+void WaveTablePluginAudioProcessor::loadBinaryData()
+{
+    
+    //Must make a unique pointer for the createReaderFor function
+    auto memStream = std::make_unique<juce::MemoryInputStream>(
+                    MyWavetableData::Virus_1_wav,
+                    MyWavetableData::Virus_1_wavSize,
+                    false
+                                                               );
+    
+    juce::AudioFormatManager formatManager;
+    formatManager.registerBasicFormats();  // WAV, AIFF, MP3 (if enabled)
+
+    std::unique_ptr<juce::AudioFormatReader> reader(formatManager.createReaderFor(std::move(memStream)));
+
+    if (reader != nullptr)
+    {
+        // Create an AudioBuffer with the right number of channels and samples
+        juce::AudioBuffer<float> buffer(reader->numChannels, static_cast<int>(reader->lengthInSamples));
+
+        // Read all samples into the buffer
+        reader->read(&buffer, 0, static_cast<int>(reader->lengthInSamples), 0, true, true);
+        
+        for(int i = 0; i < 200; i++)
+        {
+            juce::Logger::writeToLog("Val = " + juce::String(buffer.getSample(0, i)));
+        }
+    }
+    
+}
+
+
+void parseBinaryWavetableData()
+{
+    
+    
+    
+    
+    
+}
+
 //Helper function to create parameter layout for AudioValueTreeState
 juce::AudioProcessorValueTreeState::ParameterLayout WaveTablePluginAudioProcessor::createParameterLayout()
 {
@@ -347,6 +434,9 @@ juce::AudioProcessorValueTreeState::ParameterLayout WaveTablePluginAudioProcesso
         std::make_unique<AudioParameterFloat>(ParameterID {"env_rel_curve", versionHint}, "Release Slope", juce::NormalisableRange<float>(0.1f, 10.0f, 0.01f, skew), 1.0f)
     };
 }
+
+
+
 
 //==============================================================================
 // This creates new instances of the plugin..

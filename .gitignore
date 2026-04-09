@@ -9,6 +9,7 @@ JuceLibraryCode/
 Notes/
 Legacy/
 Rescources/
+assets/
 
 *.jucer
 *.xcodeproj

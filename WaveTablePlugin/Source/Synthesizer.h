@@ -111,6 +111,8 @@ private:
     std::shared_ptr<const MipMap> m_mipmapA;
     std::shared_ptr<const MipMap> m_mipmapB;
     
+    //Shared Pointers to wavetables
+    std::shared_ptr<const WaveBank> m_WavebankA;
     
     int test = 0;
 };

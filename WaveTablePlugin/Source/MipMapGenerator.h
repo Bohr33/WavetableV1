@@ -14,6 +14,32 @@
 
 //MipMap Generator Class receives a table of float values, and returns a 'mipmap'
 //In this case, a 'MipMap' is our band limited copies of tables used for playback by the synthesis engine
+
+struct MipMap
+{
+    std::vector<std::vector<float>> stages;
+    
+    int numMipMaps;
+    
+  
+    const std::vector<std::vector<float>>& getMipMap() const
+    {
+        return stages;
+    }
+    
+    const std::vector<float>& getStage(int index) const
+    {
+        return stages[index];
+    }
+    
+    size_t size() const {
+        return stages.size();
+    }
+    
+    
+};
+
+
 class MipMapGenerator
 {
 public:
@@ -22,6 +48,9 @@ public:
     
     
     std::vector<std::vector<float>> generateMipMaps(const std::vector<float>& wavetable, double sampleRate);
+    
+    
+    MipMap generateMipMapStructs(const std::vector<float>& wavetable, double sampleRate);
 
     int calculate_num_mipmaps(float sample_rate, int max_midi_note = 127);
     

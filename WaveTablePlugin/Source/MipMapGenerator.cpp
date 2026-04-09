@@ -81,6 +81,22 @@ std::vector<std::vector<float>> MipMapGenerator::generateMipMaps(const std::vect
 };
 
 
+MipMap MipMapGenerator::generateMipMapStructs(const std::vector<float> &wavetable, double sampleRate)
+{
+    
+    auto mipmaps = generateMipMaps(wavetable, sampleRate);
+    
+    MipMap newMap;
+    newMap.numMipMaps = static_cast<int>(mipmaps.size());
+    newMap.stages = mipmaps;
+    
+    return newMap;
+}
+
+
+
+
+
 //Takes a source table, a cutoff frequency, and sample rate, and
 //Filters the table via FFT and IFT
 void MipMapGenerator::filterTable(const std::vector<float>& source, float cutoffFreq, float sampleRate)

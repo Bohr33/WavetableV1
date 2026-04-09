@@ -8,13 +8,13 @@
 
 #pragma once
 
-#include <JuceHeader.h>
 #include "Synthesizer.h"
 #include "WavetableGenerator.h"
 #include "WaveTable.h"
 #include <span>
 #include "MipMapGenerator.h"
 #include "ImportWavetable.h"
+#include <BinaryData.h>
 
 //==============================================================================
 /**
@@ -64,9 +64,15 @@ public:
     void setWaveform(int tableID, int waveformID);
     const std::vector<float> getTable(int tableID);
     std::shared_ptr<const MipMap> getMipMap(int mapID);
+    
+    void loadWavetableRescources();
     void generateWavetableBank();
     
     int loadWavetableFile(const juce::File& file);
+    
+    void loadBinaryData();
+    
+    void parseBinaryWavetableData();
     
 
     
@@ -82,6 +88,14 @@ private:
     
     unsigned int bufferSize = 128;
     const int defaultNumHarmonics = 100;
+    
+    
+    // Get plugin path for rescource folder
+    juce::File exeFile = juce::File::getSpecialLocation(juce::File::currentExecutableFile);
+    juce::File baseFolder = exeFile.getParentDirectory();
+    
+    // wavetable folder
+    juce::File wavetableFolder = baseFolder.getChildFile("assets/Test");
     
     
     //Synth Parameters
@@ -102,6 +116,13 @@ private:
     
     //MipMap Bank
     std::vector<std::shared_ptr<const MipMap>> mipmapBank;
+    
+    //Has constructor load, and prepare to play functions
+    WaveBankManager m_waveManager;
+    
+    
+    //Wavebank Bank [Wavetable Index][Frame Index(waveform)][mipmap]
+    std::vector<std::vector<std::shared_ptr<const MipMap>>> wavebankBank;
     
 
     

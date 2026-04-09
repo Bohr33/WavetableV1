@@ -41,7 +41,6 @@ void WavetableDisplay::paint(juce::Graphics& g)
 
 void WavetableDisplay::drawTable(juce::Graphics& g)
 {
-    juce::Logger::writeToLog("Drawing Table!");
     g.setColour(juce::Colours::whitesmoke);
     int tablesize = static_cast<int>(m_table.size() - 1);
     jassert(tablesize == 2048);
