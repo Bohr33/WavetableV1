@@ -117,12 +117,23 @@ private:
     //MipMap Bank
     std::vector<std::shared_ptr<const MipMap>> mipmapBank;
     
+    
+    
+    
     //Has constructor load, and prepare to play functions
     WaveBankManager m_waveManager;
     
     
     //Wavebank Bank [Wavetable Index][Frame Index(waveform)][mipmap]
     std::vector<std::vector<std::shared_ptr<const MipMap>>> wavebankBank;
+    
+    
+    
+    //Question: How do I properly manage the switching of mipmap banks during the load and interpolation phase of the synth?
+    // - currently its using the vector mipmapBank with shared pointer to const MipMap
+    //- I have the wavebannk manager which is intended to be a useful class for managing all of the loaded binary wavetables
+    // - I would like to use the manager to also pass data along to to the synth, but might need to convert it each time
+    // I want to load a new file in.
     
 
     

@@ -74,6 +74,10 @@ public:
     
     void generateMipmaps();
     
+    
+    
+    std::shared_ptr<const MipMap> formatMipMapForSynth(int bankID, int mapID);
+    
     bool verifySampleRate();
     
     //Mainly creates mipmaps

@@ -46,10 +46,8 @@ void WaveBankManager::parseBinaryData(juce::AudioBuffer<float> binaryData)
 {
     int tableLength = 2048;
     
-    
     int totalSamps = binaryData.getNumSamples();
     auto numTables = totalSamps / tableLength;
-    
     
     //Create a new wavetable, and resize it
     Wavetable newTable;
@@ -136,6 +134,32 @@ void WaveBankManager::prepareToPlay()
         generateMipmaps();
     else
         juce::Logger::writeToLog("Error in prepareToPlay for WaveBank Manager: invalid Sample Rate");
+    
+}
+
+
+//Function to prepare Mipmaps for loading in
+std::shared_ptr<const MipMap> WaveBankManager::formatMipMapForSynth(int bankID, int mapID)
+{
+    
+    std::shared_ptr<const MipMap> map;
+    
+    
+    if(bankID >= waveTables.size())
+    {
+        juce::Logger::writeToLog("Error formating MipMaps for Synthesizer, Bank ID out of range");
+        return;
+    }
+        
+    if(mapID >= waveTables[bankID].frameCount)
+    {
+        juce::Logger::writeToLog("Error formating MipMaps for Synthesizer, Map ID out of range");
+        return;
+    }
+    
+    map = std::make_shared<MipMap>(waveTables[bankID].mipmaps[mapID]);
+    
+    return map;
     
 }
 

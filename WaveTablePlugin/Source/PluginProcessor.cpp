@@ -105,33 +105,56 @@ void WaveTablePluginAudioProcessor::changeProgramName (int index, const juce::St
 void WaveTablePluginAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
     
-    //Generate Mipmap from wavetable, store in bank
-    int numTables = (int)wavetableBank.size();
+
     
     
+    
+    //---New Wave Manager Loading Code
+    //---Will eventually replace code below ----
     
     m_waveManager.updateSampleRate(sampleRate);
     m_waveManager.prepareToPlay();
     
     
     m_waveManager.reportTableData(0, 0);
-    
-    
-    
-    
-    for (int i = 0; i < numTables; i++) {
 
-        //Generate wavetable mipMaps
-        const std::vector<float>& tableData = wavetableBank[i];
-        auto currentMipmap = m_mipmapGenerator.generateMipMaps(tableData, sampleRate);
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    //-------End of replacement--------//
+    
+    
+    
+    // Generates mipmaps for each table in wavetableBank
+    //Old should be replaced by wavebank manager
+    
+//    int numTables = (int)wavetableBank.size();
+//
+//
+//    for (int i = 0; i < numTables; i++) {
+//
+//        //Generate wavetable mipMaps
+//        const std::vector<float>& tableData = wavetableBank[i];
+//        auto currentMipmap = m_mipmapGenerator.generateMipMaps(tableData, sampleRate);
+//
+//        //Create new temporary mipmap, move generated mip map, and store structure in bank
+//        auto mipmap = std::make_shared<MipMap>();
+//        mipmap->stages = std::move(currentMipmap);
+//        mipmapBank.push_back(mipmap);
+//    }
+    
+    
 
-        //Create new temporary mipmap, move generated mip map, and store structure in bank
-        auto mipmap = std::make_shared<MipMap>();
-        mipmap->stages = std::move(currentMipmap);
-        mipmapBank.push_back(mipmap);
-    }
-
-    //initialize members for the actual synth, including the sound and all voices
+    //initialize members for synth, including the sound and all voices
     synth.setCurrentPlaybackSampleRate(sampleRate);
     synth.clearSounds();
     synth.clearVoices();
@@ -139,14 +162,20 @@ void WaveTablePluginAudioProcessor::prepareToPlay (double sampleRate, int sample
     //add sound to synth
     synth.addSound(new WaveTableSound());
 
-    auto defaultTableOne = wavetableBank[0];
-    auto defaultTableTwo = wavetableBank[1];
+//    auto defaultTableOne = wavetableBank[0];
+//    auto defaultTableTwo = wavetableBank[1];
+    
+//    auto defaultTableOne = mipmapBank[0];
+//    auto defaultTableTwo = mipmapBank[1];
+    
+    auto defaultTableOne = m_waveManager.formatMipMapForSynth(0, 0);
+    auto defaultTableTwo = m_waveManager.formatMipMapForSynth(0, 1);
 
     //Add and Prepare All voices for synth
     for(auto i = 0; i < maxVoices; ++i)
     {
         //add voice to synth; also provides default Table and Table Size to Synth Voice
-        auto* voice = new SynthVoice(mipmapBank[0], mipmapBank[1], defaultTableSize);
+        auto* voice = new SynthVoice(defaultTableOne, defaultTableTwo, defaultTableSize);
         voice->setAPVTS(&apvts);
         voice->prepare(sampleRate);
         synth.addVoice(voice);
@@ -277,8 +306,12 @@ const std::vector<float> WaveTablePluginAudioProcessor::getTable(int tableID)
 std::shared_ptr<const MipMap> WaveTablePluginAudioProcessor::getMipMap(int mapID)
 {
     //Logic to select table from ID
-    mapID = juce::jlimit(0, (int)mipmapBank.size(), mapID);
-    return mipmapBank[mapID];
+//    mapID = juce::jlimit(0, (int)mipmapBank.size(), mapID);
+//    return mipmapBank[mapID];
+    
+    
+    //Replace above with call to wavebank manager retrieval function
+    return m_waveManager.formatMipMapForSynth(0, mapID);
 }
 
 //Is called on Construction, generates the basic wavetable shapes

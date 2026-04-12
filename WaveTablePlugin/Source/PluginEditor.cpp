@@ -89,10 +89,7 @@ WaveTablePluginAudioProcessorEditor::WaveTablePluginAudioProcessorEditor (WaveTa
     waveBankTwo.addItem("Sawtooth", 3);
     waveBankTwo.addItem("Square", 4);
     
-    
-    waveBankSelect.addItem("Basic 1", 1);
-    waveBankSelect.addItem("Rename 2", 2);
-    waveBankSelect.addItem("Pontific 3", 3);
+
     
     waveBankOne.onChange = [this] {
         int selectedId = waveBankOne.getSelectedId();
@@ -107,11 +104,19 @@ WaveTablePluginAudioProcessorEditor::WaveTablePluginAudioProcessorEditor (WaveTa
     };
     
     
+    
+    //New wave bank gui, not yet implemented?
+    waveBankSelect.addItem("Basic 1", 1);
+    waveBankSelect.addItem("Rename 2", 2);
+    waveBankSelect.addItem("Pontific 3", 3);
+    
     waveBankSelect.onChange = [this] {
         int selectedId = waveBankSelect.getSelectedId();
         selectNewWaveBank(selectedId);
         juce::Logger::writeToLog("Selected new wave bank");
     };
+    
+    //ends here
     
     
     
@@ -276,6 +281,9 @@ void WaveTablePluginAudioProcessorEditor::resized()
 
 void WaveTablePluginAudioProcessorEditor::selectNewWaveformTableOne(int waveformID)
 {
+
+    
+    //The getMipMap function was re-done to return the bank from the wavebank manager
     auto mipmap = audioProcessor.getMipMap(waveformID);
     
     if(!mipmap)
