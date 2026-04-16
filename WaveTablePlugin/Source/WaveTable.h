@@ -82,10 +82,14 @@ public:
     
     //Mainly creates mipmaps
     void prepareToPlay();
+
     
     
 private:
     juce::String sourcePath;
+    
+    //Continue by giving the waveBankManager class a proper way to report the number of banks and tables
+    //it has to the outside functions
     
     double sampleRate;
     

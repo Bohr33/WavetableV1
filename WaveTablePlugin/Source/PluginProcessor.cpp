@@ -22,7 +22,7 @@ WaveTablePluginAudioProcessor::WaveTablePluginAudioProcessor()
                        ), apvts(*this, nullptr, "PARAMETERS", createParameterLayout())
 #endif
 {
-    generateWavetableBank();
+    generateBasicWavetableBank();
     
   
     //Loads wavetable from Binary into wavetable manager
@@ -105,51 +105,33 @@ void WaveTablePluginAudioProcessor::changeProgramName (int index, const juce::St
 void WaveTablePluginAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
     
-
-    
-    
-    
     //---New Wave Manager Loading Code
     //---Will eventually replace code below ----
     
     m_waveManager.updateSampleRate(sampleRate);
     m_waveManager.prepareToPlay();
-    
-    
-    m_waveManager.reportTableData(0, 0);
-
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
+    m_waveManager.reportTableData(0, 2);
     
     //-------End of replacement--------//
     
     
     
-    // Generates mipmaps for each table in wavetableBank
+    // Generates mipmaps for each table in basicWavetableBank
     //Old should be replaced by wavebank manager
     
-//    int numTables = (int)wavetableBank.size();
+//    int numTables = (int)basicWavetableBank.size();
 //
 //
 //    for (int i = 0; i < numTables; i++) {
 //
 //        //Generate wavetable mipMaps
-//        const std::vector<float>& tableData = wavetableBank[i];
+//        const std::vector<float>& tableData = basicWavetableBank[i];
 //        auto currentMipmap = m_mipmapGenerator.generateMipMaps(tableData, sampleRate);
 //
 //        //Create new temporary mipmap, move generated mip map, and store structure in bank
 //        auto mipmap = std::make_shared<MipMap>();
 //        mipmap->stages = std::move(currentMipmap);
-//        mipmapBank.push_back(mipmap);
+//        userTableBank.push_back(mipmap);
 //    }
     
     
@@ -161,16 +143,11 @@ void WaveTablePluginAudioProcessor::prepareToPlay (double sampleRate, int sample
 
     //add sound to synth
     synth.addSound(new WaveTableSound());
-
-//    auto defaultTableOne = wavetableBank[0];
-//    auto defaultTableTwo = wavetableBank[1];
     
-//    auto defaultTableOne = mipmapBank[0];
-//    auto defaultTableTwo = mipmapBank[1];
-    
-    auto defaultTableOne = m_waveManager.formatMipMapForSynth(0, 0);
-    auto defaultTableTwo = m_waveManager.formatMipMapForSynth(0, 1);
+    std::shared_ptr<const MipMap> defaultTableOne = m_waveManager.formatMipMapForSynth(0, 0);
+    std::shared_ptr<const MipMap> defaultTableTwo = m_waveManager.formatMipMapForSynth(0, 1);
 
+    
     //Add and Prepare All voices for synth
     for(auto i = 0; i < maxVoices; ++i)
     {
@@ -280,42 +257,56 @@ juce::MidiKeyboardState& WaveTablePluginAudioProcessor::getMidiKeyboardState()
 void WaveTablePluginAudioProcessor::setWaveform(int tableID, int waveformID)
 {
     juce::Logger::writeToLog("Setting new table in voices; ID = " + juce::String(waveformID));
+    
+    auto newMipMap = m_waveManager.formatMipMapForSynth(0, tableID);
+    
     for (int i = 0; i < synth.getNumVoices(); ++i)
     {
         if (auto* voice = dynamic_cast<SynthVoice*>(synth.getVoice(i)))
         {
-            tableID == 0 ? voice->setVoiceOneMipMap(mipmapBank[waveformID]) : voice->setVoiceTwoMipMap(mipmapBank[waveformID]);
+            tableID == 0 ? voice->setVoiceOneMipMap(newMipMap) : voice->setVoiceTwoMipMap(newMipMap);
         }
             
     }
 }
 
-//Returns a table from the wavetable bank
-const std::vector<float> WaveTablePluginAudioProcessor::getTable(int tableID)
+//Returns 1 of 4 basic wavetables from the Basic wavetable bank
+const std::vector<float> WaveTablePluginAudioProcessor::getBasicWavetable(int tableID)
 {
-    //Logic to select table from ID
-    juce::Logger::writeToLog("Gettting new Table!");
-    
     if(tableID > 0 && tableID < 4)
-        return wavetableBank[tableID];
+        return basicWavetableBank[tableID];
     else
-        return wavetableBank[0];
+        return basicWavetableBank[0];
     
 }
 
 std::shared_ptr<const MipMap> WaveTablePluginAudioProcessor::getMipMap(int mapID)
 {
     //Logic to select table from ID
-//    mapID = juce::jlimit(0, (int)mipmapBank.size(), mapID);
-//    return mipmapBank[mapID];
+//    mapID = juce::jlimit(0, (int)userTableBank.size(), mapID);
+//    return userTableBank[mapID];
     
+    
+    //Change this, currently hardcoded, should retrieve max number from manager
+    if(mapID <= 10);
     
     //Replace above with call to wavebank manager retrieval function
     return m_waveManager.formatMipMapForSynth(0, mapID);
 }
 
+
+std::vector<float> WaveTablePluginAudioProcessor::getMipMapForDisplay(int mapID)
+{
+    
+    std::shared_ptr<const MipMap> newMap = getMipMap(mapID);
+    int finalStage = static_cast<int>(newMap->size() - 2);
+    
+    return newMap->getStage(finalStage);
+    
+}
+
 //Is called on Construction, generates the basic wavetable shapes
-void WaveTablePluginAudioProcessor::generateWavetableBank()
+void WaveTablePluginAudioProcessor::generateBasicWavetableBank()
 {
     using GenFunc = void (WavetableGenerator::*)(std::span<float>, int);
     
@@ -330,7 +321,7 @@ void WaveTablePluginAudioProcessor::generateWavetableBank()
         auto table = std::vector<float>();
         table.resize(defaultTableSize + 1);
         (tableGenerator.*func)(table, defaultNumHarmonics);
-        wavetableBank.push_back(table);
+        basicWavetableBank.push_back(table);
     }
 }
 
@@ -339,9 +330,9 @@ void WaveTablePluginAudioProcessor::generateWavetableBank()
 int WaveTablePluginAudioProcessor::loadWavetableFile(const juce::File& file)
 {
 //    importWavetable(file);
-    
+
     int frameSize = 2048;
-    
+
     juce::AudioFormatManager formatManager;
     formatManager.registerBasicFormats();
 
@@ -350,56 +341,56 @@ int WaveTablePluginAudioProcessor::loadWavetableFile(const juce::File& file)
 
     juce::AudioBuffer<float> buffer(1, (int)reader->lengthInSamples);
     reader->read(&buffer, 0, (int)reader->lengthInSamples, 0, true, false);
-    
+
     int numFrames = buffer.getNumSamples() / frameSize;
-    
+
     //For each frame, isolate wavetable, create mip map, and store
     for( int i = 0; i < numFrames; ++i)
     {
         auto ptr = buffer.getReadPointer(0, i * frameSize);
-        
+
         std::vector<float> frameBuffer(ptr, ptr + frameSize);
-        
+
         auto mipMap = m_mipmapGenerator.generateMipMaps(frameBuffer, getSampleRate());
-        
+
         auto mipmap = std::make_shared<MipMap>();
         mipmap->stages = std::move(mipMap);
-        mipmapBank.push_back(mipmap);
-        
+        userTableBank.push_back(mipmap);
+
     }
-    
-    
+
+
     juce::Logger::writeToLog("Hello! Made it!");
-    
+
     return numFrames;
-    
-    
+
+
 }
 
 
 //Load Preset Wavetable Files and store
-void WaveTablePluginAudioProcessor::loadWavetableRescources()
-{
-        int frameSize = 2048;
-        
-        juce::AudioFormatManager formatManager;
-        formatManager.registerBasicFormats();
-    
-        // get default wavetable file path relative to the plugin's directory (good for deployment)
-        //Currently Only getting a single test file from test directory
-        juce::File default_wavetable = juce::File::getSpecialLocation(juce::File::currentApplicationFile)
-            .getParentDirectory()
-            .getChildFile("Rescources/Test/Virus_1.wav");
-
-        std::unique_ptr<juce::AudioFormatReader> reader(formatManager.createReaderFor(default_wavetable));
-        if (reader == nullptr) return 0;
-
-        juce::AudioBuffer<float> buffer(1, (int)reader->lengthInSamples);
-        reader->read(&buffer, 0, (int)reader->lengthInSamples, 0, true, false);
-        
-        loadWavetable(default_wavetable, wavebankBank, getSampleRate());
-        
-}
+//void WaveTablePluginAudioProcessor::loadWavetableRescources()
+//{
+//        int frameSize = 2048;
+//
+//        juce::AudioFormatManager formatManager;
+//        formatManager.registerBasicFormats();
+//
+//        // get default wavetable file path relative to the plugin's directory (good for deployment)
+//        //Currently Only getting a single test file from test directory
+//        juce::File default_wavetable = juce::File::getSpecialLocation(juce::File::currentApplicationFile)
+//            .getParentDirectory()
+//            .getChildFile("Rescources/Test/Virus_1.wav");
+//
+//        std::unique_ptr<juce::AudioFormatReader> reader(formatManager.createReaderFor(default_wavetable));
+//        if (reader == nullptr) return 0;
+//
+//        juce::AudioBuffer<float> buffer(1, (int)reader->lengthInSamples);
+//        reader->read(&buffer, 0, (int)reader->lengthInSamples, 0, true, false);
+//
+//        loadWavetable(default_wavetable, wavebankBank, getSampleRate());
+//
+//}
 
 
 void WaveTablePluginAudioProcessor::loadBinaryData()
@@ -433,15 +424,6 @@ void WaveTablePluginAudioProcessor::loadBinaryData()
     
 }
 
-
-void parseBinaryWavetableData()
-{
-    
-    
-    
-    
-    
-}
 
 //Helper function to create parameter layout for AudioValueTreeState
 juce::AudioProcessorValueTreeState::ParameterLayout WaveTablePluginAudioProcessor::createParameterLayout()

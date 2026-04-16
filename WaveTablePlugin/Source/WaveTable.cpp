@@ -10,7 +10,7 @@
 
 #include "WaveTable.h"
 
-
+//Initializer function, called during processor construction
 void WaveBankManager::loadWavetableFromBinary()
 {
     
@@ -22,6 +22,7 @@ void WaveBankManager::loadWavetableFromBinary()
                     MyWavetableData::Virus_1_wavSize,
                     false
                                                                );
+    
     
     juce::AudioFormatManager formatManager;
     formatManager.registerBasicFormats();  // WAV, AIFF, MP3 (if enabled)
@@ -35,7 +36,6 @@ void WaveBankManager::loadWavetableFromBinary()
 
         // Read all samples into the buffer
         reader->read(&buffer, 0, static_cast<int>(reader->lengthInSamples), 0, true, true);
-        
         
         //Parse file, need to take buffer, split it up into wavetables and store them in the wavebank
         parseBinaryData(buffer);
@@ -92,7 +92,7 @@ void WaveBankManager::parseBinaryData(juce::AudioBuffer<float> binaryData)
         {
             newTable.frames[i][j] = binaryData.getSample(0, i * tableLength + j);
         }
-        
+                
     }
     
     
@@ -105,8 +105,10 @@ void WaveBankManager::generateMipmaps()
     
     if(verifySampleRate())
     {
-        for(auto& wavetable : waveTables)
+        for(Wavetable& wavetable : waveTables)
         {
+            
+            wavetable.mipmaps.resize(wavetable.frameCount);
             for(int i = 0; i < wavetable.frameCount; i++)
             {
                 wavetable.mipmaps[i] = mipmapGenerator.generateMipMapStructs(wavetable.frames[i], sampleRate);
@@ -148,13 +150,13 @@ std::shared_ptr<const MipMap> WaveBankManager::formatMipMapForSynth(int bankID, 
     if(bankID >= waveTables.size())
     {
         juce::Logger::writeToLog("Error formating MipMaps for Synthesizer, Bank ID out of range");
-        return;
+        return nullptr;
     }
         
     if(mapID >= waveTables[bankID].frameCount)
     {
         juce::Logger::writeToLog("Error formating MipMaps for Synthesizer, Map ID out of range");
-        return;
+        return nullptr;
     }
     
     map = std::make_shared<MipMap>(waveTables[bankID].mipmaps[mapID]);

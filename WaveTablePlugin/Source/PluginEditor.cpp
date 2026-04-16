@@ -157,13 +157,18 @@ WaveTablePluginAudioProcessorEditor::WaveTablePluginAudioProcessorEditor (WaveTa
     addAndMakeVisible(m_displayTwo);
     
     //Set Default Table Display
+    auto defaultTableOne = audioProcessor.getMipMapForDisplay(0);
+    auto defaultTableTwo = audioProcessor.getMipMapForDisplay(1);
     
-    
-    m_interpDisplay.setTable(audioProcessor.getMipMap(0)->getStage(0));
-    m_interpDisplay.setTableTwo(audioProcessor.getMipMap(1)->getStage(1));
-    
-    m_displayOne.setTable(audioProcessor.getMipMap(0)->getStage(0));
-    m_displayTwo.setTable(audioProcessor.getMipMap(1)->getStage(1));
+    for(int i = 0; i < 50; i++)
+    {
+        juce::Logger::writeToLog("Val = " + juce::String(defaultTableOne[i]));
+    }
+
+    m_interpDisplay.setTable(defaultTableOne);
+    m_interpDisplay.setTableTwo(defaultTableTwo);
+    m_displayOne.setTable(defaultTableOne);
+    m_displayTwo.setTable(defaultTableTwo);
     
     m_interpDisplay.setColours(juce::Colours::rebeccapurple);
     m_displayOne.setColours(juce::Colours::gold);
@@ -281,28 +286,18 @@ void WaveTablePluginAudioProcessorEditor::resized()
 
 void WaveTablePluginAudioProcessorEditor::selectNewWaveformTableOne(int waveformID)
 {
-
     
     //The getMipMap function was re-done to return the bank from the wavebank manager
-    auto mipmap = audioProcessor.getMipMap(waveformID);
+    std::vector<float> displayTable = audioProcessor.getMipMapForDisplay(waveformID);
+
     
-    if(!mipmap)
-        return;
-    
-    auto firstStage = mipmap->getStage(0);
-    
-    
-    
-    for(int i = 0; i < 2048; i++)
-    {
-        juce::Logger::writeToLog("Val at " + juce::String(i) + " = " + juce::String(firstStage[i]));
-    }
     
     audioProcessor.setWaveform(0, waveformID);
     
+    juce::Logger::writeToLog("Setting New Waveform for Table One");
     
-    m_displayOne.setTable(firstStage);
-    m_interpDisplay.setTable(firstStage);
+    m_displayOne.setTable(displayTable);
+    m_interpDisplay.setTable(displayTable);
     
     m_displayOne.repaint();
     m_interpDisplay.repaint();
@@ -312,18 +307,14 @@ void WaveTablePluginAudioProcessorEditor::selectNewWaveformTableOne(int waveform
 
 void WaveTablePluginAudioProcessorEditor::selectNewWaveformTableTwo(int waveformID)
 {
-    auto mipmap = audioProcessor.getMipMap(waveformID);
+    std::vector<float> displayTable = audioProcessor.getMipMapForDisplay(waveformID);
     
-    if(!mipmap)
-        return;
-    
-    auto firstStage = mipmap->getStage(0);
-    
+    juce::Logger::writeToLog("Setting New Waveform for Table Two");
     
     audioProcessor.setWaveform(1, waveformID);
     
-    m_displayTwo.setTable(firstStage);
-    m_interpDisplay.setTableTwo(firstStage);
+    m_displayTwo.setTable(displayTable);
+    m_interpDisplay.setTableTwo(displayTable);
     
     m_displayTwo.repaint();
     m_interpDisplay.repaint();

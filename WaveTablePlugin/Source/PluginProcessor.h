@@ -62,12 +62,15 @@ public:
     //Added Functions
     juce::MidiKeyboardState& getMidiKeyboardState();
     void setWaveform(int tableID, int waveformID);
-    const std::vector<float> getTable(int tableID);
+    const std::vector<float> getBasicWavetable(int tableID);
+    
     std::shared_ptr<const MipMap> getMipMap(int mapID);
+    std::vector<float> getMipMapForDisplay(int mapID);
     
-    void loadWavetableRescources();
-    void generateWavetableBank();
-    
+//    void loadWavetableRescources();
+    void generateBasicWavetableBank();
+
+    //Loads External File for User
     int loadWavetableFile(const juce::File& file);
     
     void loadBinaryData();
@@ -75,7 +78,6 @@ public:
     void parseBinaryWavetableData();
     
 
-    
     //==============================================================================
     //Value Tree State
     juce::AudioProcessorValueTreeState apvts;
@@ -105,29 +107,18 @@ private:
     
     juce::Synthesiser synth;
     
-    std::vector<float> m_table;
-    std::vector<float> m_table2;
-    
     WavetableGenerator tableGenerator;
     MipMapGenerator m_mipmapGenerator;
 
-    //Wavetable Bank
-    std::vector<const std::vector<float>> wavetableBank;
+    //Basic Wavetable Bank
+    std::vector<const std::vector<float>> basicWavetableBank;
     
-    //MipMap Bank
-    std::vector<std::shared_ptr<const MipMap>> mipmapBank;
+    //Bank to Store User load Tables and their mipmaps
+    std::vector<std::shared_ptr<const MipMap>> userTableBank;
     
-    
-    
-    
-    //Has constructor load, and prepare to play functions
+
+    //Primary Manager of all wavetables and mipmaps
     WaveBankManager m_waveManager;
-    
-    
-    //Wavebank Bank [Wavetable Index][Frame Index(waveform)][mipmap]
-    std::vector<std::vector<std::shared_ptr<const MipMap>>> wavebankBank;
-    
-    
     
     //Question: How do I properly manage the switching of mipmap banks during the load and interpolation phase of the synth?
     // - currently its using the vector mipmapBank with shared pointer to const MipMap
