@@ -73,8 +73,6 @@ public:
     //Loads External File for User
     int loadWavetableFile(const juce::File& file);
     
-    void loadBinaryData();
-    
     void parseBinaryWavetableData();
     
 

@@ -11,38 +11,61 @@
 #include "WaveTable.h"
 
 //Initializer function, called during processor construction
-void WaveBankManager::loadWavetableFromBinary()
+void WaveBankManager::loadWavetablesFromBinary()
 {
-    
     //Must make a unique pointer for the createReaderFor function
     
     //Re work function to be abstract, currently hardcoded, should work for all new additions, probably use an outside loop to call this function with hard coded enums
-    auto memStream = std::make_unique<juce::MemoryInputStream>(
-                    MyWavetableData::Virus_1_wav,
-                    MyWavetableData::Virus_1_wavSize,
-                    false
-                                                               );
-    
-    
-    juce::AudioFormatManager formatManager;
-    formatManager.registerBasicFormats();  // WAV, AIFF, MP3 (if enabled)
 
-    std::unique_ptr<juce::AudioFormatReader> reader(formatManager.createReaderFor(std::move(memStream)));
     
-    if (reader != nullptr)
+    
+    
+    
+    //Replace Above
+    
+    
+    //Loop through assetID and load binary files
+    for (int i = 0; i < (int)WaveBankManager::AssetID::Count; ++i)
     {
-        // Create an AudioBuffer with the right number of channels and samples
-        juce::AudioBuffer<float> buffer(reader->numChannels, static_cast<int>(reader->lengthInSamples));
+        auto id = static_cast<WaveBankManager::AssetID>(i);
 
-        // Read all samples into the buffer
-        reader->read(&buffer, 0, static_cast<int>(reader->lengthInSamples), 0, true, true);
+        size_t size;
+        const char* data = WaveBankManager::getAssetData(id, size);
         
-        //Parse file, need to take buffer, split it up into wavetables and store them in the wavebank
-        parseBinaryData(buffer);
+        
+        auto memStream = std::make_unique<juce::MemoryInputStream>(
+                        data,
+                        size,
+                        false );
+        
+        
+        std::unique_ptr<juce::AudioFormatReader> reader(formatManager.createReaderFor(std::move(memStream)));
+        
+        if (reader != nullptr)
+        {
+            // Create an AudioBuffer with the right number of channels and samples
+            juce::AudioBuffer<float> buffer(reader->numChannels, static_cast<int>(reader->lengthInSamples));
+
+            // Read all samples into the buffer
+            reader->read(&buffer, 0, static_cast<int>(reader->lengthInSamples), 0, true, true);
+            
+            //Parse file, need to take buffer, split it up into wavetables and store them in the wavebank
+            auto newTable = parseBinaryData(buffer);
+            newTable.name = "Test_" + juce::String(i);
+            waveTables.push_back(newTable);
+            
+            juce::Logger::writeToLog("Test " + juce::String(i) + " = " + juce::String(newTable.frameCount));
+        }
     }
+    
+    
+    
+    
+    //End Replacement
+
 }
 
-void WaveBankManager::parseBinaryData(juce::AudioBuffer<float> binaryData)
+Wavetable WaveBankManager::parseBinaryData(juce::AudioBuffer<float> binaryData)
 {
     int tableLength = 2048;
     
@@ -55,15 +78,11 @@ void WaveBankManager::parseBinaryData(juce::AudioBuffer<float> binaryData)
     newTable.frameSize = tableLength;
     newTable.frameCount = numTables;
     
-    newTable.name = "Virus1";
-    
     newTable.frames.resize(numTables);
     for(auto& table : newTable.frames)
         table.resize(tableLength);
     
     newTable.mipmaps.resize(numTables);
-    
-    
     
     //Resize Vector for Raw Data array
     rawTables.resize(numTables);
@@ -82,21 +101,18 @@ void WaveBankManager::parseBinaryData(juce::AudioBuffer<float> binaryData)
             pointer[j] = binaryData.getSample(0, i * tableLength + j);
         }
         
-        //Add to wavetable array, with names and such
+        //Add to wavetable array
         Wavetable table;
         table.frames.resize(tableLength);
-        table.name = "Virus1 " + juce::String(i);
         
         //Copy contigous data in parsed array
         for(int j = 0; j < tableLength; j++)
         {
             newTable.frames[i][j] = binaryData.getSample(0, i * tableLength + j);
         }
-                
     }
     
-    
-    waveTables.push_back(newTable);
+    return newTable;
 }
 
 //---Generates Mip Maps Based on the sample rate----//
@@ -163,6 +179,28 @@ std::shared_ptr<const MipMap> WaveBankManager::formatMipMapForSynth(int bankID, 
     
     return map;
     
+}
+
+const char* WaveBankManager::getAssetData(AssetID id, size_t &size)
+{
+    switch (id)
+        {
+            case AssetID::Test_1:
+                size = MyWavetableData::_01_RESO1_wavSize;
+                return MyWavetableData::_01_RESO1_wav;
+
+            case AssetID::Test_2:
+                size = MyWavetableData::_02_RESO2_wavSize;
+                return MyWavetableData::_02_RESO2_wav;
+
+            case AssetID::Test_3:
+                size = MyWavetableData::_03_MALET_wavSize;
+                return MyWavetableData::_03_MALET_wav;
+
+            default:
+                size = 0;
+                return nullptr;
+        }
 }
 
 

@@ -104,9 +104,9 @@ set(ASSETS_DIR "${CMAKE_SOURCE_DIR}/assets")
 # The SOURCES argument lists the audio files (e.g., .wav, .mp3) to be included
 juce_add_binary_data(WaveTablePlugin_data
     SOURCES
-        assets/Test/Virus_1.wav
-        assets/Test/Virus_2.wav
-        assets/Test/Virus_3.wav
+        assets/Test_2/01_RESO1.wav
+        assets/Test_2/02_RESO2.wav
+        assets/Test_2/03_MALET.wav
     NAMESPACE MyWavetableData # Optional: specifies the C++ namespace for the generated class
 )
 

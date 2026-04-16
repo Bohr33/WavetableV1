@@ -26,8 +26,7 @@ WaveTablePluginAudioProcessor::WaveTablePluginAudioProcessor()
     
   
     //Loads wavetable from Binary into wavetable manager
-    m_waveManager.loadWavetableFromBinary();
-//    loadBinaryData();
+    m_waveManager.loadWavetablesFromBinary();
 //    m_waveManager.loadDefaultTables(wavetableFolder);
     
     //Old load wavetable function that issues with getting sampling rate, led to createing the above
@@ -110,7 +109,9 @@ void WaveTablePluginAudioProcessor::prepareToPlay (double sampleRate, int sample
     
     m_waveManager.updateSampleRate(sampleRate);
     m_waveManager.prepareToPlay();
-    m_waveManager.reportTableData(0, 2);
+    
+    
+    
     
     //-------End of replacement--------//
     
@@ -391,38 +392,6 @@ int WaveTablePluginAudioProcessor::loadWavetableFile(const juce::File& file)
 //        loadWavetable(default_wavetable, wavebankBank, getSampleRate());
 //
 //}
-
-
-void WaveTablePluginAudioProcessor::loadBinaryData()
-{
-    
-    //Must make a unique pointer for the createReaderFor function
-    auto memStream = std::make_unique<juce::MemoryInputStream>(
-                    MyWavetableData::Virus_1_wav,
-                    MyWavetableData::Virus_1_wavSize,
-                    false
-                                                               );
-    
-    juce::AudioFormatManager formatManager;
-    formatManager.registerBasicFormats();  // WAV, AIFF, MP3 (if enabled)
-
-    std::unique_ptr<juce::AudioFormatReader> reader(formatManager.createReaderFor(std::move(memStream)));
-
-    if (reader != nullptr)
-    {
-        // Create an AudioBuffer with the right number of channels and samples
-        juce::AudioBuffer<float> buffer(reader->numChannels, static_cast<int>(reader->lengthInSamples));
-
-        // Read all samples into the buffer
-        reader->read(&buffer, 0, static_cast<int>(reader->lengthInSamples), 0, true, true);
-        
-        for(int i = 0; i < 200; i++)
-        {
-            juce::Logger::writeToLog("Val = " + juce::String(buffer.getSample(0, i)));
-        }
-    }
-    
-}
 
 
 //Helper function to create parameter layout for AudioValueTreeState

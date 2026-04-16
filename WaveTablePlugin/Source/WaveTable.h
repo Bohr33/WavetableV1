@@ -52,7 +52,18 @@ struct WaveBank
 class WaveBankManager{
 public:
     
-    WaveBankManager() = default;
+    enum class AssetID
+    {
+        Test_1,
+        Test_2,
+        Test_3,
+        Count
+    };
+    
+    WaveBankManager()
+    {
+        formatManager.registerBasicFormats();
+    }
     
 //    void loadDefaultTables(const juce::File& rescourceFolder);
     
@@ -64,9 +75,9 @@ public:
     
     
     //New initial loading class, all other operations should stem from here at some point
-    void loadWavetableFromBinary();
+    void loadWavetablesFromBinary();
     
-    void parseBinaryData(juce::AudioBuffer<float> binaryData);
+    Wavetable parseBinaryData(juce::AudioBuffer<float> binaryData);
     
     
     void reportTableData(int tableNum = 0, int frameNum = 0);
@@ -82,11 +93,13 @@ public:
     
     //Mainly creates mipmaps
     void prepareToPlay();
-
+    
+    static const char* getAssetData(AssetID id, size_t& size);
     
     
 private:
     juce::String sourcePath;
+    juce::AudioFormatManager formatManager;
     
     //Continue by giving the waveBankManager class a proper way to report the number of banks and tables
     //it has to the outside functions
