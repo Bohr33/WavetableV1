@@ -65,29 +65,22 @@ public:
         formatManager.registerBasicFormats();
     }
     
-//    void loadDefaultTables(const juce::File& rescourceFolder);
-    
     //Put this one in the prepare to play function
     void updateSampleRate(double newSampleRate);
-    
-//    Wavetable loadWaveTableFile(juce::File file);
-    
-    
     
     //New initial loading class, all other operations should stem from here at some point
     void loadWavetablesFromBinary();
     
     Wavetable parseBinaryData(juce::AudioBuffer<float> binaryData);
     
-    
     void reportTableData(int tableNum = 0, int frameNum = 0);
     void printTables(int tableNumber = 0);
     
     void generateMipmaps();
     
-    
-    
     std::shared_ptr<const MipMap> formatMipMapForSynth(int bankID, int mapID);
+    
+    std::shared_ptr<const Wavetable> getWavetable(int index);
     
     bool verifySampleRate();
     
@@ -108,8 +101,10 @@ private:
     
     MipMapGenerator mipmapGenerator;
     
+    int numWavetables;
+    
     //Each outer Vector will hold the entire file data for each wavtable (contiguous wavetables
-    std::vector<Wavetable> waveTables;
+    std::vector<std::shared_ptr<Wavetable>> waveTables;
     
     //Not sure if we need this rawTables array, maybe just process into waveTables on load
     std::vector<std::vector<float>> rawTables;

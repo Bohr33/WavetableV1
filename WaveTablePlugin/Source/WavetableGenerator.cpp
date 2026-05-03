@@ -55,8 +55,6 @@ void WavetableGenerator::additiveGenerator(std::span<float> bufferToFill, std::s
     float incr = 0.0;
     float angle = 0.0;
     
-    juce::Logger::writeToLog("Num Partials = " + juce::String(numPartials));
-    
     //Loop and add value to vector
     for(auto i = 0; i < numPartials; i++)
     {
@@ -77,7 +75,6 @@ void WavetableGenerator::additiveGenerator(std::span<float> bufferToFill, std::s
     //fill guard point(s)
     for (auto i = 0; i < guardPoints; i++)
         bufferToFill[N + i] = bufferToFill[i];
-    
 }
 
 void WavetableGenerator::additiveGenerator(std::vector<float> bufferToFill, std::vector<Partial> partials, size_t guardPoints = 1)

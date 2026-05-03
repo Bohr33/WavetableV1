@@ -61,7 +61,13 @@ public:
     
     //Added Functions
     juce::MidiKeyboardState& getMidiKeyboardState();
+    
+    //Sets Single Frame on Interp Synth
     void setWaveform(int tableID, int waveformID);
+    
+    //Sets entire wavetable on new synth
+    void setWavetable(int tableID);
+    
     const std::vector<float> getBasicWavetable(int tableID);
     
     std::shared_ptr<const MipMap> getMipMap(int mapID);

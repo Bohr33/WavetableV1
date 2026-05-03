@@ -51,3 +51,11 @@ private:
     
     float interpVal;
 };
+
+
+class InterpolatedWavetableDisplay : public WavetableDisplay
+{
+    
+public:
+    
+};

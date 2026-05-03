@@ -119,6 +119,112 @@ private:
 
 
 
+//-----------------------------------------------//
+//========Stand Wavetable Oscailltor Model-------//
+//-----------------------------------------------//
+//- This model will differ from the one above in that it will
+// take a single wavetable file, and interpolate between that single wavetable file.
+
+class WavetableOscilatorVoice : public juce::SynthesiserVoice
+{
+    public:
+        WavetableOscilatorVoice(std::shared_ptr<const Wavetable> wavetable, int tablesize);
+    
+    
+    bool canPlaySound(juce::SynthesiserSound*) override;
+    
+    void startNote(int midiNoteNumber, float velocity, juce::SynthesiserSound *sound, int currentPitchWheelPosition) override;
+    
+    void stopNote(float velocity, bool allowTailOff) override;
+    void renderNextBlock(juce::AudioBuffer<float> &outputBuffer, int startSample, int numSamples) override;
+    
+    void pitchWheelMoved(int newPitchWheelValue) override {
+        m_pitchBend = newPitchWheelValue;
+        juce::Logger::writeToLog("New Pitch Value: " + juce::String(m_pitchBend));
+    }
+    
+    
+    
+    //Sets ADSR Sample Rate, but can do other stuff...
+    void prepare(double sampleRate);
+    
+    
+    //Unused Pure Virtual Functions
+    void controllerMoved(int controllerNumber, int newControllerValue) override;
+    
+    
+    //Rendering Functions
+    void setFrequency(float frequency);
+    void updateAngle();
+    float interpNextSamp(std::vector<float>& table);
+    float interpolate(float interp_val, float val1, float val2);
+    
+    //Setter Functions
+    void setAPVTS(juce::AudioProcessorValueTreeState* apvts);
+    
+    void setWavetable(std::shared_ptr<const Wavetable> newWavetable);
+    
+//    void setVoiceOneMipMap(std::shared_ptr<const MipMap> newMipMap);
+//    void setVoiceTwoMipMap(std::shared_ptr<const MipMap> newMipMap);
+    
+    //PitchBend
+    void updateFrequency();
+    
+    
+    
+    //Misc Debug Functions
+    void printTable();
+    void reportTables();
+    void reportMipMaps();
+
+    
+private:
+    
+    float calculateBendFreq();
+    
+    juce::AudioProcessorValueTreeState* apvtsRef = nullptr;
+
+    float currentIndex;
+    float m_angle;
+    float m_angleDelta;
+    float m_level;
+    float m_baseFreq;
+    float m_currentFreq;
+    
+    int m_pitchBend = 8192;
+    float m_pitchBendRange = 2.0;
+    
+    
+    std::atomic<float>* interpParam = nullptr;
+    
+    std::atomic<float>* attackParam = nullptr;
+    std::atomic<float>* decayParam = nullptr;
+    std::atomic<float>* sustainParam = nullptr;
+    std::atomic<float>* releaseParam = nullptr;
+    
+    std::atomic<float>* attCurveParam = nullptr;
+    std::atomic<float>* decCurveParam = nullptr;
+    std::atomic<float>* relCurveParam = nullptr;
+    
+
+    unsigned int m_tableSize;
+    
+    BWADSR envelope;
+    
+    int m_mapStage;
+    
+    
+    
+    
+    //Shared Pointers to Mipmaps
+    std::shared_ptr<const MipMap> m_mipmapA;
+    std::shared_ptr<const MipMap> m_mipmapB;
+    
+    std::shared_ptr<const Wavetable> m_wavetable;
+    
+    int test = 0;
+    
+};
 
 
 

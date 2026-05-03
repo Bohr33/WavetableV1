@@ -36,6 +36,8 @@ public:
     void selectNewWaveformTableOne(int waveformID);
     void selectNewWaveformTableTwo(int waveformID);
     
+    void selectNewWavetable(int wavetableID);
+    
     void selectNewWaveBank(int wavebankID);
     
     void importWavetable(const juce::File& file);

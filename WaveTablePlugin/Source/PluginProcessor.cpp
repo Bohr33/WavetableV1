@@ -144,16 +144,18 @@ void WaveTablePluginAudioProcessor::prepareToPlay (double sampleRate, int sample
 
     //add sound to synth
     synth.addSound(new WaveTableSound());
-    
-    std::shared_ptr<const MipMap> defaultTableOne = m_waveManager.formatMipMapForSynth(0, 0);
-    std::shared_ptr<const MipMap> defaultTableTwo = m_waveManager.formatMipMapForSynth(0, 1);
+//
+//    std::shared_ptr<const MipMap> defaultTableOne = m_waveManager.formatMipMapForSynth(0, 0);
+//    std::shared_ptr<const MipMap> defaultTableTwo = m_waveManager.formatMipMapForSynth(0, 1);
 
+    std::shared_ptr<const Wavetable> defaultWavetable = m_waveManager.getWavetable(0);
     
     //Add and Prepare All voices for synth
     for(auto i = 0; i < maxVoices; ++i)
     {
         //add voice to synth; also provides default Table and Table Size to Synth Voice
-        auto* voice = new SynthVoice(defaultTableOne, defaultTableTwo, defaultTableSize);
+//        auto* voice = new SynthVoice(defaultTableOne, defaultTableTwo, defaultTableSize);
+        WavetableOscilatorVoice* voice = new WavetableOscilatorVoice(defaultWavetable, defaultTableSize);
         voice->setAPVTS(&apvts);
         voice->prepare(sampleRate);
         synth.addVoice(voice);
@@ -255,10 +257,12 @@ juce::MidiKeyboardState& WaveTablePluginAudioProcessor::getMidiKeyboardState()
 
 
 //Updates the pointers to new tables within Synth Voice
+//Callled mainly from gui changes
 void WaveTablePluginAudioProcessor::setWaveform(int tableID, int waveformID)
 {
     juce::Logger::writeToLog("Setting new table in voices; ID = " + juce::String(waveformID));
     
+    //
     auto newMipMap = m_waveManager.formatMipMapForSynth(0, tableID);
     
     for (int i = 0; i < synth.getNumVoices(); ++i)
@@ -270,6 +274,29 @@ void WaveTablePluginAudioProcessor::setWaveform(int tableID, int waveformID)
             
     }
 }
+
+
+void WaveTablePluginAudioProcessor::setWavetable(int tableID)
+{
+    juce::Logger::writeToLog("Setting new Wavetable in Synth Voices; ID = " + juce::String(tableID));
+    
+    std::shared_ptr<const Wavetable> newTable = m_waveManager.getWavetable(tableID);
+    
+    for (int i = 0; i < synth.getNumVoices(); ++i)
+    {
+        if (auto* voice = dynamic_cast<WavetableOscilatorVoice*>(synth.getVoice(i)))
+        {
+            voice->setWavetable(newTable);
+        }
+            
+    }
+}
+
+
+
+
+
+
 
 //Returns 1 of 4 basic wavetables from the Basic wavetable bank
 const std::vector<float> WaveTablePluginAudioProcessor::getBasicWavetable(int tableID)
@@ -360,12 +387,8 @@ int WaveTablePluginAudioProcessor::loadWavetableFile(const juce::File& file)
 
     }
 
-
     juce::Logger::writeToLog("Hello! Made it!");
-
     return numFrames;
-
-
 }
 
 

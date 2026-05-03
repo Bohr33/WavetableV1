@@ -327,8 +327,22 @@ void WaveTablePluginAudioProcessorEditor::selectNewWaveBank(int wavebankID)
     //retrieve wav file pointer
     
     //create mipmaps for each wavebank
+}
+
+void WaveTablePluginAudioProcessorEditor::selectNewWavetable(int wavetableID)
+{
+    std::vector<float> displayTable = audioProcessor.getMipMapForDisplay(waveformID);
+    
+    juce::Logger::writeToLog("Setting New Wavetable");
     
     
+    audioProcessor.setWaveform(1, waveformID);
+    
+    m_displayTwo.setTable(displayTable);
+    m_interpDisplay.setTableTwo(displayTable);
+    
+    m_displayTwo.repaint();
+    m_interpDisplay.repaint();
     
 }
 
