@@ -25,6 +25,10 @@ WaveTablePluginAudioProcessorEditor::WaveTablePluginAudioProcessorEditor (WaveTa
     s_interpolation.onValueChange = [this] {
         m_interpDisplay.setInterpolation(s_interpolation.getValue());
         m_interpDisplay.repaint();
+        
+        m_interpWaveDisplay.setInterpolation(s_interpolation.getValue());
+        m_interpWaveDisplay.repaint();
+
     };
     
     interpolationAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(p.apvts, "interpolation", s_interpolation);
@@ -77,7 +81,7 @@ WaveTablePluginAudioProcessorEditor::WaveTablePluginAudioProcessorEditor (WaveTa
     //========Other GUI==============//
     addAndMakeVisible(waveBankOne);
     addAndMakeVisible(waveBankTwo);
-    addAndMakeVisible(waveBankSelect);
+    addAndMakeVisible(waveTableSelect);
     
     waveBankOne.addItem("Sine", 1);
     waveBankOne.addItem("Triangle", 2);
@@ -94,25 +98,25 @@ WaveTablePluginAudioProcessorEditor::WaveTablePluginAudioProcessorEditor (WaveTa
     waveBankOne.onChange = [this] {
         int selectedId = waveBankOne.getSelectedId();
         selectNewWaveformTableOne(selectedId-1);
-        juce::Logger::writeToLog("Change on wave bank one");
+        juce::Logger::writeToLog("Change on wave frame one");
     };
     
     waveBankTwo.onChange = [this] {
         int selectedId = waveBankTwo.getSelectedId();
         selectNewWaveformTableTwo(selectedId-1);
-        juce::Logger::writeToLog("Change on wave bank two");
+        juce::Logger::writeToLog("Change on wave frame two");
     };
     
     
     
     //New wave bank gui, not yet implemented?
-    waveBankSelect.addItem("Basic 1", 1);
-    waveBankSelect.addItem("Rename 2", 2);
-    waveBankSelect.addItem("Pontific 3", 3);
+    waveTableSelect.addItem("Basic 1", 1);
+    waveTableSelect.addItem("Rename 2", 2);
+    waveTableSelect.addItem("Pontific 3", 3);
     
-    waveBankSelect.onChange = [this] {
-        int selectedId = waveBankSelect.getSelectedId();
-        selectNewWaveBank(selectedId);
+    waveTableSelect.onChange = [this] {
+        int selectedId = waveTableSelect.getSelectedId();
+        selectNewWavetable(selectedId);
         juce::Logger::writeToLog("Selected new wave bank");
     };
     
@@ -152,7 +156,8 @@ WaveTablePluginAudioProcessorEditor::WaveTablePluginAudioProcessorEditor (WaveTa
     
     //========Displays=============//
     
-    addAndMakeVisible(m_interpDisplay);
+//    addAndMakeVisible(m_interpDisplay);
+    addAndMakeVisible(m_interpWaveDisplay);
     addAndMakeVisible(m_displayOne);
     addAndMakeVisible(m_displayTwo);
     
@@ -160,17 +165,24 @@ WaveTablePluginAudioProcessorEditor::WaveTablePluginAudioProcessorEditor (WaveTa
     auto defaultTableOne = audioProcessor.getMipMapForDisplay(0);
     auto defaultTableTwo = audioProcessor.getMipMapForDisplay(1);
     
+    auto defaultWavetableOne = audioProcessor.getWavetableForDisplay(0);
+    
     for(int i = 0; i < 50; i++)
     {
-        juce::Logger::writeToLog("Val = " + juce::String(defaultTableOne[i]));
+        juce::Logger::writeToLog("Val = " + juce::String(defaultWavetableOne[0][i]));
     }
 
-    m_interpDisplay.setTable(defaultTableOne);
-    m_interpDisplay.setTableTwo(defaultTableTwo);
+//    m_interpDisplay.setTable(defaultTableOne);
+//    m_interpDisplay.setTableTwo(defaultTableTwo);
+    
+    m_interpWaveDisplay.setWavetable(defaultWavetableOne);
+
+    
     m_displayOne.setTable(defaultTableOne);
     m_displayTwo.setTable(defaultTableTwo);
     
-    m_interpDisplay.setColours(juce::Colours::rebeccapurple);
+//    m_interpDisplay.setColours(juce::Colours::rebeccapurple);
+    m_interpWaveDisplay.setColours(juce::Colours::navajowhite);
     m_displayOne.setColours(juce::Colours::gold);
     m_displayTwo.setColours(juce::Colours::peru);
 }
@@ -236,14 +248,13 @@ void WaveTablePluginAudioProcessorEditor::resized()
     
     auto quarterWidth = mainWindowBounds.getWidth()/4.0;
     
-
-    
-    
-    
     auto leftQuarterBounds = mainWindowBounds.removeFromLeft(quarterWidth);
     auto rightQuarterBounds = mainWindowBounds.removeFromRight(quarterWidth);
     
-    m_interpDisplay.setBounds(mainWindowBounds);
+    
+    //----------Set Display & Combo Box Bounds------------///
+//    m_interpDisplay.setBounds(mainWindowBounds);
+    m_interpWaveDisplay.setBounds(mainWindowBounds);
     
     auto quarterHalf = leftQuarterBounds.getHeight()/2;
     auto leftTopBounds = leftQuarterBounds.removeFromTop(quarterHalf);
@@ -253,6 +264,12 @@ void WaveTablePluginAudioProcessorEditor::resized()
     auto rightTopBounds = rightQuarterBounds.removeFromTop(quarterHalf);
     m_displayTwo.setBounds(rightTopBounds);
     waveBankTwo.setBounds(rightQuarterBounds);
+    
+    auto miscComboBounds = rightQuarterBounds;
+    miscComboBounds.translate(0, combo_height*2);
+    waveTableSelect.setBounds(miscComboBounds);
+    
+
     
     
     //ADSR Sliders
@@ -322,28 +339,24 @@ void WaveTablePluginAudioProcessorEditor::selectNewWaveformTableTwo(int waveform
 }
 
 
-void WaveTablePluginAudioProcessorEditor::selectNewWaveBank(int wavebankID)
-{
-    //retrieve wav file pointer
-    
-    //create mipmaps for each wavebank
-}
+//void WaveTablePluginAudioProcessorEditor::selectNewWaveBank(int wavebankID)
+//{
+//    //retrieve wav file pointer
+//
+//    //create mipmaps for each wavebank
+//}
 
 void WaveTablePluginAudioProcessorEditor::selectNewWavetable(int wavetableID)
 {
-    std::vector<float> displayTable = audioProcessor.getMipMapForDisplay(waveformID);
+    std::vector<float> displayTable = audioProcessor.getMipMapForDisplay(wavetableID);
+    
+    auto display = audioProcessor.getWavetableForDisplay(wavetableID);
     
     juce::Logger::writeToLog("Setting New Wavetable");
     
-    
-    audioProcessor.setWaveform(1, waveformID);
-    
-    m_displayTwo.setTable(displayTable);
-    m_interpDisplay.setTableTwo(displayTable);
-    
-    m_displayTwo.repaint();
-    m_interpDisplay.repaint();
-    
+    audioProcessor.setWavetable(wavetableID);
+    m_interpWaveDisplay.setWavetable(display);
+    m_interpWaveDisplay.repaint();
 }
 
 //Midi Keyboard Note Callback Functions

@@ -13,11 +13,11 @@
 #pragma once
 
 
-class WavetableDisplay : public juce::Component
+class WavetableFrameDisplay : public juce::Component
 {
 public:
-    WavetableDisplay();
-    ~WavetableDisplay();
+    WavetableFrameDisplay();
+    ~WavetableFrameDisplay();
     
     void setTable(const std::vector<float>& table);
     void setColours(juce::Colour colour);
@@ -34,7 +34,7 @@ protected:
 };
 
 
-class InterpolatedDisplay : public WavetableDisplay
+class InterpolatedDisplay : public WavetableFrameDisplay
 {
 public:
     void setTableTwo(const std::vector<float>& table);
@@ -53,9 +53,26 @@ private:
 };
 
 
-class InterpolatedWavetableDisplay : public WavetableDisplay
+class InterpolatedWavetableDisplay : public juce::Component
 {
     
 public:
+    InterpolatedWavetableDisplay();
+    ~InterpolatedWavetableDisplay();
+    
+    void setWavetable(const std::vector<std::vector<float>>& newWavetable);
+    void setColours(juce::Colour colour);
+    
+    float interpolateValue(float interpolation, float val1, float val2);
+    void setInterpolation(float value);
+    
+    void paint(juce::Graphics& g) override;
+    void drawTable(juce::Graphics& g);
+    
+private:
+    std::vector<std::vector<float>> m_wavetable;
+    juce::Colour backgroundColour;
+    
+    float interpVal;
     
 };

@@ -15,21 +15,21 @@
 /*------------------------WaveForm Display Class-------------------------------*/
 /*=============================================================================*/
 
-WavetableDisplay::WavetableDisplay(){};
-WavetableDisplay::~WavetableDisplay() = default;
+WavetableFrameDisplay::WavetableFrameDisplay(){};
+WavetableFrameDisplay::~WavetableFrameDisplay() = default;
 
-void WavetableDisplay::setTable(const std::vector<float>& table)
+void WavetableFrameDisplay::setTable(const std::vector<float>& table)
 {
     m_table = table;
     repaint();
 }
 
-void WavetableDisplay::setColours(juce::Colour colour)
+void WavetableFrameDisplay::setColours(juce::Colour colour)
 {
     backgroundColour = colour;
 }
 
-void WavetableDisplay::paint(juce::Graphics& g)
+void WavetableFrameDisplay::paint(juce::Graphics& g)
 {
     g.setColour(backgroundColour);
     g.drawRect(getLocalBounds());
@@ -39,7 +39,7 @@ void WavetableDisplay::paint(juce::Graphics& g)
     
 }
 
-void WavetableDisplay::drawTable(juce::Graphics& g)
+void WavetableFrameDisplay::drawTable(juce::Graphics& g)
 {
     g.setColour(juce::Colours::whitesmoke);
     int tablesize = static_cast<int>(m_table.size() - 1);
@@ -134,4 +134,91 @@ void InterpolatedDisplay::drawInterpolatedTable(juce::Graphics& g)
     }
     
     
+}
+
+/*=============================================================================*/
+/*----------------Interpolated Wavetable Display-------------------------------*/
+/*=============================================================================*/
+
+
+InterpolatedWavetableDisplay::InterpolatedWavetableDisplay(){};
+InterpolatedWavetableDisplay::~InterpolatedWavetableDisplay() = default;
+
+void InterpolatedWavetableDisplay::setWavetable(const std::vector<std::vector<float>> &newWavetable)
+{
+    m_wavetable = newWavetable;
+    repaint();
+}
+
+
+void InterpolatedWavetableDisplay::paint(juce::Graphics& g)
+{
+    g.setColour(backgroundColour);
+    g.drawRect(getLocalBounds());
+    g.fillAll();
+    
+    drawTable(g);
+}
+
+void InterpolatedWavetableDisplay::drawTable(juce::Graphics &g)
+{
+    g.setColour(juce::Colours::greenyellow);
+    
+    size_t numFrames = m_wavetable.size();
+    
+    
+    
+    //Should include extra float range for wrapping interpolation
+    float interpRange = interpVal * numFrames;
+    
+    
+    
+    int frameNum = static_cast<int>(interpRange);
+    int nextFrame = (frameNum + 1) % numFrames;
+    
+    float floatDifference = interpRange - frameNum;
+    
+    std::vector<float>& table1 = m_wavetable[frameNum];
+    std::vector<float>& table2 = m_wavetable[nextFrame];
+    
+    size_t frameSize = table1.size();
+    
+    auto pointRadius = 2;
+    auto bounds = getLocalBounds();
+
+    float width = bounds.getWidth();
+    float incr = width / (float) frameSize;
+    
+    float current_x = 0.0;
+    float current_y = 0.0;
+    
+    for (auto i = 0; i < frameSize; i++) {
+        
+        float interpResult = interpolateValue(floatDifference, table1[i], table2[i]);
+        current_y = (1-(interpResult + 1.0)/2) * bounds.getHeight();
+        g.drawEllipse(current_x, current_y, pointRadius, pointRadius, 1.0);
+        current_x += incr;
+    }
+
+}
+
+float InterpolatedWavetableDisplay::interpolateValue(float interpolation, float val1, float val2)
+{
+    auto interpVal = juce::jlimit(0.0f, 1.0f, interpolation);
+    
+    auto diff = val1 - val2;
+    
+    float result = val1 - interpVal * diff;
+    return result;
+};
+
+
+void InterpolatedWavetableDisplay::setInterpolation(float value)
+{
+    interpVal = juce::jlimit(0.0f, 1.0f, value);
+}
+
+void InterpolatedWavetableDisplay::setColours(juce::Colour colour)
+{
+    backgroundColour = colour;
 }

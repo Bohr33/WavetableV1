@@ -333,6 +333,12 @@ std::vector<float> WaveTablePluginAudioProcessor::getMipMapForDisplay(int mapID)
     
 }
 
+std::vector<std::vector<float>> WaveTablePluginAudioProcessor::getWavetableForDisplay(int wavetableID)
+{
+    auto table = m_waveManager.getWavetable(wavetableID);
+    return table->frames;
+}
+
 //Is called on Construction, generates the basic wavetable shapes
 void WaveTablePluginAudioProcessor::generateBasicWavetableBank()
 {

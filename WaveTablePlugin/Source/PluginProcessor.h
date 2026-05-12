@@ -72,6 +72,7 @@ public:
     
     std::shared_ptr<const MipMap> getMipMap(int mapID);
     std::vector<float> getMipMapForDisplay(int mapID);
+    std::vector<std::vector<float>> getWavetableForDisplay(int wavetableID);
     
 //    void loadWavetableRescources();
     void generateBasicWavetableBank();

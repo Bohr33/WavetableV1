@@ -38,7 +38,7 @@ public:
     
     void selectNewWavetable(int wavetableID);
     
-    void selectNewWaveBank(int wavebankID);
+//    void selectNewWaveBank(int wavebankID);
     
     void importWavetable(const juce::File& file);
 
@@ -55,13 +55,15 @@ private:
 
     InterpolatedDisplay m_interpDisplay;
     
-    WavetableDisplay m_displayOne;
+    InterpolatedWavetableDisplay m_interpWaveDisplay;
+    
+    WavetableFrameDisplay m_displayOne;
     juce::ComboBox  waveBankOne;
 
-    WavetableDisplay m_displayTwo;
+    WavetableFrameDisplay m_displayTwo;
     juce::ComboBox  waveBankTwo;
     
-    juce::ComboBox  waveBankSelect;
+    juce::ComboBox  waveTableSelect;
     
     
     
