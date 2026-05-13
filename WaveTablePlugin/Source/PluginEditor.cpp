@@ -115,7 +115,7 @@ WaveTablePluginAudioProcessorEditor::WaveTablePluginAudioProcessorEditor (WaveTa
     waveTableSelect.addItem("Pontific 3", 3);
     
     waveTableSelect.onChange = [this] {
-        int selectedId = waveTableSelect.getSelectedId();
+        int selectedId = waveTableSelect.getSelectedId() - 1;
         selectNewWavetable(selectedId);
         juce::Logger::writeToLog("Selected new wave bank");
     };
