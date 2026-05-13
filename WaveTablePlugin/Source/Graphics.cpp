@@ -166,17 +166,19 @@ void InterpolatedWavetableDisplay::drawTable(juce::Graphics &g)
     
     size_t numFrames = m_wavetable.size();
     
-    
-    
     //Should include extra float range for wrapping interpolation
-    float interpRange = interpVal * numFrames;
+    float interpRange = interpVal * (numFrames - 1);
     
-    
-    
-    int frameNum = static_cast<int>(interpRange);
+    int frameNum = static_cast<int>(interpRange) % (numFrames - 1);
     int nextFrame = (frameNum + 1) % numFrames;
     
+    
     float floatDifference = interpRange - frameNum;
+    
+    if (frameNum > 20) {
+        juce::Logger::writeToLog("Frame Num = " + juce::String(frameNum));
+        juce::Logger::writeToLog("Next Frame = " + juce::String(nextFrame));
+    }
     
     std::vector<float>& table1 = m_wavetable[frameNum];
     std::vector<float>& table2 = m_wavetable[nextFrame];

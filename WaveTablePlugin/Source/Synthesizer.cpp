@@ -335,47 +335,20 @@ void WavetableOscilatorVoice::renderNextBlock(juce::AudioBuffer<float> &outputBu
     int numFrames = wavetable->frameCount;
     
     
-    auto frameInterp =  interpVal * numFrames;
-    
-    int frameLow = static_cast<int>(frameInterp);
-    int frameHigh = frameLow++;
+    float frameInterp = interpVal * (numFrames - 1);
     
     //Put check here to ensure load is proper
     
-    
-    
-    int mapLow = static_cast<int>(interpVal * numFrames);
-    int mapHigh = mapLow++;
+    int mapLow = (int) frameInterp % (numFrames - 1);
+    int mapHigh = (mapLow + 1) % numFrames;
+    float blend = frameInterp - (int)frameInterp;
     
     const MipMap* mipmapA = &wavetable->mipmaps[mapLow];
     const MipMap* mipmapB = &wavetable->mipmaps[mapHigh];
-    
-    
+
     std::vector<float> tableA = mipmapA->getStage(m_mapStage);
     std::vector<float> tableB = mipmapB->getStage(m_mapStage);
     
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    //atomically load tables from shared pointers
-//    auto mapA = std::atomic_load(&m_mipmapA);
-//    auto mapB = std::atomic_load(&m_mipmapB);
-//
-//    if(!mapA || !mapB)
-//        return;
-//
-//    auto tableA = mapA->getStage(m_mapStage);
-//    auto tableB = mapB->getStage(m_mapStage);
 
     if(m_angleDelta != 0.0)
     {
@@ -395,7 +368,7 @@ void WavetableOscilatorVoice::renderNextBlock(juce::AudioBuffer<float> &outputBu
             envVal = envelope.getNextCurveSample();
             val1 = interpNextSamp(tableA);
             val2 = interpNextSamp(tableB);
-            output = interpolate(interpVal, val1,  val2) * m_level * envVal;
+            output = interpolate(blend, val1,  val2) * m_level * envVal;
             
             for(auto channel = 0; channel < outputBuffer.getNumChannels(); ++channel)
                 outputBuffer.addSample(channel, startSample, output);
