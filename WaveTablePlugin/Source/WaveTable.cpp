@@ -150,7 +150,6 @@ std::shared_ptr<const MipMap> WaveBankManager::formatMipMapForSynth(int bankID, 
     
     std::shared_ptr<const MipMap> map;
     
-    
     if(bankID >= waveTables.size())
     {
         juce::Logger::writeToLog("Error formating MipMaps for Synthesizer, Bank ID out of range");
@@ -197,6 +196,26 @@ std::shared_ptr<const Wavetable> WaveBankManager::getWavetable(int index)
     {
         return waveTables[index];
     }
+}
+
+const std::vector<std::vector<float>>& WaveBankManager::getWavetableForDisplay(int wavetableID)
+{
+    jassert(wavetableID < numWavetables);
+    
+    return waveTables[wavetableID]->frames;
+}
+
+const std::vector<float>& WaveBankManager::getFrameForDisplay(int wavetableID, int frameID)
+{
+    jassert(wavetableID < waveTables.size());
+    jassert(frameID < waveTables[wavetableID]->frameCount);
+    
+    return waveTables[wavetableID]->frames[frameID];
+}
+
+int WaveBankManager::getTotalWavetables()
+{
+    return numWavetables;
 }
 
 

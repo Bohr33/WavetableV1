@@ -161,10 +161,11 @@ WaveTablePluginAudioProcessorEditor::WaveTablePluginAudioProcessorEditor (WaveTa
     addAndMakeVisible(m_displayOne);
     addAndMakeVisible(m_displayTwo);
     
-    //Set Default Table Display
-    auto defaultTableOne = audioProcessor.getMipMapForDisplay(0);
-    auto defaultTableTwo = audioProcessor.getMipMapForDisplay(1);
+    //Set Default Table Display for Left and Right Tables
+    auto defaultTableOne = audioProcessor.getFrameForDisplay(0, 0);
+    auto defaultTableTwo = audioProcessor.getFrameForDisplay(1, 0);
     
+    //Set wavetable for Main interpolating display
     auto defaultWavetableOne = audioProcessor.getWavetableForDisplay(0);
     
     for(int i = 0; i < 50; i++)
@@ -182,7 +183,7 @@ WaveTablePluginAudioProcessorEditor::WaveTablePluginAudioProcessorEditor (WaveTa
     m_displayTwo.setTable(defaultTableTwo);
     
 //    m_interpDisplay.setColours(juce::Colours::rebeccapurple);
-    m_interpWaveDisplay.setColours(juce::Colours::navajowhite);
+    m_interpWaveDisplay.setColours(juce::Colours::black);
     m_displayOne.setColours(juce::Colours::gold);
     m_displayTwo.setColours(juce::Colours::peru);
 }
@@ -303,53 +304,40 @@ void WaveTablePluginAudioProcessorEditor::resized()
 
 void WaveTablePluginAudioProcessorEditor::selectNewWaveformTableOne(int waveformID)
 {
-    
-    //The getMipMap function was re-done to return the bank from the wavebank manager
-    std::vector<float> displayTable = audioProcessor.getMipMapForDisplay(waveformID);
-
-    
-    
-    audioProcessor.setWaveform(0, waveformID);
+//    audioProcessor.setWaveform(0, waveformID);
     
     juce::Logger::writeToLog("Setting New Waveform for Table One");
+    
+    
+    //The getMipMap function was re-done to return the bank from the wavebank manager
+    std::vector<float> displayTable = audioProcessor.getFrameForDisplay(0, waveformID);
     
     m_displayOne.setTable(displayTable);
     m_interpDisplay.setTable(displayTable);
     
     m_displayOne.repaint();
     m_interpDisplay.repaint();
-    
 }
 
 
 void WaveTablePluginAudioProcessorEditor::selectNewWaveformTableTwo(int waveformID)
 {
-    std::vector<float> displayTable = audioProcessor.getMipMapForDisplay(waveformID);
+    std::vector<float> displayTable = audioProcessor.getFrameForDisplay(1, waveformID);
     
     juce::Logger::writeToLog("Setting New Waveform for Table Two");
     
-    audioProcessor.setWaveform(1, waveformID);
+//    audioProcessor.setWaveform(1, waveformID);
     
     m_displayTwo.setTable(displayTable);
     m_interpDisplay.setTableTwo(displayTable);
     
     m_displayTwo.repaint();
     m_interpDisplay.repaint();
-
 }
 
 
-//void WaveTablePluginAudioProcessorEditor::selectNewWaveBank(int wavebankID)
-//{
-//    //retrieve wav file pointer
-//
-//    //create mipmaps for each wavebank
-//}
-
 void WaveTablePluginAudioProcessorEditor::selectNewWavetable(int wavetableID)
 {
-    std::vector<float> displayTable = audioProcessor.getMipMapForDisplay(wavetableID);
-    
     auto display = audioProcessor.getWavetableForDisplay(wavetableID);
     
     juce::Logger::writeToLog("Setting New Wavetable");
@@ -358,6 +346,9 @@ void WaveTablePluginAudioProcessorEditor::selectNewWavetable(int wavetableID)
     m_interpWaveDisplay.setWavetable(display);
     m_interpWaveDisplay.repaint();
 }
+
+
+
 
 //Midi Keyboard Note Callback Functions
 void WaveTablePluginAudioProcessorEditor::handleNoteOn(juce::MidiKeyboardState* state, int midiChannel, int midiNoteNumber, float velocity)

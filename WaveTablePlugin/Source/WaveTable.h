@@ -78,10 +78,18 @@ public:
     
     void generateMipmaps();
     
-    std::shared_ptr<const MipMap> formatMipMapForSynth(int bankID, int mapID);
     
+    //These return functions should only be used for the synth.
+    std::shared_ptr<const MipMap> formatMipMapForSynth(int bankID, int mapID);
     std::shared_ptr<const Wavetable> getWavetable(int index);
     
+    
+    //These are constant references used for display
+    const std::vector<std::vector<float>>& getWavetableForDisplay(int wavetableID);
+    const std::vector<float>& getFrameForDisplay(int wavetableID, int frameID);
+    
+    
+    int getTotalWavetables();
     bool verifySampleRate();
     
     //Mainly creates mipmaps
@@ -106,7 +114,8 @@ private:
     //Each outer Vector will hold the entire file data for each wavtable (contiguous wavetables
     std::vector<std::shared_ptr<Wavetable>> waveTables;
     
-    //Not sure if we need this rawTables array, maybe just process into waveTables on load
+    //Not being used for anything except as an initial load point
+    //from the binary data
     std::vector<std::vector<float>> rawTables;
     
 };

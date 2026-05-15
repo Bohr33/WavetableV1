@@ -42,7 +42,7 @@ void WavetableFrameDisplay::paint(juce::Graphics& g)
 void WavetableFrameDisplay::drawTable(juce::Graphics& g)
 {
     g.setColour(juce::Colours::whitesmoke);
-    int tablesize = static_cast<int>(m_table.size() - 1);
+    int tablesize = static_cast<int>(m_table.size());
     jassert(tablesize == 2048);
     
     auto pointRadius = 2;
@@ -162,7 +162,7 @@ void InterpolatedWavetableDisplay::paint(juce::Graphics& g)
 
 void InterpolatedWavetableDisplay::drawTable(juce::Graphics &g)
 {
-    g.setColour(juce::Colours::greenyellow);
+    g.setColour(juce::Colours::whitesmoke);
     
     size_t numFrames = m_wavetable.size();
     

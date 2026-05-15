@@ -68,19 +68,23 @@ public:
     //Sets entire wavetable on new synth
     void setWavetable(int tableID);
     
-    const std::vector<float> getBasicWavetable(int tableID);
-    
     std::shared_ptr<const MipMap> getMipMap(int mapID);
-    std::vector<float> getMipMapForDisplay(int mapID);
-    std::vector<std::vector<float>> getWavetableForDisplay(int wavetableID);
     
-//    void loadWavetableRescources();
-    void generateBasicWavetableBank();
-
-    //Loads External File for User
-    int loadWavetableFile(const juce::File& file);
+    //Display Functions
+    const std::vector<std::vector<float>>& getWavetableForDisplay(int wavetableID);
+    const std::vector<float>& getFrameForDisplay(int wavetableID, int frameID);
+    
     
     void parseBinaryWavetableData();
+    
+    
+    
+    //Deprecated
+    
+    //Loads External File for User
+    int loadWavetableFile(const juce::File& file);
+    const std::vector<float> getBasicWavetable(int tableID);
+    void generateBasicWavetableBank();
     
 
     //==============================================================================
@@ -115,23 +119,15 @@ private:
     WavetableGenerator tableGenerator;
     MipMapGenerator m_mipmapGenerator;
 
-    //Basic Wavetable Bank
-    std::vector<const std::vector<float>> basicWavetableBank;
-    
     //Bank to Store User load Tables and their mipmaps
     std::vector<std::shared_ptr<const MipMap>> userTableBank;
-    
 
     //Primary Manager of all wavetables and mipmaps
     WaveBankManager m_waveManager;
     
-    //Question: How do I properly manage the switching of mipmap banks during the load and interpolation phase of the synth?
-    // - currently its using the vector mipmapBank with shared pointer to const MipMap
-    //- I have the wavebannk manager which is intended to be a useful class for managing all of the loaded binary wavetables
-    // - I would like to use the manager to also pass data along to to the synth, but might need to convert it each time
-    // I want to load a new file in.
-    
 
+    //Basic Wavetable Bank - Deprecated
+    std::vector<const std::vector<float>> basicWavetableBank;
     
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (WaveTablePluginAudioProcessor)
