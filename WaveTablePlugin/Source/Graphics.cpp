@@ -219,3 +219,93 @@ void InterpolatedWavetableDisplay::setColours(juce::Colour colour)
 {
     backgroundColour = colour;
 }
+
+
+
+//==================================================
+//------------------ADSR Display--------------------
+//==================================================
+
+
+ADSRDisplay::ADSRDisplay(){};
+ADSRDisplay::~ADSRDisplay() = default;
+
+
+void ADSRDisplay::setBackgroundColour(juce::Colour newColour)
+{
+    backgroundColour = newColour;
+    repaint();
+}
+
+void ADSRDisplay::setCurveColour(juce::Colour newColour)
+{
+    curveColour = newColour;
+    repaint();
+}
+
+
+void ADSRDisplay::paint(juce::Graphics &g)
+{
+    g.setColour(backgroundColour);
+    g.drawRect(getLocalBounds());
+    g.fillAll();
+    
+    
+    generateCurve(g);
+    
+}
+
+void ADSRDisplay::setParameters(ADSRParameters params)
+{
+    attackTime = params.attackTime;
+    decayTime = params.decayTime;
+    sustainLevel = params.sustainLevel;
+    relTime = params.releaseTime;
+    
+    m_params = params;
+    
+    repaint();
+}
+
+
+void ADSRDisplay::generateCurve(juce::Graphics& g)
+{
+    
+    auto bounds = getLocalBounds().toFloat();
+    float boundsWidth = bounds.getWidth();
+    float boundsHeight = bounds.getHeight();
+    
+    float maxHeight = boundsHeight * lineToCeilingRatio;
+    
+    
+    float totalTime = attackTime + decayTime + relTime;
+    
+    float attWidth = (attackTime / totalTime) * boundsWidth;
+    float decWidth = (decayTime / totalTime) * boundsWidth;
+    float relWidth = (relTime / totalTime) * boundsWidth;
+    
+    
+    float x0 = 0;
+    float x1 = attWidth;
+    float x2 = x1 + decWidth;
+    float x3 = x2 + relWidth;
+    
+    float y0 = boundsHeight - 0;
+    float y1 = boundsHeight - maxHeight;
+    float y2 = boundsHeight - (maxHeight * sustainLevel);
+    float y3 = boundsHeight - 0;
+    
+    
+    juce::Path path;
+    
+    path.startNewSubPath(x0, y0);
+    path.lineTo(x1, y1);
+    path.lineTo(x2, y2);
+    path.lineTo(x3, y3);
+    
+    g.setColour(curveColour);
+    
+    g.strokePath(path, juce::PathStrokeType(lineThickness));
+    
+    
+}

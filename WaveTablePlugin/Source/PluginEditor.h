@@ -38,6 +38,8 @@ public:
     
     void selectNewWavetable(int wavetableID);
     
+    void updateADSRDisplay();
+    
 //    void selectNewWaveBank(int wavebankID);
     
     void importWavetable(const juce::File& file);
@@ -65,6 +67,8 @@ private:
     
     juce::ComboBox  waveTableSelect;
     
+    
+    ADSRDisplay m_envelopeDisplay;
     
     
     //ADSR Components

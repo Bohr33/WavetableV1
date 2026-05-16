@@ -10,6 +10,7 @@
 #include <JuceHeader.h>
 #include <vector>
 #include "WaveTable.h"
+#include "BWADSR.h"
 #pragma once
 
 
@@ -75,4 +76,37 @@ private:
     
     float interpVal;
     
+};
+
+// ADSR VIEWER
+
+class ADSRDisplay : public juce::Component
+{
+public:
+    ADSRDisplay();
+    ~ADSRDisplay();
+    
+    
+    void setBackgroundColour(juce::Colour newColour);
+    void setCurveColour(juce::Colour newColour);
+    
+    void generateCurve(juce::Graphics& g);
+    
+    void setParameters(ADSRParameters params);
+    
+    
+    void paint(juce::Graphics& g) override;
+    
+    
+private:
+    
+    juce::Colour backgroundColour = juce::Colours::black;
+    juce::Colour curveColour = juce::Colours::white;
+    
+    float attackTime, decayTime, sustainLevel, relTime;
+    
+    ADSRParameters m_params;
+    
+    float lineToCeilingRatio = 0.8;
+    float lineThickness = 1.0;
 };

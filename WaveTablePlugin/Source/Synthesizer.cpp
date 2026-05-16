@@ -79,7 +79,7 @@ void SynthVoice::renderNextBlock(juce::AudioBuffer<float> &outputBuffer, int sta
     
     auto interpVal = interpParam->load();
     
-    BWADSR::Parameters params =
+    ADSRParameters params =
     {
         attackParam->load(),
         decayParam->load(),
@@ -314,7 +314,7 @@ void WavetableOscilatorVoice::renderNextBlock(juce::AudioBuffer<float> &outputBu
     
     auto interpVal = interpParam->load();
     
-    BWADSR::Parameters params =
+    ADSRParameters params =
     {
         attackParam->load(),
         decayParam->load(),

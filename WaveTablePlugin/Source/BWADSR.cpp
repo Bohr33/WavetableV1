@@ -13,7 +13,7 @@
 
 BWADSR::BWADSR()
 {
-    Parameters defaultParams;
+    ADSRParameters defaultParams;
     setParameters(defaultParams);
 };
 
@@ -145,7 +145,7 @@ void BWADSR::setSampleRate(double sampleRate)
 }
 
 
-void BWADSR::setParameters(Parameters params)
+void BWADSR::setParameters(ADSRParameters params)
 {
     m_attack = params.attackTime;
     m_decay = params.decayTime;

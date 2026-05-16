@@ -15,8 +15,8 @@ WaveTablePluginAudioProcessorEditor::WaveTablePluginAudioProcessorEditor (WaveTa
 {
     // Make sure that before the constructor has finished, you've set the
     // editor's size to whatever you need it to be.
-    setSize (600, 500);
-    addAndMakeVisible(keyboardComponent);
+    setSize (900, 500);
+//    addAndMakeVisible(keyboardComponent);
     keyboardState.addListener(this);
     
     //============Sliders==========//
@@ -77,6 +77,24 @@ WaveTablePluginAudioProcessorEditor::WaveTablePluginAudioProcessorEditor (WaveTa
     addAndMakeVisible(s_relCurve);
     s_relCurve.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 80, 20);
     
+    //ADSR GUI Slider Calls
+    
+    s_envAttack.onValueChange = [this](){
+        updateADSRDisplay();
+    };
+    
+    s_envDecay.onValueChange = [this](){
+        updateADSRDisplay();
+    };
+    
+    s_envSustain.onValueChange = [this](){
+        updateADSRDisplay();
+    };
+    
+    s_envRelease.onValueChange = [this](){
+        updateADSRDisplay();
+    };
+
     
     //========Other GUI==============//
     addAndMakeVisible(waveBankOne);
@@ -160,6 +178,7 @@ WaveTablePluginAudioProcessorEditor::WaveTablePluginAudioProcessorEditor (WaveTa
     addAndMakeVisible(m_interpWaveDisplay);
     addAndMakeVisible(m_displayOne);
     addAndMakeVisible(m_displayTwo);
+    addAndMakeVisible(m_envelopeDisplay);
     
     //Set Default Table Display for Left and Right Tables
     auto defaultTableOne = audioProcessor.getFrameForDisplay(0, 0);
@@ -201,7 +220,6 @@ void WaveTablePluginAudioProcessorEditor::paint (juce::Graphics& g)
 
     g.setColour (juce::Colours::white);
     g.setFont (juce::FontOptions (15.0f));
-//    g.drawFittedText ("The Current Of Now", getLocalBounds(), juce::Justification::centred, 1);
 }
 
 void WaveTablePluginAudioProcessorEditor::resized()
@@ -267,8 +285,14 @@ void WaveTablePluginAudioProcessorEditor::resized()
     waveBankTwo.setBounds(rightQuarterBounds);
     
     auto miscComboBounds = rightQuarterBounds;
-    miscComboBounds.translate(0, combo_height*2);
+    miscComboBounds.translate(0, combo_height*2*2);
     waveTableSelect.setBounds(miscComboBounds);
+    
+    
+    //--- ADSR Display ----------
+    
+    
+    
     
 
     
@@ -284,6 +308,8 @@ void WaveTablePluginAudioProcessorEditor::resized()
     s_attCurve.setBounds(rightMiddle.removeFromLeft(verticalSliderWidth));
     s_decCurve.setBounds(rightMiddle.removeFromLeft(verticalSliderWidth));
     s_relCurve.setBounds(rightMiddle.removeFromLeft(verticalSliderWidth));
+    
+    m_envelopeDisplay.setBounds(rightMiddle);
     
     juce::FlexBox fb;
     fb.flexDirection = juce::FlexBox::Direction::column;
@@ -345,6 +371,21 @@ void WaveTablePluginAudioProcessorEditor::selectNewWavetable(int wavetableID)
     audioProcessor.setWavetable(wavetableID);
     m_interpWaveDisplay.setWavetable(display);
     m_interpWaveDisplay.repaint();
+}
+
+
+void WaveTablePluginAudioProcessorEditor::updateADSRDisplay()
+{
+    m_envelopeDisplay.setParameters({
+        (float)s_envAttack.getValue(),
+        (float)s_envDecay.getValue(),
+        (float)s_envSustain.getValue(),
+        (float)s_envRelease.getValue(),
+        (float)s_attCurve.getValue(),
+        (float)s_decCurve.getValue(),
+        (float)s_relCurve.getValue()
+    }
+                                    );
 }
 
 
