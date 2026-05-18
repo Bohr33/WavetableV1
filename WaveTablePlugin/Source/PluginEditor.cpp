@@ -19,6 +19,8 @@ WaveTablePluginAudioProcessorEditor::WaveTablePluginAudioProcessorEditor (WaveTa
 //    addAndMakeVisible(keyboardComponent);
     keyboardState.addListener(this);
     
+    juce::LookAndFeel::setDefaultLookAndFeel(&laf);
+    
     //============Sliders==========//
     s_interpolation.setSliderStyle(juce::Slider::RotaryVerticalDrag);
     s_interpolation.setRange(0.0f, 1.0f);
@@ -210,6 +212,8 @@ WaveTablePluginAudioProcessorEditor::WaveTablePluginAudioProcessorEditor (WaveTa
 WaveTablePluginAudioProcessorEditor::~WaveTablePluginAudioProcessorEditor()
 {
     keyboardState.removeListener(this);
+    //Must Clean up look and feel after using custom
+    juce::LookAndFeel::setDefaultLookAndFeel(nullptr);
 }
 
 //==============================================================================

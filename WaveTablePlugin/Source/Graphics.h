@@ -111,3 +111,24 @@ private:
     float lineThickness = 1.0;
 };
 
+
+class MyLookAndFeel : public juce::LookAndFeel_V4
+{
+public:
+    // -------------------------------------------------
+    // Theme Defaults
+    // ---------------------------------------------------
+    const juce::Colour background  { 0xFF1A1A2E };
+    const juce::Colour accent      { 0xFF00D4FF };
+    const juce::Colour knobFill    { 0xFF2D2D44 };
+    const juce::Colour text        { 0xFFE0E0E0 };
+
+    static constexpr float knobArcThickness = 3.0f;
+    static constexpr float cornerRadius     = 6.0f;
+
+    // -------------------------------------------------------
+    // Overrides use the tokens above
+    // -------------------------------------------------------
+    void drawRotarySlider(juce::Graphics& g, int x, int y, int w, int h, float sliderPos, float startAngle, float endAngle, juce::Slider&) override;
+};
+

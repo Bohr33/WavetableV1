@@ -51,6 +51,8 @@ private:
     juce::MidiKeyboardComponent    keyboardComponent;
     juce::MidiKeyboardState        keyboardState;
     
+    MyLookAndFeel laf;
+    
     juce::Slider    s_interpolation;
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> interpolationAttachment;
     
