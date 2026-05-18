@@ -110,3 +110,4 @@ private:
     float lineToCeilingRatio = 0.8;
     float lineThickness = 1.0;
 };
+

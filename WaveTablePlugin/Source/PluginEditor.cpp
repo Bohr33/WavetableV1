@@ -37,42 +37,42 @@ WaveTablePluginAudioProcessorEditor::WaveTablePluginAudioProcessorEditor (WaveTa
     
     
     //ADSR
-    s_envAttack.setSliderStyle(juce::Slider::LinearVertical);
+    s_envAttack.setSliderStyle(juce::Slider::RotaryVerticalDrag);
     s_envAttack.setRange(0.0f, 1.0f);
     envAttackAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(p.apvts, "env_attack", s_envAttack);
     addAndMakeVisible(s_envAttack);
     s_envAttack.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 80, 20);
     
-    s_envDecay.setSliderStyle(juce::Slider::LinearVertical);
+    s_envDecay.setSliderStyle(juce::Slider::RotaryVerticalDrag);
     s_envDecay.setRange(0.0f, 1.0f);
     envDecayAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(p.apvts, "env_decay", s_envDecay);
     addAndMakeVisible(s_envDecay);
     s_envDecay.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 80, 20);
     
-    s_envSustain.setSliderStyle(juce::Slider::LinearVertical);
+    s_envSustain.setSliderStyle(juce::Slider::RotaryVerticalDrag);
     s_envSustain.setRange(0.0f, 1.0f);
     envSustainAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(p.apvts, "env_sustain", s_envSustain);
     addAndMakeVisible(s_envSustain);
     s_envSustain.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 80, 20);
     
-    s_envRelease.setSliderStyle(juce::Slider::LinearVertical);
+    s_envRelease.setSliderStyle(juce::Slider::RotaryVerticalDrag);
     s_envRelease.setRange(0.0f, 1.0f);
     envReleaseAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(p.apvts, "env_release", s_envRelease);
     addAndMakeVisible(s_envRelease);
     s_envRelease.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 80, 20);
     
     //ADSR Slope Controls
-    s_attCurve.setSliderStyle(juce::Slider::LinearVertical);
+    s_attCurve.setSliderStyle(juce::Slider::RotaryVerticalDrag);
     attCurveAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(p.apvts, "env_att_curve", s_attCurve);
     addAndMakeVisible(s_attCurve);
     s_attCurve.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 80, 20);
     
-    s_decCurve.setSliderStyle(juce::Slider::LinearVertical);
+    s_decCurve.setSliderStyle(juce::Slider::RotaryVerticalDrag);
     decCurveAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(p.apvts, "env_dec_curve", s_decCurve);
     addAndMakeVisible(s_decCurve);
     s_decCurve.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 80, 20);
     
-    s_relCurve.setSliderStyle(juce::Slider::LinearVertical);
+    s_relCurve.setSliderStyle(juce::Slider::RotaryVerticalDrag);
     relCurveAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(p.apvts, "env_rel_curve", s_relCurve);
     addAndMakeVisible(s_relCurve);
     s_relCurve.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 80, 20);
@@ -255,14 +255,12 @@ void WaveTablePluginAudioProcessorEditor::resized()
     int combo_width = getWidth() - (display_width + dx + padding * 2);
     int combo_height = 50;
     
+    
+    // Begin Bounds Definitions
     auto mainWindowBounds = getLocalBounds();
-    auto keyBedBounds = mainWindowBounds.removeFromBottom(keyHeight);
+    auto bottomThirdBounds = mainWindowBounds.removeFromBottom(keyHeight);
     
     auto middleBounds = mainWindowBounds.removeFromBottom(sliderHeight + padding * 2);
-    
-    
-    auto leftMiddle = middleBounds.removeFromLeft(middleBounds.getWidth()/4.0f);
-    auto rightMiddle = middleBounds;
     
     
     auto quarterWidth = mainWindowBounds.getWidth()/4.0;
@@ -270,6 +268,9 @@ void WaveTablePluginAudioProcessorEditor::resized()
     auto leftQuarterBounds = mainWindowBounds.removeFromLeft(quarterWidth);
     auto rightQuarterBounds = mainWindowBounds.removeFromRight(quarterWidth);
     
+    
+    auto leftMiddle = middleBounds.removeFromLeft(quarterWidth);
+    auto rightMiddle = middleBounds.removeFromRight(quarterWidth);
     
     //----------Set Display & Combo Box Bounds------------///
 //    m_interpDisplay.setBounds(mainWindowBounds);
@@ -291,26 +292,30 @@ void WaveTablePluginAudioProcessorEditor::resized()
     
     //--- ADSR Display ----------
     
-    
-    
-    
-
-    
-    
     //ADSR Sliders
-    rightMiddle.removeFromBottom(vertSliderTextHeight);
+    juce::FlexBox adsrSliderFb;
     
-    s_envAttack.setBounds(rightMiddle.removeFromLeft(verticalSliderWidth));
-    s_envDecay.setBounds(rightMiddle.removeFromLeft(verticalSliderWidth));
-    s_envSustain.setBounds(rightMiddle.removeFromLeft(verticalSliderWidth));
-    s_envRelease.setBounds(rightMiddle.removeFromLeft(verticalSliderWidth));
+    adsrSliderFb.flexDirection = juce::FlexBox::Direction::row;
     
+    adsrSliderFb.justifyContent = juce::FlexBox::JustifyContent::spaceAround;
+    adsrSliderFb.items.add(juce::FlexItem(s_envAttack).withFlex(1));
+    adsrSliderFb.items.add(juce::FlexItem(s_envDecay).withFlex(1));
+    adsrSliderFb.items.add(juce::FlexItem(s_envSustain).withFlex(1));
+    adsrSliderFb.items.add(juce::FlexItem(s_envRelease).withFlex(1));
+    
+    
+    auto middleSlidersBounds = middleBounds.removeFromBottom(middleBounds.getHeight()/3.0f);
+    
+    adsrSliderFb.performLayout (middleSlidersBounds);
+    m_envelopeDisplay.setBounds(middleBounds);
+        
     s_attCurve.setBounds(rightMiddle.removeFromLeft(verticalSliderWidth));
     s_decCurve.setBounds(rightMiddle.removeFromLeft(verticalSliderWidth));
     s_relCurve.setBounds(rightMiddle.removeFromLeft(verticalSliderWidth));
     
-    m_envelopeDisplay.setBounds(rightMiddle);
     
+    
+    //Left Middle
     juce::FlexBox fb;
     fb.flexDirection = juce::FlexBox::Direction::column;
     fb.justifyContent = juce::FlexBox::JustifyContent::spaceAround;
@@ -320,10 +325,6 @@ void WaveTablePluginAudioProcessorEditor::resized()
     fb.items.add(juce::FlexItem(s_interpolation).withHeight(sliderHeight).withWidth(sliderWidth));
     
     fb.performLayout(leftMiddle);
-    
-    
-
-    keyboardComponent.setBounds(0 + padding, getHeight() - (keyHeight + padding), getWidth() - 2 * padding, keyHeight);
 }
 
 
