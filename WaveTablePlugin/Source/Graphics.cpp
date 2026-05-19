@@ -317,75 +317,30 @@ void ADSRDisplay::generateCurve(juce::Graphics& g)
 // Look and Feel Class
 void MyLookAndFeel::drawRotarySlider(juce::Graphics& g, int x, int y, int w, int h, float sliderPos, float startAngle, float endAngle, juce::Slider &)
 {
-    auto bounds = juce::Rectangle<float>(x, y, w, h);
-    auto centre = bounds.getCentre();
-    auto radius  = bounds.getWidth() * 0.5f;
-    auto outlineShrinkRatio = 0.85;
     
-
-    // --- Body ---
-    g.setColour(juce::Colour(0xFF03346E));
-//    auto ellipseBounds =  juce::Rectangle<float>()
-    auto ellipseBounds = juce::Rectangle<float>(centre.x-radius*outlineShrinkRatio, centre.y-radius*outlineShrinkRatio,w*outlineShrinkRatio, w*outlineShrinkRatio);
+    auto radius = (float) juce::jmin(w / 2, h / 2) - 4.0f;
+    auto centerX = (float) x + (float) w * 0.5f;
+    auto centerY = (float) y + (float) h * 0.5f;
+    auto rx = centerX - radius;
+    auto ry = centerY - radius;
+    auto rw = radius * 2.0f;
+    auto angle = startAngle + sliderPos * (endAngle - startAngle);
     
-    g.fillEllipse(ellipseBounds);
-
-    // --- Outline ---
+    auto outlineThickness = 2.0;
+    
+    //fill
+    g.setColour (juce::Colour(0xFF021526));
+    g.fillEllipse (rx, ry, rw, rw);
+    // outline
     g.setColour(juce::Colour(0xFFE2E2B6));
-    g.drawEllipse(ellipseBounds, 1);
-
-    // --- Background arc track ---
-    {
-        juce::Path track;
-        track.addCentredArc(centre.x, centre.y,
-                            radius * 0.75f, radius * 0.75f,
-                            0.0f,
-                            startAngle, endAngle,
-                            true);
-        g.setColour(juce::Colour(0xFF1A1A2A));
-        g.strokePath(track, juce::PathStrokeType(3.0f,
-                     juce::PathStrokeType::curved,
-                     juce::PathStrokeType::rounded));
-    }
-
-    // --- Filled arc (value) ---
-    {
-        juce::Path valueArc;
-        float currentAngle = startAngle
-                           + sliderPos * (endAngle - startAngle);
-
-        valueArc.addCentredArc(centre.x, centre.y,
-                               radius * 0.75f, radius * 0.75f,
-                               0.0f,
-                               startAngle, currentAngle,
-                               true);
-        g.setColour(juce::Colour(0xFF6B5FE0));   // your accent colour
-        g.strokePath(valueArc, juce::PathStrokeType(3.0f,
-                     juce::PathStrokeType::curved,
-                     juce::PathStrokeType::rounded));
-    }
-
-    // --- Dial indent (small circle at current position) ---
-    {
-        float angle = startAngle
-                    + sliderPos * (endAngle - startAngle);
-
-        // Place it on the arc radius
-        float indentRadius = radius * 0.75f;
-        float indentX = centre.x + indentRadius * std::sin(angle);
-        float indentY = centre.y - indentRadius * std::cos(angle);
-        float dotSize = 5.0f;
-
-        // Fill (matches background so it looks punched in)
-        g.setColour(juce::Colour(0xFF1A1A2A));
-        g.fillEllipse(indentX - dotSize * 0.5f,
-                      indentY - dotSize * 0.5f,
-                      dotSize, dotSize);
-
-        // Rim
-        g.setColour(juce::Colour(0xFF6B5FE0));
-        g.drawEllipse(indentX - dotSize * 0.5f,
-                      indentY - dotSize * 0.5f,
-                      dotSize, dotSize, 1.2f);
-    }
+    g.drawEllipse (rx, ry, rw, rw, outlineThickness);
+    
+    //Pointer
+    juce::Path p;
+    auto pointerLength = radius * 0.5f;
+    auto pointerThickness = 4.0f;
+    p.addRectangle(-pointerThickness * 0.5, -radius, pointerThickness, pointerLength);
+    p.applyTransform(juce::AffineTransform::rotation(angle).translated(centerX, centerY));
+    
+    g.fillPath(p);
 }
