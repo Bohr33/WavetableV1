@@ -158,37 +158,36 @@ void BWADSR::setParameters(ADSRParameters params)
     
 }
 
-void BWADSR::setParameter(Param param, float value)
-{
-    auto val = juce::jlimit(0.0f, 1.0f, value);
-    switch (param) {
-        case Param::AttackTime:
-            m_attack = val;
-            break;
-        case Param::DecayTime:
-            m_decay = val;
-            break;
-        case Param::SustainLevel:
-            m_sustain = val;
-            break;
-        case Param::ReleaseTime:
-            m_release = val;
-            break;
-        case Param::AttackCurve:
-            m_attackCurve = val;
-            break;
-        case Param::DecayCurve:
-            m_decayCurve = val;
-            break;
-        case Param::ReleaseCurve:
-            m_releaseCurve = val;
-            break;
-        default:
-            break;
-    }
-  
-    
-    
-};
+//void BWADSR::setParameter(Param param, float value)
+//{
+//    switch (param) {
+//        case Param::AttackTime:
+//            m_attack = val;
+//            break;
+//        case Param::DecayTime:
+//            m_decay = val;
+//            break;
+//        case Param::SustainLevel:
+//            m_sustain = val;
+//            break;
+//        case Param::ReleaseTime:
+//            m_release = val;
+//            break;
+//        case Param::AttackCurve:
+//            m_attackCurve = val;
+//            break;
+//        case Param::DecayCurve:
+//            m_decayCurve = val;
+//            break;
+//        case Param::ReleaseCurve:
+//            m_releaseCurve = val;
+//            break;
+//        default:
+//            break;
+//    }
+//
+//
+//
+//};
 
 

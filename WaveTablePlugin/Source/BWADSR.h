@@ -50,7 +50,7 @@ public:
     
     void setSampleRate(double sampleRate);
     void setParameters(ADSRParameters params);
-    void setParameter(Param param, float value);
+//    void setParameter(Param param, float value);
     
     
 private:
