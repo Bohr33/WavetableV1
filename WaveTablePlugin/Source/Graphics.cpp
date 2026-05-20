@@ -298,29 +298,37 @@ void ADSRDisplay::generateCurve(juce::Graphics& g)
     float y2 = boundsHeight - (maxHeight * sustainLevel);
     float y3 = boundsHeight - 0;
     
-    
-    juce::Path path;
-    
-    path.startNewSubPath(x0, y0);
-    path.lineTo(x1, y1);
-    path.lineTo(x2, y2);
-    path.lineTo(x3, y3);
-    
     g.setColour(curveColour);
     
-    g.strokePath(path, juce::PathStrokeType(lineThickness));
-    
-    
+    drawCurvedPath(g, x0, y0, x1, y1, m_params.attackCurve);
+    drawCurvedPath(g, x1, y1, x2, y2, m_params.decayCurve);
+    drawCurvedPath(g, x2, y2, x3, y3, m_params.releaseCurve);
+
 }
 
 
 void ADSRDisplay::drawCurvedPath(juce::Graphics &g, float x0, float y0, float x1, float y1, float curvature, int numPoints)
 {
     
+    juce::Path p;
+    
+    p.startNewSubPath(x0, y0);
+    
+    auto curveFactor = std::pow(10.0f, curvature);
+
+    for(int i = 0; i < numPoints; i++)
+    {
+        float t = (float)i / (float)numPoints;
+        float shaped = std::pow(t, curveFactor);
+        
+        float nextX = x0 + t * (x1 - x0);
+        float nextY = y0 + shaped * (y1 - y0);
+        
+        p.lineTo(nextX, nextY);
+    }
     
     
-    
-    
+    g.strokePath(p, juce::PathStrokeType(lineThickness, juce::PathStrokeType::curved, juce::PathStrokeType::rounded));
 }
 
 

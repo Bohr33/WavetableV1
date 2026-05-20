@@ -96,6 +96,18 @@ WaveTablePluginAudioProcessorEditor::WaveTablePluginAudioProcessorEditor (WaveTa
     s_envRelease.onValueChange = [this](){
         updateADSRDisplay();
     };
+    
+    s_attCurve.onValueChange = [this](){
+        updateADSRDisplay();
+    };
+    
+    s_decCurve.onValueChange = [this](){
+        updateADSRDisplay();
+    };
+    
+    s_relCurve.onValueChange = [this](){
+        updateADSRDisplay();
+    };
 
     
     //========Other GUI==============//
