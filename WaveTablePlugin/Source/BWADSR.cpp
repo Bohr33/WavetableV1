@@ -29,7 +29,7 @@ void BWADSR::noteOn()
 {
     //Initialize parameters and Update Stage
     stageProgress = 0.0f;
-    stageSamples = m_attack * m_sampleRate;
+    stageSamples = convertMsToSamples(m_attack);
     m_currentStage = Stage::Attack;
     m_attackStartLevel = m_currentLevel;
 }
@@ -37,7 +37,7 @@ void BWADSR::noteOn()
 void BWADSR::noteOff()
 {
     stageProgress = 0.0f;
-    stageSamples = m_release * m_sampleRate;
+    stageSamples = convertMsToSamples(m_release);
     m_currentStage = Stage::Release;
     m_releaseStartLevel = m_currentLevel;
 };
@@ -56,7 +56,7 @@ float BWADSR::getNextSample()
             {
                 m_currentStage = Stage::Decay;
                 stageProgress = 0.0f;
-                stageSamples = m_decay * m_sampleRate;
+                stageSamples = convertMsToSamples(m_decay);
             }
             break;
         case Stage::Decay:
@@ -104,7 +104,7 @@ float BWADSR::getNextCurveSample()
             {
                 m_currentStage = Stage::Decay;
                 stageProgress = 0.0f;
-                stageSamples = m_decay * m_sampleRate;
+                stageSamples = convertMsToSamples(m_decay);
             }
             break;
         case Stage::Decay:
@@ -189,5 +189,11 @@ void BWADSR::setParameters(ADSRParameters params)
 //
 //
 //};
+
+float BWADSR::convertMsToSamples(float milliseconds)
+{
+    
+    return (milliseconds/1000.0f)*m_sampleRate;
+}
 
 

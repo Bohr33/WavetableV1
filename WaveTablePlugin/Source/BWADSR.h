@@ -34,9 +34,6 @@ public:
         AttackCurve, DecayCurve, ReleaseCurve
     };
     
-
-    
-    
     BWADSR();
     ~BWADSR();
     
@@ -47,6 +44,8 @@ public:
     
     float getNextSample();
     float getNextCurveSample();
+    
+    float convertMsToSamples(float milliseconds);
     
     void setSampleRate(double sampleRate);
     void setParameters(ADSRParameters params);
@@ -70,6 +69,7 @@ private:
     float stageProgress = 0.0f;
     float stageSamples = 0.0f;
     
+    //* All Time Unit parameters are in milliseconds
     //Parameters
     float m_attack, m_decay, m_sustain, m_release;
     float m_attackCurve, m_decayCurve, m_releaseCurve;
