@@ -344,7 +344,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout WaveTablePluginAudioProcesso
     
     using namespace juce;
     
-    float skew = std::log(0.5) / std::log((1.0 - 0.1) / (10.0 - 0.1));
+//    float skew = std::log(0.5) / std::log((1.0 - 0.1) / (10.0 - 0.1));
     
     juce::NormalisableRange<float> attackRange = juce::NormalisableRange<float>(1.0f, 5000.0f, 1.0f, 0.25f);
     
@@ -359,9 +359,15 @@ juce::AudioProcessorValueTreeState::ParameterLayout WaveTablePluginAudioProcesso
         std::make_unique<AudioParameterFloat>(ParameterID {"env_decay", versionHint}, "Envelope Decay", decayRange, 200.0f),
         std::make_unique<AudioParameterFloat>(ParameterID {"env_sustain", versionHint}, "Envelope Sustain", 0.0f, 1.0f, 0.7f),
         std::make_unique<AudioParameterFloat>(ParameterID {"env_release", versionHint}, "Envelope Release", relRange, 300.0f),
-        std::make_unique<AudioParameterFloat>(ParameterID {"env_att_curve", versionHint}, "Attack Slope", juce::NormalisableRange<float>(0.1f, 10.0f, 0.01f, skew), 1.0f),
-        std::make_unique<AudioParameterFloat>(ParameterID {"env_dec_curve", versionHint}, "Decay Slope", juce::NormalisableRange<float>(0.1f, 10.0f, 0.01f, skew), 1.0f),
-        std::make_unique<AudioParameterFloat>(ParameterID {"env_rel_curve", versionHint}, "Release Slope", juce::NormalisableRange<float>(0.1f, 10.0f, 0.01f, skew), 1.0f)
+        std::make_unique<AudioParameterFloat>(ParameterID {"env_att_curve", versionHint}, "Attack Slope", -1.0, 1.0, 0.0f),
+        std::make_unique<AudioParameterFloat>(ParameterID {"env_dec_curve", versionHint}, "Decay Slope", -1.0, 1.0, 0.0f),
+        std::make_unique<AudioParameterFloat>(ParameterID {"env_rel_curve", versionHint}, "Release Slope", -1.0 ,1.0, 0.0f)
+        
+        //OLd Visually displayed raw value
+        
+//        std::make_unique<AudioParameterFloat>(ParameterID {"env_att_curve", versionHint}, "Attack Slope", juce::NormalisableRange<float>(-1.0f, 1.0f, 0.01f, skew), 1.0f),
+//        std::make_unique<AudioParameterFloat>(ParameterID {"env_dec_curve", versionHint}, "Decay Slope", juce::NormalisableRange<float>(0.1f, 10.0f, 0.01f, skew), 1.0f),
+//        std::make_unique<AudioParameterFloat>(ParameterID {"env_rel_curve", versionHint}, "Release Slope", juce::NormalisableRange<float>(0.1f, 10.0f, 0.01f, skew), 1.0f)
     };
 }
 

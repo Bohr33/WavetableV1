@@ -98,7 +98,7 @@ float BWADSR::getNextCurveSample()
         case Stage::Attack:
             stageProgress += (1.0f / stageSamples);
             
-            curveVal = std::pow(stageProgress, m_attackCurve);
+            curveVal = std::pow(stageProgress, getCurveExponent(m_attackCurve));
             m_currentLevel = m_attackStartLevel + curveVal * (1.0f - m_attackStartLevel);
             if (stageProgress >= 1.0f)
             {
@@ -109,7 +109,7 @@ float BWADSR::getNextCurveSample()
             break;
         case Stage::Decay:
             stageProgress += 1.0f / stageSamples;
-            curveVal = 1.0 - (std::pow(stageProgress, m_decayCurve) * (1.0 - m_sustain));
+            curveVal = 1.0 - (std::pow(stageProgress, getCurveExponent(m_decayCurve)) * (1.0 - m_sustain));
             m_currentLevel = curveVal;
             if(stageProgress >= 1.0f)
             {
@@ -123,7 +123,7 @@ float BWADSR::getNextCurveSample()
         case Stage::Release:
             stageProgress += 1.0 / stageSamples;
             
-            curveVal = m_releaseStartLevel * (1.0f - std::pow(stageProgress, m_releaseCurve));
+            curveVal = m_releaseStartLevel * (1.0f - std::pow(stageProgress, getCurveExponent(m_releaseCurve)));
             m_currentLevel = curveVal;
             
             if(stageProgress >= 1.0f)
@@ -194,6 +194,11 @@ float BWADSR::convertMsToSamples(float milliseconds)
 {
     
     return (milliseconds/1000.0f)*m_sampleRate;
+}
+
+float BWADSR::getCurveExponent(float curvature)
+{
+    return std::pow(10.0f, curvature);
 }
 
 

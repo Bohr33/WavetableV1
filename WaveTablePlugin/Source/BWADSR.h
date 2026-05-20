@@ -46,6 +46,7 @@ public:
     float getNextCurveSample();
     
     float convertMsToSamples(float milliseconds);
+    float getCurveExponent(float curvature);
     
     void setSampleRate(double sampleRate);
     void setParameters(ADSRParameters params);
@@ -72,8 +73,6 @@ private:
     //* All Time Unit parameters are in milliseconds
     //Parameters
     float m_attack, m_decay, m_sustain, m_release;
+    
     float m_attackCurve, m_decayCurve, m_releaseCurve;
-    
-    
-    
 };

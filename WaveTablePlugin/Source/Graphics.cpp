@@ -257,11 +257,6 @@ void ADSRDisplay::paint(juce::Graphics &g)
 
 void ADSRDisplay::setParameters(ADSRParameters params)
 {
-    attackTime = params.attackTime;
-    decayTime = params.decayTime;
-    sustainLevel = params.sustainLevel;
-    relTime = params.releaseTime;
-    
     m_params = params;
     
     repaint();
@@ -270,12 +265,17 @@ void ADSRDisplay::setParameters(ADSRParameters params)
 
 void ADSRDisplay::generateCurve(juce::Graphics& g)
 {
-    
     auto bounds = getLocalBounds().toFloat();
     float boundsWidth = bounds.getWidth();
     float boundsHeight = bounds.getHeight();
     
     float maxHeight = boundsHeight * lineToCeilingRatio;
+    
+    
+    float attackTime = m_params.attackTime;
+    float decayTime = m_params.decayTime;
+    float sustainLevel = m_params.sustainLevel;
+    float relTime = m_params.releaseTime;
     
     
     float totalTime = attackTime + decayTime + relTime;
@@ -309,6 +309,16 @@ void ADSRDisplay::generateCurve(juce::Graphics& g)
     g.setColour(curveColour);
     
     g.strokePath(path, juce::PathStrokeType(lineThickness));
+    
+    
+}
+
+
+void ADSRDisplay::drawCurvedPath(juce::Graphics &g, float x0, float y0, float x1, float y1, float curvature, int numPoints)
+{
+    
+    
+    
     
     
 }

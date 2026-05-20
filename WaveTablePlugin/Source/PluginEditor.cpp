@@ -262,7 +262,9 @@ void WaveTablePluginAudioProcessorEditor::resized()
     
     // Begin Bounds Definitions
     auto mainWindowBounds = getLocalBounds();
+    
     auto bottomThirdBounds = mainWindowBounds.removeFromBottom(keyHeight);
+    
     
     auto middleBounds = mainWindowBounds.removeFromBottom(sliderHeight + padding * 2);
     
@@ -272,9 +274,10 @@ void WaveTablePluginAudioProcessorEditor::resized()
     auto leftQuarterBounds = mainWindowBounds.removeFromLeft(quarterWidth);
     auto rightQuarterBounds = mainWindowBounds.removeFromRight(quarterWidth);
     
-    
     auto leftMiddle = middleBounds.removeFromLeft(quarterWidth);
     auto rightMiddle = middleBounds.removeFromRight(quarterWidth);
+    
+    auto bottomRightQuarter = bottomThirdBounds.removeFromRight(quarterWidth);
     
     //----------Set Display & Combo Box Bounds------------///
 //    m_interpDisplay.setBounds(mainWindowBounds);
@@ -289,8 +292,7 @@ void WaveTablePluginAudioProcessorEditor::resized()
     m_displayTwo.setBounds(rightTopBounds);
     waveBankTwo.setBounds(rightQuarterBounds);
     
-    auto miscComboBounds = rightQuarterBounds;
-    miscComboBounds.translate(0, combo_height*2*2);
+    auto miscComboBounds = bottomRightQuarter;
     waveTableSelect.setBounds(miscComboBounds);
     
     

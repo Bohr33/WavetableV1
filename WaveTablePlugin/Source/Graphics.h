@@ -94,6 +94,8 @@ public:
     
     void setParameters(ADSRParameters params);
     
+    void drawCurvedPath(juce::Graphics& g, float x0, float y0, float x1, float y1, float curvature, int numPoints = 64);
+    
     
     void paint(juce::Graphics& g) override;
     
@@ -102,8 +104,6 @@ private:
     
     juce::Colour backgroundColour = juce::Colours::black;
     juce::Colour curveColour = juce::Colours::white;
-    
-    float attackTime, decayTime, sustainLevel, relTime;
     
     ADSRParameters m_params;
     
