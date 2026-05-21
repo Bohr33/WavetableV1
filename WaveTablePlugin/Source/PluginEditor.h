@@ -96,6 +96,13 @@ private:
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> relCurveAttachment;
     
     
+    juce::Slider s_cutoff;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> cutoffAttachment;
+    
+    juce::Slider s_resonance;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> resonanceAttachment;
+    
+    
     //Wavetable Import Button
     std::unique_ptr<juce::FileChooser> chooser;
     juce::TextButton load_table_btn;

@@ -129,6 +129,9 @@ private:
     //Basic Wavetable Bank - Deprecated
     std::vector<const std::vector<float>> basicWavetableBank;
     
+    //Filter and Other DSP
+//    juce::dsp::StateVariableFilter<float> filter;
+    juce::dsp::StateVariableTPTFilter<float> filter;
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (WaveTablePluginAudioProcessor)
 };

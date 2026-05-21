@@ -105,7 +105,17 @@ void WaveTablePluginAudioProcessor::prepareToPlay (double sampleRate, int sample
     
     m_waveManager.updateSampleRate(sampleRate);
     m_waveManager.prepareToPlay();
-
+    
+    
+    //Filter
+    juce::dsp::ProcessSpec spec;
+    spec.sampleRate = sampleRate;
+    spec.maximumBlockSize = samplesPerBlock;
+    spec.numChannels = getTotalNumOutputChannels();
+    
+    filter.prepare(spec);
+    filter.setType(juce::dsp::StateVariableTPTFilter<float>::Type::lowpass);
+    
     //initialize members for synth, including the sound and all voices
     synth.setCurrentPlaybackSampleRate(sampleRate);
     synth.clearSounds();
@@ -184,6 +194,18 @@ void WaveTablePluginAudioProcessor::processBlock (juce::AudioBuffer<float>& buff
     combinedMidi.addEvents(screenKeyBuffer, 0, numSamples, 0);
     
     synth.renderNextBlock(buffer, combinedMidi, 0, numSamples);
+    
+    //Filter
+    
+    float cutoff = *apvts.getRawParameterValue("filter_cutoff");
+    float resonance = *apvts.getRawParameterValue("filter_resonance");
+    
+    filter.setCutoffFrequency(cutoff);
+    filter.setResonance(resonance);
+    
+    juce::dsp::AudioBlock<float> block(buffer);
+    juce::dsp::ProcessContextReplacing<float> context(block);
+    filter.process(context);
     
     midiCollector.removeNextBlockOfMessages(screenKeyBuffer, numSamples);
 }
@@ -361,13 +383,9 @@ juce::AudioProcessorValueTreeState::ParameterLayout WaveTablePluginAudioProcesso
         std::make_unique<AudioParameterFloat>(ParameterID {"env_release", versionHint}, "Envelope Release", relRange, 300.0f),
         std::make_unique<AudioParameterFloat>(ParameterID {"env_att_curve", versionHint}, "Attack Slope", -1.0, 1.0, 0.0f),
         std::make_unique<AudioParameterFloat>(ParameterID {"env_dec_curve", versionHint}, "Decay Slope", -1.0, 1.0, 0.0f),
-        std::make_unique<AudioParameterFloat>(ParameterID {"env_rel_curve", versionHint}, "Release Slope", -1.0 ,1.0, 0.0f)
-        
-        //OLd Visually displayed raw value
-        
-//        std::make_unique<AudioParameterFloat>(ParameterID {"env_att_curve", versionHint}, "Attack Slope", juce::NormalisableRange<float>(-1.0f, 1.0f, 0.01f, skew), 1.0f),
-//        std::make_unique<AudioParameterFloat>(ParameterID {"env_dec_curve", versionHint}, "Decay Slope", juce::NormalisableRange<float>(0.1f, 10.0f, 0.01f, skew), 1.0f),
-//        std::make_unique<AudioParameterFloat>(ParameterID {"env_rel_curve", versionHint}, "Release Slope", juce::NormalisableRange<float>(0.1f, 10.0f, 0.01f, skew), 1.0f)
+        std::make_unique<AudioParameterFloat>(ParameterID {"env_rel_curve", versionHint}, "Release Slope", -1.0 ,1.0, 0.0f),
+        std::make_unique<AudioParameterFloat>(ParameterID {"filter_cutoff", versionHint}, "Filter Cutoff", juce::NormalisableRange<float>(20.0f, 20000.f, 0.1f, 0.25f), 1000.f),
+        std::make_unique<AudioParameterFloat>(ParameterID {"filter_resonance", versionHint}, "Filter Resonance", juce::NormalisableRange<float>(0.1, 4.0f, 0.01f), 0.7f)
     };
 }
 

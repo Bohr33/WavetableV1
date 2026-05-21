@@ -79,6 +79,19 @@ WaveTablePluginAudioProcessorEditor::WaveTablePluginAudioProcessorEditor (WaveTa
     addAndMakeVisible(s_relCurve);
     s_relCurve.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 80, 20);
     
+    
+    //Filter Sliders
+    s_cutoff.setSliderStyle(juce::Slider::RotaryVerticalDrag);
+    cutoffAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(p.apvts, "filter_cutoff", s_cutoff);
+    addAndMakeVisible(s_cutoff);
+    s_cutoff.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 80, 20);
+    
+    
+    s_resonance.setSliderStyle(juce::Slider::RotaryVerticalDrag);
+    resonanceAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(p.apvts, "filter_resonance", s_resonance);
+    addAndMakeVisible(s_resonance);
+    s_resonance.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 80, 20);
+    
     //ADSR GUI Slider Calls
     
     s_envAttack.onValueChange = [this](){
@@ -276,11 +289,9 @@ void WaveTablePluginAudioProcessorEditor::resized()
     auto mainWindowBounds = getLocalBounds();
     
     auto bottomThirdBounds = mainWindowBounds.removeFromBottom(keyHeight);
-    
-    
+
     auto middleBounds = mainWindowBounds.removeFromBottom(sliderHeight + padding * 2);
-    
-    
+        
     auto quarterWidth = mainWindowBounds.getWidth()/4.0;
     
     auto leftQuarterBounds = mainWindowBounds.removeFromLeft(quarterWidth);
@@ -289,6 +300,7 @@ void WaveTablePluginAudioProcessorEditor::resized()
     auto leftMiddle = middleBounds.removeFromLeft(quarterWidth);
     auto rightMiddle = middleBounds.removeFromRight(quarterWidth);
     
+    auto bottomLeftQuarter = bottomThirdBounds.removeFromLeft(quarterWidth);
     auto bottomRightQuarter = bottomThirdBounds.removeFromRight(quarterWidth);
     
     //----------Set Display & Combo Box Bounds------------///
@@ -304,6 +316,7 @@ void WaveTablePluginAudioProcessorEditor::resized()
     m_displayTwo.setBounds(rightTopBounds);
     waveBankTwo.setBounds(rightQuarterBounds);
     
+
     auto miscComboBounds = bottomRightQuarter;
     waveTableSelect.setBounds(miscComboBounds);
     
@@ -311,25 +324,42 @@ void WaveTablePluginAudioProcessorEditor::resized()
     //--- ADSR Display ----------
     
     //ADSR Sliders
-    juce::FlexBox adsrSliderFb;
+    juce::FlexBox fb_adsrSliders;
     
-    adsrSliderFb.flexDirection = juce::FlexBox::Direction::row;
+    fb_adsrSliders.flexDirection = juce::FlexBox::Direction::row;
     
-    adsrSliderFb.justifyContent = juce::FlexBox::JustifyContent::spaceAround;
-    adsrSliderFb.items.add(juce::FlexItem(s_envAttack).withFlex(1));
-    adsrSliderFb.items.add(juce::FlexItem(s_envDecay).withFlex(1));
-    adsrSliderFb.items.add(juce::FlexItem(s_envSustain).withFlex(1));
-    adsrSliderFb.items.add(juce::FlexItem(s_envRelease).withFlex(1));
+    fb_adsrSliders.justifyContent = juce::FlexBox::JustifyContent::spaceAround;
+    fb_adsrSliders.items.add(juce::FlexItem(s_envAttack).withFlex(1));
+    fb_adsrSliders.items.add(juce::FlexItem(s_envDecay).withFlex(1));
+    fb_adsrSliders.items.add(juce::FlexItem(s_envSustain).withFlex(1));
+    fb_adsrSliders.items.add(juce::FlexItem(s_envRelease).withFlex(1));
     
     
     auto middleSlidersBounds = middleBounds.removeFromBottom(middleBounds.getHeight()/3.0f);
     
-    adsrSliderFb.performLayout (middleSlidersBounds);
+    fb_adsrSliders.performLayout (middleSlidersBounds);
     m_envelopeDisplay.setBounds(middleBounds);
         
     s_attCurve.setBounds(rightMiddle.removeFromLeft(verticalSliderWidth));
     s_decCurve.setBounds(rightMiddle.removeFromLeft(verticalSliderWidth));
     s_relCurve.setBounds(rightMiddle.removeFromLeft(verticalSliderWidth));
+    
+    
+    //Filter Sliders
+    int filterSliderHeight = 60;
+    
+    juce::FlexBox fb_sliders;
+    fb_sliders.flexDirection = juce::FlexBox::Direction::row;
+    fb_sliders.justifyContent = juce::FlexBox::JustifyContent::spaceAround;
+    fb_sliders.alignItems = juce::FlexBox::AlignItems::flexStart;
+    
+    fb_sliders.items.add(juce::FlexItem(s_cutoff).withFlex(1).withHeight(filterSliderHeight));
+    fb_sliders.items.add(juce::FlexItem(s_resonance).withFlex(1).withHeight(filterSliderHeight));
+    fb_sliders.performLayout(bottomLeftQuarter);
+    
+    
+    
+    
     
     
     
