@@ -196,6 +196,14 @@ void WaveTablePluginAudioProcessor::processBlock (juce::AudioBuffer<float>& buff
     synth.renderNextBlock(buffer, combinedMidi, 0, numSamples);
     
     //Filter
+    auto filterChoice = static_cast<int>(*apvts.getRawParameterValue("filterType"));
+    
+    if(filterChoice != lastFilterChoice)
+    {
+        setFilterType(filterChoice);
+        lastFilterChoice = filterChoice;
+    }
+    
     
     float cutoff = *apvts.getRawParameterValue("filter_cutoff");
     float resonance = *apvts.getRawParameterValue("filter_resonance");
@@ -314,6 +322,27 @@ const std::vector<float>& WaveTablePluginAudioProcessor::getFrameForDisplay(int 
 
 
 
+void WaveTablePluginAudioProcessor::setFilterType(int typeID)
+{
+    
+    switch (typeID) {
+        case 0:
+            filter.setType(juce::dsp::StateVariableTPTFilterType::lowpass);
+            break;
+        case 1:
+            filter.setType(juce::dsp::StateVariableTPTFilterType::bandpass);
+            break;
+        case 2:
+            filter.setType(juce::dsp::StateVariableTPTFilterType::highpass);
+            break;
+        default:
+            filter.setType(juce::dsp::StateVariableTPTFilterType::lowpass);
+            break;
+    }
+}
+
+
+
 
 
 
@@ -385,7 +414,8 @@ juce::AudioProcessorValueTreeState::ParameterLayout WaveTablePluginAudioProcesso
         std::make_unique<AudioParameterFloat>(ParameterID {"env_dec_curve", versionHint}, "Decay Slope", -1.0, 1.0, 0.0f),
         std::make_unique<AudioParameterFloat>(ParameterID {"env_rel_curve", versionHint}, "Release Slope", -1.0 ,1.0, 0.0f),
         std::make_unique<AudioParameterFloat>(ParameterID {"filter_cutoff", versionHint}, "Filter Cutoff", juce::NormalisableRange<float>(20.0f, 20000.f, 0.1f, 0.25f), 1000.f),
-        std::make_unique<AudioParameterFloat>(ParameterID {"filter_resonance", versionHint}, "Filter Resonance", juce::NormalisableRange<float>(0.1, 4.0f, 0.01f), 0.7f)
+        std::make_unique<AudioParameterFloat>(ParameterID {"filter_resonance", versionHint}, "Filter Resonance", juce::NormalisableRange<float>(0.1, 4.0f, 0.01f), 0.7f),
+        std::make_unique<AudioParameterChoice>(ParameterID {"filterType", versionHint}, "Filter Type", juce::StringArray {"Low Pass", "Band Pass", "High Pass"}, 0)
     };
 }
 

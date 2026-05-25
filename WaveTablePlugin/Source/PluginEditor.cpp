@@ -19,6 +19,9 @@ WaveTablePluginAudioProcessorEditor::WaveTablePluginAudioProcessorEditor (WaveTa
 //    addAndMakeVisible(keyboardComponent);
     keyboardState.addListener(this);
     
+    audioProcessor.apvts.addParameterListener("filterType", this);
+    
+    
     juce::LookAndFeel::setDefaultLookAndFeel(&laf);
     
     //============Sliders==========//
@@ -80,7 +83,7 @@ WaveTablePluginAudioProcessorEditor::WaveTablePluginAudioProcessorEditor (WaveTa
     s_relCurve.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 80, 20);
     
     
-    //Filter Sliders
+    //Filter Elements
     s_cutoff.setSliderStyle(juce::Slider::RotaryVerticalDrag);
     cutoffAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(p.apvts, "filter_cutoff", s_cutoff);
     addAndMakeVisible(s_cutoff);
@@ -91,6 +94,35 @@ WaveTablePluginAudioProcessorEditor::WaveTablePluginAudioProcessorEditor (WaveTa
     resonanceAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(p.apvts, "filter_resonance", s_resonance);
     addAndMakeVisible(s_resonance);
     s_resonance.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 80, 20);
+    
+    lowPassBtn.setName("Lowpass");
+    lowPassBtn.setRadioGroupId(0);
+    addAndMakeVisible(lowPassBtn);
+    
+    bandPassBtn.setName("Bandpass");
+    bandPassBtn.setRadioGroupId(0);
+    addAndMakeVisible(bandPassBtn);
+    
+    highPassBtn.setName("Highpass");
+    highPassBtn.setRadioGroupId(0);
+    addAndMakeVisible(highPassBtn);
+    
+    lowPassBtn.onClick = [&]()
+    {
+        audioProcessor.apvts.getParameter("filterType")->setValueNotifyingHost(audioProcessor.apvts.getParameter("filterType")->convertTo0to1(0.0f));
+    };
+    
+    bandPassBtn.onClick = [&]()
+    {
+        audioProcessor.apvts.getParameter("filterType")->setValueNotifyingHost(audioProcessor.apvts.getParameter("filterType")->convertTo0to1(1.0f));
+    };
+    
+    highPassBtn.onClick = [&]()
+    {
+        audioProcessor.apvts.getParameter("filterType")->setValueNotifyingHost(audioProcessor.apvts.getParameter("filterType")->convertTo0to1(2.0f));
+    };
+    
+    
     
     //ADSR GUI Slider Calls
     
@@ -214,21 +246,12 @@ WaveTablePluginAudioProcessorEditor::WaveTablePluginAudioProcessorEditor (WaveTa
     //Set wavetable for Main interpolating display
     auto defaultWavetableOne = audioProcessor.getWavetableForDisplay(0);
     
-    for(int i = 0; i < 50; i++)
-    {
-        juce::Logger::writeToLog("Val = " + juce::String(defaultWavetableOne[0][i]));
-    }
-
-//    m_interpDisplay.setTable(defaultTableOne);
-//    m_interpDisplay.setTableTwo(defaultTableTwo);
-    
     m_interpWaveDisplay.setWavetable(defaultWavetableOne);
 
     
     m_displayOne.setTable(defaultTableOne);
     m_displayTwo.setTable(defaultTableTwo);
     
-//    m_interpDisplay.setColours(juce::Colours::rebeccapurple);
     m_interpWaveDisplay.setColours(juce::Colours::black);
     m_displayOne.setColours(juce::Colours::gold);
     m_displayTwo.setColours(juce::Colours::peru);
@@ -239,6 +262,7 @@ WaveTablePluginAudioProcessorEditor::~WaveTablePluginAudioProcessorEditor()
     keyboardState.removeListener(this);
     //Must Clean up look and feel after using custom
     juce::LookAndFeel::setDefaultLookAndFeel(nullptr);
+    audioProcessor.apvts.removeParameterListener("filterType", this);
 }
 
 //==============================================================================
@@ -345,7 +369,7 @@ void WaveTablePluginAudioProcessorEditor::resized()
     s_relCurve.setBounds(rightMiddle.removeFromLeft(verticalSliderWidth));
     
     
-    //Filter Sliders
+    //Filter Elements
     int filterSliderHeight = 60;
     
     juce::FlexBox fb_sliders;
@@ -356,6 +380,25 @@ void WaveTablePluginAudioProcessorEditor::resized()
     fb_sliders.items.add(juce::FlexItem(s_cutoff).withFlex(1).withHeight(filterSliderHeight));
     fb_sliders.items.add(juce::FlexItem(s_resonance).withFlex(1).withHeight(filterSliderHeight));
     fb_sliders.performLayout(bottomLeftQuarter);
+    
+    
+//    auto buttonsBounds = bottomLeftQuarter.removeFromBottom(50);
+    auto buttonsBounds = bottomThirdBounds;
+    
+    juce::FlexBox fb_fbtns;
+    fb_fbtns.flexDirection = juce::FlexBox::Direction::row;
+    fb_fbtns.justifyContent = juce::FlexBox::JustifyContent::spaceAround;
+    fb_fbtns.alignItems = juce::FlexBox::AlignItems::flexStart;
+    
+    fb_fbtns.items.add(juce::FlexItem(lowPassBtn).withHeight(50.0f).withFlex(1));
+    fb_fbtns.items.add(juce::FlexItem(bandPassBtn).withHeight(50.0f).withFlex(1));
+    fb_fbtns.items.add(juce::FlexItem(highPassBtn).withHeight(50.0f).withFlex(1));
+    
+    fb_fbtns.performLayout(buttonsBounds);
+    
+    
+    
+    
     
     
     
@@ -449,5 +492,19 @@ void WaveTablePluginAudioProcessorEditor::handleNoteOn(juce::MidiKeyboardState* 
 void WaveTablePluginAudioProcessorEditor::handleNoteOff(juce::MidiKeyboardState* state, int midiChannel, int midiNoteNumber, float velocity)
 {
     
+}
+
+void WaveTablePluginAudioProcessorEditor::parameterChanged(const juce::String &paramID, float newValue)
+{
+    if (paramID == "filterType")
+        {
+            juce::MessageManager::callAsync([this, newValue]()
+            {
+                int choice = static_cast<int>(newValue);
+                lowPassBtn.setToggleState(choice == 0, juce::dontSendNotification);
+                bandPassBtn.setToggleState(choice == 1, juce::dontSendNotification);
+                highPassBtn.setToggleState(choice == 2, juce::dontSendNotification);
+            });
+        }
 }
 

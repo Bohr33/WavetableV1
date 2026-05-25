@@ -17,6 +17,7 @@
 /**
 */
 class WaveTablePluginAudioProcessorEditor  : public juce::AudioProcessorEditor,
+        juce::AudioProcessorValueTreeState::Listener,
 private juce::MidiKeyboardState::Listener
 {
 public:
@@ -30,6 +31,10 @@ public:
     //==============================================================================
     void paint (juce::Graphics&) override;
     void resized() override;
+    
+    //APVTS Listener/Callback Overide
+    void parameterChanged(const juce::String& paramID, float newValue) override;
+    
     
 //    void selectNewWaveform(int tableId, int waveformId);
     
@@ -96,12 +101,21 @@ private:
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> relCurveAttachment;
     
     
+    //Filter Elements
+    
     juce::Slider s_cutoff;
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> cutoffAttachment;
     
     juce::Slider s_resonance;
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> resonanceAttachment;
     
+    juce::TextButton lowPassBtn;
+    juce::TextButton bandPassBtn;
+    juce::TextButton highPassBtn;
+    
+//    juce::DrawableButton lowPassBtn;
+//    juce::DrawableButton bandPassBtn;
+//    juce::DrawableButton highPassBtn;
     
     //Wavetable Import Button
     std::unique_ptr<juce::FileChooser> chooser;

@@ -74,6 +74,8 @@ public:
     const std::vector<std::vector<float>>& getWavetableForDisplay(int wavetableID);
     const std::vector<float>& getFrameForDisplay(int wavetableID, int frameID);
     
+    void setFilterType(int typeID);
+    
     
     void parseBinaryWavetableData();
     
@@ -132,6 +134,11 @@ private:
     //Filter and Other DSP
 //    juce::dsp::StateVariableFilter<float> filter;
     juce::dsp::StateVariableTPTFilter<float> filter;
+    juce::dsp::LadderFilter<float> m_ladderFilter;
+    
+    int lastFilterChoice = 0;
+    
+    
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (WaveTablePluginAudioProcessor)
 };
